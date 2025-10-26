@@ -1,0 +1,79 @@
+.service-card {
+  background: var(--color-background, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.service-card__header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.service-card__category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.service-card__category--repair {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.service-card__category--setup {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.service-card__category--recovery {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.service-card__category--consultation {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.service-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text, #1e293b);
+  margin: 0 0 0.75rem 0;
+}
+
+.service-card__description {
+  color: var(--color-secondary, #64748b);
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+  flex-grow: 1;
+}
+
+.service-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.service-card__price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary, #2563eb);
+}

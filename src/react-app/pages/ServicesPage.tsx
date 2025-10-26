@@ -1,0 +1,239 @@
+import { CSSProperties } from 'react';
+import { ServiceList } from '../components/services/ServiceList';
+
+export default function ServicesPage() {
+
+  return (
+    <>
+        {/* Breadcrumbs */}
+        <div style={breadcrumbsContainerStyle}>
+          <nav style={breadcrumbsStyle}>
+            <a href="/" style={breadcrumbLinkStyle}>Главная</a>
+            <span style={breadcrumbSeparatorStyle}>/</span>
+            <span style={breadcrumbCurrentStyle}>Услуги</span>
+          </nav>
+        </div>
+
+        {/* Заголовок страницы */}
+        <section style={headerSectionStyle}>
+          <div style={containerStyle}>
+            <h1 style={pageTitleStyle}>Наши услуги</h1>
+            <p style={pageSubtitleStyle}>
+              Профессиональные услуги по ремонту и обслуживанию компьютерной техники
+            </p>
+          </div>
+        </section>
+
+
+        {/* Список услуг */}
+        <section style={servicesSectionStyle}>
+          <div style={containerStyle}>
+            <ServiceList />
+          </div>
+        </section>
+
+        {/* Призыв к действию */}
+        <section style={ctaSectionStyle}>
+          <div style={ctaContainerStyle}>
+            <h2 style={ctaTitleStyle}>Не нашли нужную услугу?</h2>
+            <p style={ctaTextStyle}>
+              Свяжитесь с нами, и мы поможем решить вашу проблему
+            </p>
+            <div style={ctaButtonsStyle}>
+              <button
+                onClick={() => window.location.href = '/tickets'}
+                style={ctaButtonStyle}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#1d4ed8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                }}
+              >
+                Оставить заявку
+              </button>
+              <button
+                onClick={() => window.location.href = '/contacts'}
+                style={ctaButtonSecondaryStyle}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#475569';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#64748b';
+                }}
+              >
+                Связаться с нами
+              </button>
+            </div>
+          </div>
+        </section>
+    </>
+  );
+}
+
+// Стили
+const containerStyle: CSSProperties = {
+  maxWidth: '1280px',
+  margin: '0 auto',
+  padding: '0 1rem',
+};
+
+const breadcrumbsContainerStyle: CSSProperties = {
+  backgroundColor: '#ffffff',
+  borderBottom: '1px solid #e2e8f0',
+};
+
+const breadcrumbsStyle: CSSProperties = {
+  maxWidth: '1280px',
+  margin: '0 auto',
+  padding: '0.75rem 1rem',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  fontSize: '0.875rem',
+};
+
+const breadcrumbLinkStyle: CSSProperties = {
+  color: '#2563eb',
+  textDecoration: 'none',
+  transition: 'color 0.2s',
+};
+
+const breadcrumbSeparatorStyle: CSSProperties = {
+  color: '#94a3b8',
+};
+
+const breadcrumbCurrentStyle: CSSProperties = {
+  color: '#64748b',
+};
+
+const headerSectionStyle: CSSProperties = {
+  backgroundColor: '#ffffff',
+  padding: '3rem 0',
+  borderBottom: '1px solid #e2e8f0',
+};
+
+const pageTitleStyle: CSSProperties = {
+  fontSize: '2.5rem',
+  fontWeight: 'bold',
+  color: '#1e293b',
+  marginBottom: '1rem',
+  textAlign: 'center',
+};
+
+const pageSubtitleStyle: CSSProperties = {
+  fontSize: '1.125rem',
+  color: '#64748b',
+  textAlign: 'center',
+  maxWidth: '600px',
+  margin: '0 auto',
+  lineHeight: '1.6',
+};
+
+const filterSectionStyle: CSSProperties = {
+  backgroundColor: '#ffffff',
+  padding: '1.5rem 0',
+  borderBottom: '1px solid #e2e8f0',
+  position: 'sticky',
+  top: '73px',
+  zIndex: 100,
+};
+
+const filterWrapperStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '1rem',
+  flexWrap: 'wrap',
+};
+
+const filterLabelStyle: CSSProperties = {
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  color: '#1e293b',
+};
+
+const filterButtonsStyle: CSSProperties = {
+  display: 'flex',
+  gap: '0.75rem',
+  flexWrap: 'wrap',
+};
+
+const filterButtonStyle: CSSProperties = {
+  padding: '0.5rem 1rem',
+  fontSize: '0.875rem',
+  fontWeight: 500,
+  border: '1px solid #e2e8f0',
+  borderRadius: '0.375rem',
+  backgroundColor: '#ffffff',
+  color: '#64748b',
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+  outline: 'none',
+};
+
+const activeFilterButtonStyle: CSSProperties = {
+  backgroundColor: '#2563eb',
+  color: '#ffffff',
+  borderColor: '#2563eb',
+};
+
+const servicesSectionStyle: CSSProperties = {
+  padding: '3rem 0',
+};
+
+const ctaSectionStyle: CSSProperties = {
+  backgroundColor: '#f1f5f9',
+  padding: '4rem 1rem',
+  marginTop: '2rem',
+};
+
+const ctaContainerStyle: CSSProperties = {
+  maxWidth: '800px',
+  margin: '0 auto',
+  textAlign: 'center',
+};
+
+const ctaTitleStyle: CSSProperties = {
+  fontSize: '2rem',
+  fontWeight: 'bold',
+  color: '#1e293b',
+  marginBottom: '1rem',
+};
+
+const ctaTextStyle: CSSProperties = {
+  fontSize: '1.125rem',
+  color: '#64748b',
+  marginBottom: '2rem',
+  lineHeight: '1.6',
+};
+
+const ctaButtonsStyle: CSSProperties = {
+  display: 'flex',
+  gap: '1rem',
+  justifyContent: 'center',
+  flexWrap: 'wrap',
+};
+
+const ctaButtonStyle: CSSProperties = {
+  padding: '0.75rem 1.5rem',
+  fontSize: '1rem',
+  fontWeight: 500,
+  backgroundColor: '#2563eb',
+  color: '#ffffff',
+  border: 'none',
+  borderRadius: '0.375rem',
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+};
+
+const ctaButtonSecondaryStyle: CSSProperties = {
+  padding: '0.75rem 1.5rem',
+  fontSize: '1rem',
+  fontWeight: 500,
+  backgroundColor: '#64748b',
+  color: '#ffffff',
+  border: 'none',
+  borderRadius: '0.375rem',
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+};

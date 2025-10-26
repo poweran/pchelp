@@ -1,65 +1,35 @@
-// src/App.tsx
-
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import cloudflareLogo from "./assets/Cloudflare_Logo.svg";
-import honoLogo from "./assets/hono.svg";
+import Header from "./components/common/Header";
+import Footer from "./components/common/Footer";
+import { Router } from "./components/common/Router";
+import HomePage from "./pages/HomePage";
+import ServicesPage from "./pages/ServicesPage";
+import TicketsPage from "./pages/TicketsPage";
+import KnowledgePage from "./pages/KnowledgePage";
+import PricingPage from "./pages/PricingPage";
+import ContactsPage from "./pages/ContactsPage";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [name, setName] = useState("unknown");
+  // Конфигурация маршрутов
+  const routes = {
+    '/': () => <HomePage />,
+    '/services': () => <ServicesPage />,
+    '/tickets': () => <TicketsPage />,
+    '/knowledge': () => <KnowledgePage />,
+    '/pricing': () => <PricingPage />,
+    '/contacts': () => <ContactsPage />,
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-        <a href="https://hono.dev/" target="_blank">
-          <img src={honoLogo} className="logo cloudflare" alt="Hono logo" />
-        </a>
-        <a href="https://workers.cloudflare.com/" target="_blank">
-          <img
-            src={cloudflareLogo}
-            className="logo cloudflare"
-            alt="Cloudflare logo"
-          />
-        </a>
-      </div>
-      <h1>Vite + React + Hono + Cloudflare</h1>
-      <div className="card">
-        <button
-          onClick={() => setCount((count) => count + 1)}
-          aria-label="increment"
-        >
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <div className="card">
-        <button
-          onClick={() => {
-            fetch("/api/")
-              .then((res) => res.json() as Promise<{ name: string }>)
-              .then((data) => setName(data.name));
-          }}
-          aria-label="get name"
-        >
-          Name from API is: {name}
-        </button>
-        <p>
-          Edit <code>worker/index.ts</code> to change the name
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the logos to learn more</p>
-    </>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Header />
+      
+      <main style={{ flex: 1, maxWidth: '1280px', margin: '0 auto', padding: '2rem 1rem', width: '100%' }}>
+        <Router routes={routes} />
+      </main>
+
+      <Footer />
+    </div>
   );
 }
 
