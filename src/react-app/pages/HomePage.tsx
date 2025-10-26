@@ -1,4 +1,4 @@
-import { useState, FormEvent, CSSProperties } from 'react';
+import { useState, FormEvent, CSSProperties, useCallback, memo } from 'react';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
@@ -10,7 +10,7 @@ interface QuickFormData {
   description: string;
 }
 
-export default function HomePage() {
+const HomePage = memo(function HomePage() {
   const [formData, setFormData] = useState<QuickFormData>({
     name: '',
     phone: '',
@@ -19,7 +19,7 @@ export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleQuickSubmit = async (e: FormEvent) => {
+  const handleQuickSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -28,10 +28,10 @@ export default function HomePage() {
       setIsSubmitting(false);
       setShowSuccess(true);
       setFormData({ name: '', phone: '', description: '' });
-      
+
       setTimeout(() => setShowSuccess(false), 5000);
     }, 1000);
-  };
+  }, []);
 
   return (
     <>
@@ -42,16 +42,17 @@ export default function HomePage() {
               Профессиональная компьютерная помощь
             </h1>
             <p style={heroSubtitleStyle}>
-              Ремонт, настройка и обслуживание компьютеров и ноутбуков. 
+              Ремонт, настройка и обслуживание компьютеров и ноутбуков.
               Быстро, качественно, с гарантией.
             </p>
             <div style={heroButtonsStyle}>
-              <Button onClick={() => window.location.href = '/services'}>
+              <Button onClick={() => window.location.href = '/services'} aria-label="Перейти к странице услуг">
                 Наши услуги
               </Button>
-              <Button 
+              <Button
                 variant="secondary"
                 onClick={() => document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' })}
+                aria-label="Прокрутить страницу к форме заявки"
               >
                 Оставить заявку
               </Button>
@@ -60,12 +61,12 @@ export default function HomePage() {
         </section>
 
         {/* Преимущества */}
-        <section style={advantagesStyle}>
-          <h2 style={sectionTitleStyle}>Почему выбирают нас</h2>
-          <div style={advantagesGridStyle}>
-            <Card>
+        <section style={advantagesStyle} aria-labelledby="advantages-title">
+          <h2 id="advantages-title" style={sectionTitleStyle}>Почему выбирают нас</h2>
+          <div style={advantagesGridStyle} role="list">
+            <Card role="listitem">
               <div style={advantageCardStyle}>
-                <span style={advantageIconStyle}>⚡</span>
+                <span style={advantageIconStyle} aria-hidden="true">⚡</span>
                 <h3 style={advantageTitleStyle}>Быстрый отклик</h3>
                 <p style={advantageTextStyle}>
                   Выезд мастера в течение 2 часов. Срочный ремонт за 24 часа.
@@ -73,9 +74,9 @@ export default function HomePage() {
               </div>
             </Card>
 
-            <Card>
+            <Card role="listitem">
               <div style={advantageCardStyle}>
-                <span style={advantageIconStyle}>🎓</span>
+                <span style={advantageIconStyle} aria-hidden="true">🎓</span>
                 <h3 style={advantageTitleStyle}>Профессионализм</h3>
                 <p style={advantageTextStyle}>
                   Сертифицированные специалисты с опытом работы более 10 лет.
@@ -83,9 +84,9 @@ export default function HomePage() {
               </div>
             </Card>
 
-            <Card>
+            <Card role="listitem">
               <div style={advantageCardStyle}>
-                <span style={advantageIconStyle}>💰</span>
+                <span style={advantageIconStyle} aria-hidden="true">💰</span>
                 <h3 style={advantageTitleStyle}>Честные цены</h3>
                 <p style={advantageTextStyle}>
                   Прозрачное ценообразование. Бесплатная диагностика на месте.
@@ -93,9 +94,9 @@ export default function HomePage() {
               </div>
             </Card>
 
-            <Card>
+            <Card role="listitem">
               <div style={advantageCardStyle}>
-                <span style={advantageIconStyle}>✅</span>
+                <span style={advantageIconStyle} aria-hidden="true">✅</span>
                 <h3 style={advantageTitleStyle}>Гарантия качества</h3>
                 <p style={advantageTextStyle}>
                   Гарантия на все виды работ до 6 месяцев. Качество проверено временем.
@@ -106,9 +107,9 @@ export default function HomePage() {
         </section>
 
         {/* Быстрая форма заявки */}
-        <section id="quick-form" style={quickFormSectionStyle}>
+        <section id="quick-form" style={quickFormSectionStyle} aria-labelledby="contact-form-title">
           <div style={quickFormContainerStyle}>
-            <h2 style={sectionTitleStyle}>Оставьте заявку</h2>
+            <h2 id="contact-form-title" style={sectionTitleStyle}>Оставьте заявку</h2>
             <p style={quickFormSubtitleStyle}>
               Заполните форму, и мы свяжемся с вами в ближайшее время
             </p>
@@ -150,7 +151,7 @@ export default function HomePage() {
                 rows={4}
               />
 
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
                 {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
               </Button>
             </form>
@@ -162,34 +163,37 @@ export default function HomePage() {
         </section>
 
         {/* Контактная информация */}
-        <section style={contactInfoStyle}>
-          <div style={contactGridStyle}>
-            <div style={contactItemStyle}>
-              <span style={contactIconStyle}>📞</span>
+        <section style={contactInfoStyle} aria-labelledby="contact-info-title">
+          <h2 id="contact-info-title" style={{ ...sectionTitleStyle, position: 'absolute', left: '-9999px' }}>
+            Контактная информация
+          </h2>
+          <div style={contactGridStyle} role="list">
+            <div style={contactItemStyle} role="listitem">
+              <span style={contactIconStyle} aria-hidden="true">📞</span>
               <div>
                 <h3 style={contactTitleStyle}>Телефон</h3>
                 <p style={contactTextStyle}>+7 (XXX) XXX-XX-XX</p>
               </div>
             </div>
 
-            <div style={contactItemStyle}>
-              <span style={contactIconStyle}>📧</span>
+            <div style={contactItemStyle} role="listitem">
+              <span style={contactIconStyle} aria-hidden="true">📧</span>
               <div>
                 <h3 style={contactTitleStyle}>Email</h3>
                 <p style={contactTextStyle}>info@pchelp.example</p>
               </div>
             </div>
 
-            <div style={contactItemStyle}>
-              <span style={contactIconStyle}>📍</span>
+            <div style={contactItemStyle} role="listitem">
+              <span style={contactIconStyle} aria-hidden="true">📍</span>
               <div>
                 <h3 style={contactTitleStyle}>Адрес</h3>
                 <p style={contactTextStyle}>г. Москва, ул. Примерная, д. 1</p>
               </div>
             </div>
 
-            <div style={contactItemStyle}>
-              <span style={contactIconStyle}>🕐</span>
+            <div style={contactItemStyle} role="listitem">
+              <span style={contactIconStyle} aria-hidden="true">🕐</span>
               <div>
                 <h3 style={contactTitleStyle}>Режим работы</h3>
                 <p style={contactTextStyle}>Пн-Пт: 9:00-18:00<br />Сб-Вс: 10:00-16:00</p>
@@ -199,7 +203,11 @@ export default function HomePage() {
         </section>
     </>
   );
-}
+});
+
+HomePage.displayName = 'HomePage';
+
+export default HomePage;
 
 // Стили
 const heroStyle: CSSProperties = {

@@ -106,7 +106,7 @@ export function useTickets() {
 /**
  * Custom hook для работы с конкретной заявкой
  */
-export function useTicket(id: string | null) {
+export function useTicket(_id: string | null) {
   const [state, setState] = useState<UseTicketState>({
     ticket: null,
     loading: false,

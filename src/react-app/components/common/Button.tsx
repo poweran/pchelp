@@ -1,93 +1,59 @@
-import { CSSProperties, ReactNode } from 'react';
+import { ReactNode, memo, useCallback } from 'react';
+import styles from './Button.module.css';
 
 interface ButtonProps {
   children: ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+  size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
+  loading?: boolean;
+  fullWidth?: boolean;
+  iconOnly?: boolean;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
 }
 
-export default function Button({
+const Button = memo<ButtonProps>(function Button({
   children,
   onClick,
   variant = 'primary',
+  size = 'medium',
   disabled = false,
+  loading = false,
+  fullWidth = false,
+  iconOnly = false,
   type = 'button',
   className = '',
-}: ButtonProps) {
-  const baseStyle: CSSProperties = {
-    padding: '0.625rem 1.25rem',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    borderRadius: '0.375rem',
-    border: 'none',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'all 0.2s',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    opacity: disabled ? 0.6 : 1,
-    ...getVariantStyles(variant),
-  };
+}) {
+  const handleClick = useCallback(() => {
+    if (onClick && !disabled && !loading) {
+      onClick();
+    }
+  }, [onClick, disabled, loading]);
+  const buttonClasses = [
+    styles.button,
+    styles[`button${variant.charAt(0).toUpperCase() + variant.slice(1)}`],
+    styles[`button${size.charAt(0).toUpperCase() + size.slice(1)}`],
+    fullWidth && styles.buttonFull,
+    iconOnly && styles.buttonIcon,
+    loading && styles.buttonLoading,
+    className,
+  ].filter(Boolean).join(' ');
 
   return (
     <button
       type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={`button ${className}`}
-      style={baseStyle}
-      onMouseEnter={(e) => {
-        if (!disabled) {
-          Object.assign(e.currentTarget.style, getHoverStyles(variant));
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!disabled) {
-          Object.assign(e.currentTarget.style, getVariantStyles(variant));
-        }
-      }}
+      onClick={handleClick}
+      disabled={disabled || loading}
+      className={buttonClasses}
+      aria-label={loading ? 'Загрузка...' : undefined}
     >
       {children}
     </button>
   );
-}
+});
 
-function getVariantStyles(variant: 'primary' | 'secondary' | 'danger'): CSSProperties {
-  switch (variant) {
-    case 'primary':
-      return {
-        backgroundColor: '#2563eb',
-        color: '#ffffff',
-      };
-    case 'secondary':
-      return {
-        backgroundColor: '#64748b',
-        color: '#ffffff',
-      };
-    case 'danger':
-      return {
-        backgroundColor: '#ef4444',
-        color: '#ffffff',
-      };
-  }
-}
+Button.displayName = 'Button';
 
-function getHoverStyles(variant: 'primary' | 'secondary' | 'danger'): CSSProperties {
-  switch (variant) {
-    case 'primary':
-      return {
-        backgroundColor: '#1d4ed8',
-      };
-    case 'secondary':
-      return {
-        backgroundColor: '#475569',
-      };
-    case 'danger':
-      return {
-        backgroundColor: '#dc2626',
-      };
-  }
-}
+export default Button;

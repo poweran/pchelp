@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Service, ServiceCategory } from '../../types';
+import type { ServiceCategory } from '../../types';
 import { useServices } from '../../hooks/useServices';
 import { ServiceCard } from './ServiceCard';
 import './ServiceList.css';

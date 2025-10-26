@@ -21,7 +21,21 @@ export async function apiRequest<T>(
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+
+      // Пытаемся получить дополнительную информацию об ошибке из тела ответа
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData && errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (parseError) {
+        // Игнорируем ошибки парсинга тела ответа
+      }
+
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -35,6 +49,12 @@ export async function apiRequest<T>(
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error('API Request Error:', message);
+
+    // Дополнительное логирование для отладки
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Full error details:', error);
+    }
+
     return { error: message };
   }
 }

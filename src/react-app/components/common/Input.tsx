@@ -1,4 +1,4 @@
-import { CSSProperties, ChangeEvent } from 'react';
+import { CSSProperties, ChangeEvent, memo, useCallback } from 'react';
 
 interface InputProps {
   label?: string;
@@ -13,7 +13,7 @@ interface InputProps {
   name?: string;
 }
 
-export default function Input({
+const Input = memo<InputProps>(function Input({
   label,
   type = 'text',
   value,
@@ -24,10 +24,10 @@ export default function Input({
   disabled = false,
   className = '',
   name,
-}: InputProps) {
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+}) {
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
-  };
+  }, [onChange]);
 
   return (
     <div className={`input-wrapper ${className}`} style={wrapperStyle}>
@@ -62,11 +62,17 @@ export default function Input({
             e.currentTarget.style.outline = 'none';
           }
         }}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
       />
-      {error && <span style={errorTextStyle}>{error}</span>}
+      {error && <span id={`${name}-error`} style={errorTextStyle}>{error}</span>}
     </div>
   );
-}
+});
+
+Input.displayName = 'Input';
+
+export default Input;
 
 const wrapperStyle: CSSProperties = {
   display: 'flex',

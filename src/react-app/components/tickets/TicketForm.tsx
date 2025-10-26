@@ -250,6 +250,7 @@ export default function TicketForm() {
         type="submit"
         variant="primary"
         disabled={loading}
+        loading={loading}
       >
         {loading ? 'Отправка...' : 'Отправить заявку'}
       </Button>

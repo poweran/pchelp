@@ -130,52 +130,6 @@ const pageSubtitleStyle: CSSProperties = {
   lineHeight: '1.6',
 };
 
-const filterSectionStyle: CSSProperties = {
-  backgroundColor: '#ffffff',
-  padding: '1.5rem 0',
-  borderBottom: '1px solid #e2e8f0',
-  position: 'sticky',
-  top: '73px',
-  zIndex: 100,
-};
-
-const filterWrapperStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1rem',
-  flexWrap: 'wrap',
-};
-
-const filterLabelStyle: CSSProperties = {
-  fontSize: '0.95rem',
-  fontWeight: 600,
-  color: '#1e293b',
-};
-
-const filterButtonsStyle: CSSProperties = {
-  display: 'flex',
-  gap: '0.75rem',
-  flexWrap: 'wrap',
-};
-
-const filterButtonStyle: CSSProperties = {
-  padding: '0.5rem 1rem',
-  fontSize: '0.875rem',
-  fontWeight: 500,
-  border: '1px solid #e2e8f0',
-  borderRadius: '0.375rem',
-  backgroundColor: '#ffffff',
-  color: '#64748b',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  outline: 'none',
-};
-
-const activeFilterButtonStyle: CSSProperties = {
-  backgroundColor: '#2563eb',
-  color: '#ffffff',
-  borderColor: '#2563eb',
-};
 
 const servicesSectionStyle: CSSProperties = {
   padding: '3rem 0',

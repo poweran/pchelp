@@ -1,4 +1,4 @@
-import { CSSProperties, ChangeEvent } from 'react';
+import { CSSProperties, ChangeEvent, memo, useCallback } from 'react';
 
 interface TextareaProps {
   label?: string;
@@ -13,7 +13,7 @@ interface TextareaProps {
   rows?: number;
 }
 
-export default function Textarea({
+const Textarea = memo<TextareaProps>(function Textarea({
   label,
   value,
   onChange,
@@ -24,10 +24,10 @@ export default function Textarea({
   className = '',
   name,
   rows = 4,
-}: TextareaProps) {
-  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+}) {
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
-  };
+  }, [onChange]);
 
   return (
     <div className={`textarea-wrapper ${className}`} style={wrapperStyle}>
@@ -62,11 +62,17 @@ export default function Textarea({
             e.currentTarget.style.outline = 'none';
           }
         }}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
       />
-      {error && <span style={errorTextStyle}>{error}</span>}
+      {error && <span id={`${name}-error`} style={errorTextStyle}>{error}</span>}
     </div>
   );
-}
+});
+
+Textarea.displayName = 'Textarea';
+
+export default Textarea;
 
 const wrapperStyle: CSSProperties = {
   display: 'flex',

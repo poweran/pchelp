@@ -1,0 +1,374 @@
+/* PriceTable.module.css */
+.priceTable {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.priceTable:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.priceTablePopular {
+  border-color: var(--color-primary);
+  position: relative;
+  transform: scale(1.05);
+}
+
+.priceTablePopular::before {
+  content: 'Популярный';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
+.priceTablePopular:hover {
+  box-shadow: 0 0 0 2px rgb(37 99 235 / 0.2), var(--shadow-lg);
+}
+
+.priceTableHeader {
+  padding: var(--spacing-xl);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.priceTablePopular .priceTableHeader {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.priceTableTitle {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+}
+
+.priceTableSubtitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  line-height: var(--line-height-normal);
+}
+
+.priceTableContent {
+  padding: var(--spacing-xl);
+  flex: 1;
+}
+
+.priceTablePrice {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.priceTablePriceAmount {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.priceTablePriceValue {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+.priceTablePriceCurrency {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--color-secondary);
+}
+
+.priceTablePricePeriod {
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  font-weight: 400;
+}
+
+.priceTablePriceNote {
+  font-size: var(--font-size-xs);
+  color: var(--color-secondary);
+  font-style: italic;
+}
+
+.priceTableFeatures {
+  margin-bottom: var(--spacing-xl);
+}
+
+.priceTableFeaturesTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.priceTableFeaturesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.priceTableFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.priceTableFeatureIcon {
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.priceTableFeatureIncluded {
+  color: var(--color-success);
+  font-weight: 500;
+}
+
+.priceTableFeatureExcluded {
+  color: var(--color-secondary);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.priceTableFooter {
+  padding: var(--spacing-xl);
+  border-top: 1px solid var(--color-border);
+  background-color: #f8fafc;
+  margin-top: auto;
+}
+
+.priceTableActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* States */
+.priceTableDisabled {
+  opacity: 0.6;
+  pointer-events: none;
+  transform: none;
+}
+
+.priceTableLoading {
+  position: relative;
+}
+
+.priceTableLoading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 100;
+}
+
+.priceTableLoading .priceTableContent {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Grid layout */
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+/* Compact variant */
+.priceTableCompact {
+  border-radius: var(--border-radius-md);
+}
+
+.priceTableCompact .priceTableHeader,
+.priceTableCompact .priceTableContent,
+.priceTableCompact .priceTableFooter {
+  padding: var(--spacing-md);
+}
+
+.priceTableCompact .priceTableTitle {
+  font-size: var(--font-size-lg);
+}
+
+.priceTableCompact .priceTablePriceValue {
+  font-size: var(--font-size-3xl);
+}
+
+.priceTableCompact .priceTableFeatures {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Annual discount badge */
+.priceTableDiscount {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background-color: var(--color-success);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 15;
+}
+
+/* Comparison mode */
+.priceTableComparison {
+  border-radius: 0;
+  border-right: none;
+}
+
+.priceTableComparison:last-child {
+  border-right: 1px solid var(--color-border);
+}
+
+.priceTableComparison .priceTableHeader {
+  border-radius: 0;
+}
+
+.pricingComparisonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+  .pricingGrid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .pricingGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .priceTablePopular {
+    transform: none;
+  }
+
+  .priceTableHeader {
+    padding: var(--spacing-lg);
+  }
+
+  .priceTableContent {
+    padding: var(--spacing-lg);
+  }
+
+  .priceTableFooter {
+    padding: var(--spacing-lg);
+  }
+
+  .priceTableTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .priceTablePriceValue {
+    font-size: var(--font-size-3xl);
+  }
+
+  .priceTableSubtitle {
+    font-size: var(--font-size-xs);
+  }
+
+  .priceTableCompact .priceTableHeader,
+  .priceTableCompact .priceTableContent,
+  .priceTableCompact .priceTableFooter {
+    padding: var(--spacing-sm);
+  }
+
+  .pricingComparisonGrid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-radius: var(--border-radius-md);
+  }
+
+  .priceTableComparison {
+    border-right: 1px solid var(--color-border);
+    border-bottom: none;
+  }
+
+  .priceTableComparison:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 639px) {
+  .pricingGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .priceTableHeader {
+    padding: var(--spacing-md);
+  }
+
+  .priceTableContent {
+    padding: var(--spacing-md);
+  }
+
+  .priceTableFooter {
+    padding: var(--spacing-md);
+  }
+
+  .priceTableTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .priceTablePriceValue {
+    font-size: var(--font-size-2xl);
+  }
+
+  .priceTableSubtitle {
+    font-size: var(--font-size-xs);
+  }
+
+  .priceTableActions {
+    gap: var(--spacing-sm);
+  }
+}

@@ -43,14 +43,6 @@ interface KnowledgeItem {
   type: KnowledgeType;
 }
 
-interface TicketFormData {
-  clientName: string;
-  phone: string;
-  email: string;
-  serviceType: string;
-  description: string;
-  priority: TicketPriority;
-}
 
 const app = new Hono<{ Bindings: Env }>();
 

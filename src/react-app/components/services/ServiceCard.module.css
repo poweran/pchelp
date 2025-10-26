@@ -1,0 +1,306 @@
+/* ServiceCard.module.css */
+.serviceCard {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.serviceCard:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.serviceCardHeader {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%);
+  color: white;
+  text-align: center;
+}
+
+.serviceIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--spacing-md) auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-xl);
+  background-color: rgba(255, 255, 255, 0.2);
+  font-size: var(--font-size-2xl);
+}
+
+.serviceTitle {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+}
+
+.serviceContent {
+  padding: var(--spacing-lg);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.serviceDescription {
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-text);
+  line-height: var(--line-height-relaxed);
+  flex: 1;
+}
+
+.serviceFeatures {
+  margin-bottom: var(--spacing-lg);
+}
+
+.serviceFeaturesTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.serviceFeaturesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.serviceFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.serviceFeatureIcon {
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.serviceFooter {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  background-color: #f8fafc;
+  margin-top: auto;
+}
+
+.servicePricing {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+}
+
+.servicePrice {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: var(--line-height-tight);
+}
+
+.servicePriceCurrency {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-secondary);
+}
+
+.servicePricePeriod {
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  font-weight: 400;
+}
+
+.serviceActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-direction: column;
+}
+
+/* Variants */
+.serviceCardPopular {
+  border-color: var(--color-primary);
+  position: relative;
+}
+
+.serviceCardPopular::before {
+  content: 'Популярный';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
+.serviceCardPopular .serviceCard {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgb(37 99 235 / 0.2);
+}
+
+.serviceCardPopular:hover {
+  box-shadow: 0 0 0 2px rgb(37 99 235 / 0.3), var(--shadow-lg);
+}
+
+.serviceCardCompact {
+  border-radius: var(--border-radius-md);
+}
+
+.serviceCardCompact .serviceCardHeader,
+.serviceCardCompact .serviceContent,
+.serviceCardCompact .serviceFooter {
+  padding: var(--spacing-md);
+}
+
+.serviceCardCompact .serviceIcon {
+  width: 48px;
+  height: 48px;
+  font-size: var(--font-size-xl);
+}
+
+.serviceCardCompact .serviceTitle {
+  font-size: var(--font-size-lg);
+}
+
+.serviceCardCompact .servicePrice {
+  font-size: var(--font-size-xl);
+}
+
+/* States */
+.serviceCardDisabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.serviceCardLoading {
+  position: relative;
+}
+
+.serviceCardLoading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 100;
+}
+
+.serviceCardLoading .serviceContent {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Grid layout */
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.servicesGridCompact {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .servicesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .serviceCardHeader {
+    padding: var(--spacing-md);
+  }
+
+  .serviceIcon {
+    width: 48px;
+    height: 48px;
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .serviceTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .serviceContent {
+    padding: var(--spacing-md);
+  }
+
+  .serviceDescription {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .serviceFooter {
+    padding: var(--spacing-md);
+  }
+
+  .servicePrice {
+    font-size: var(--font-size-xl);
+  }
+
+  .serviceActions {
+    gap: var(--spacing-xs);
+  }
+}
+
+@media (max-width: 639px) {
+  .servicesGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .serviceCardCompact .serviceCardHeader,
+  .serviceCardCompact .serviceContent,
+  .serviceCardCompact .serviceFooter {
+    padding: var(--spacing-sm);
+  }
+
+  .serviceCardCompact .serviceIcon {
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-lg);
+  }
+
+  .serviceCardCompact .serviceTitle {
+    font-size: var(--font-size-base);
+  }
+
+  .servicePricing {
+    justify-content: center;
+  }
+
+  .serviceActions {
+    flex-direction: column;
+  }
+}

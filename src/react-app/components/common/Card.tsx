@@ -1,24 +1,31 @@
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties, ReactNode, memo, useCallback } from 'react';
 
 interface CardProps {
   children: ReactNode;
   className?: string;
   onClick?: () => void;
   style?: CSSProperties;
+  role?: string;
 }
 
-export default function Card({ 
-  children, 
-  className = '', 
+const Card = memo<CardProps>(function Card({
+  children,
+  className = '',
   onClick,
   style: customStyle = {},
-}: CardProps) {
+  role,
+}) {
+  const handleClick = useCallback(() => {
+    if (onClick) {
+      onClick();
+    }
+  }, [onClick]);
   const isClickable = !!onClick;
 
   return (
     <div
       className={`card ${className}`}
-      onClick={onClick}
+      onClick={handleClick}
       style={{
         ...cardStyle,
         ...(isClickable ? clickableCardStyle : {}),
@@ -35,11 +42,23 @@ export default function Card({
           e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)';
         }
       }}
+      role={role || (isClickable ? 'button' : 'article')}
+      tabIndex={isClickable ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       {children}
     </div>
   );
-}
+});
+
+Card.displayName = 'Card';
+
+export default Card;
 
 const cardStyle: CSSProperties = {
   backgroundColor: '#ffffff',
