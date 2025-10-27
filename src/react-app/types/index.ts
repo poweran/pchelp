@@ -51,8 +51,31 @@ export interface PriceItem {
   id: string;
   service: string;
   price: number;
+  minPrice?: number;
+  maxPrice?: number;
   category: string;
   unit: string;
+}
+
+// Расширенный тип для прайс-листа с переводами
+export interface PriceItemWithTranslations {
+  id: string;
+  service: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  price: number;
+  category: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  unit: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
 }
 
 // Типы для API ответов

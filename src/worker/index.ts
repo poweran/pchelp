@@ -30,13 +30,17 @@ interface PriceItem {
     en: string;
     hy: string;
   };
-  price: number;
+  price: number | string;
   category: {
     ru: string;
     en: string;
     hy: string;
   };
-  unit: string;
+  unit: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
 }
 
 interface Ticket {
@@ -95,7 +99,7 @@ const services: Service[] = [
       en: 'Professional laptop repair of any complexity. Diagnostics, component replacement, dust cleaning.',
       hy: 'Պրոֆեսիոնալ նոութբուքների վերանորոգում ցանկացած բարդության. Ախտորոշում, բաղադրիչների փոխարինում, փոշու մաքրում:'
     },
-    price: 2500,
+    price: 1500,
     category: 'repair'
   },
   {
@@ -110,7 +114,7 @@ const services: Service[] = [
       en: 'Desktop computer repair. Component replacement, upgrading, cooling system cleaning.',
       hy: 'Աշխատասեղանի համակարգիչների վերանորոգում. Բաղադրիչների փոխարինում, արդիականացում, սառեցման համակարգի մաքրում:'
     },
-    price: 2000,
+    price: 18000,
     category: 'repair'
   },
   {
@@ -125,7 +129,7 @@ const services: Service[] = [
       en: 'Installation and configuration of Windows operating system. Driver installation, system optimization.',
       hy: 'Windows օպերացիոն համակարգի տեղադրում և կարգավորում. Դրայվերների տեղադրում, համակարգի օպտիմալացում:'
     },
-    price: 1500,
+    price: 12000,
     category: 'setup'
   },
   {
@@ -140,7 +144,7 @@ const services: Service[] = [
       en: 'Home or office network setup. Router configuration, Wi-Fi, local network.',
       hy: 'Տան կամ գրասենյակային ցանցի կարգավորում. Ռոутերի կարգավորում, Wi-Fi, տեղական ցանց:'
     },
-    price: 1800,
+    price: 15000,
     category: 'setup'
   },
   {
@@ -155,7 +159,7 @@ const services: Service[] = [
       en: 'Recovery of lost data from hard drives, flash drives, memory cards.',
       hy: 'Կորած տվյալների վերականգնում կոշտ սկավառակներից, ֆլեշ-դրայվերներից, հիշողության քարտերից:'
     },
-    price: 3500,
+    price: 27000,
     category: 'recovery'
   },
   {
@@ -170,7 +174,7 @@ const services: Service[] = [
       en: 'Comprehensive system cleaning from viruses and malware. Antivirus installation.',
       hy: 'Համակարգի համալիր մաքրում վիրուսներից և վնասակար ծրագրերից. Հականիշային ծրագրի տեղադրում:'
     },
-    price: 1200,
+    price: 10800,
     category: 'recovery'
   },
   {
@@ -185,7 +189,7 @@ const services: Service[] = [
       en: 'Help in selecting components for assembling a computer for your tasks and budget.',
       hy: 'Օգնություն համակարգիչ հավաքելու համար բաղադրիչների ընտրության մեջ ձեր առաջադրանքների և բյուջեի համար:'
     },
-    price: 800,
+    price: 480,
     category: 'consultation'
   },
   {
@@ -200,8 +204,113 @@ const services: Service[] = [
       en: 'Consultation on any issues related to computer hardware and software.',
       hy: 'Խորհրդատվություն համակարգչային տեխնիկայի և ծրագրային ապահովման հետ կապված ցանկացած հարցերով:'
     },
-    price: 1000,
+    price: 15000,
     category: 'consultation'
+  },
+  {
+    id: 'srv-9',
+    title: {
+      ru: 'Установка и настройка программ',
+      en: 'Software installation and setup',
+      hy: 'Ծրագրերի տեղադրում և կարգավորում'
+    },
+    description: {
+      ru: 'Установка и полная настройка необходимого программного обеспечения, включая Office, антивирусы, драйверы.',
+      en: 'Installation and complete setup of required software, including Office, antivirus, drivers.',
+      hy: 'Անհրաժեշտ ծրագրային ապահովման տեղադրում և ամբողջական կարգավորում, ներառյալ Office, հականիշային ծրագրեր, դրայվերներ:'
+    },
+    price: 12000,
+    category: 'setup'
+  },
+  {
+    id: 'srv-10',
+    title: {
+      ru: 'Настройка интернет-соединения',
+      en: 'Internet connection setup',
+      hy: 'Ինտերնետ կապի կարգավորում'
+    },
+    description: {
+      ru: 'Настройка роутера, VPN, беспроводных сетей, устранение проблем с интернет-соединением.',
+      en: 'Router setup, VPN, wireless networks, troubleshooting internet connection issues.',
+      hy: 'Ռոутերի կարգավորում, VPN, անլար ցանցեր, ինտերնետ կապի խնդիրների վերացում:'
+    },
+    price: 12000,
+    category: 'setup'
+  },
+  {
+    id: 'srv-11',
+    title: {
+      ru: 'Ремонт материнских плат',
+      en: 'Motherboard repair',
+      hy: 'Մայրական տախտակների վերանորոգում'
+    },
+    description: {
+      ru: 'Диагностика и ремонт материнских плат, замена разъемов, восстановление печатных проводников.',
+      en: 'Motherboard diagnostics and repair, connector replacement, printed circuit restoration.',
+      hy: 'Մայրական տախտակների ախտորոշում և վերանորոգում, միակցիչների փոխարինում, տպագիր միացումների վերականգնում:'
+    },
+    price: 24000,
+    category: 'repair'
+  },
+  {
+    id: 'srv-12',
+    title: {
+      ru: 'Восстановление после вирусной атаки',
+      en: 'Recovery after virus attack',
+      hy: 'Վիրուսային հարձակումից հետո վերականգնում'
+    },
+    description: {
+      ru: 'Полное восстановление системы после вирусной атаки, удаление руткитов, восстановление данных.',
+      en: 'Complete system recovery after virus attack, rootkit removal, data recovery.',
+      hy: 'Վիրուսային հարձակումից հետո համակարգի ամբողջական վերականգնում, rootkit-ների հեռացում, տվյալների վերականգնում:'
+    },
+    price: 15000,
+    category: 'recovery'
+  },
+  {
+    id: 'srv-13',
+    title: {
+      ru: 'Установка операционных систем',
+      en: 'Operating system installation',
+      hy: 'Օպերացիոն համակարգերի տեղադրում'
+    },
+    description: {
+      ru: 'Установка и настройка Windows, Linux, macOS. Перенос данных, оптимизация системы.',
+      en: 'Installation and setup of Windows, Linux, macOS. Data migration, system optimization.',
+      hy: 'Windows, Linux, macOS տեղադրում և կարգավորում. Տվյալների փոխանցում, համակարգի օպտիմալացում:'
+    },
+    price: 10800,
+    category: 'setup'
+  },
+  {
+    id: 'srv-14',
+    title: {
+      ru: 'Консультация по выбору компьютера',
+      en: 'Computer selection consultation',
+      hy: 'Համակարգչի ընտրության խորհրդատվություն'
+    },
+    description: {
+      ru: 'Помощь в выборе комплектующих для нового компьютера с учетом бюджета и требований.',
+      en: 'Help in selecting components for a new computer considering budget and requirements.',
+      hy: 'Օգնություն նոր համակարգչի համար բաղադրիչների ընտրության մեջ բյուջեի և պահանջների հաշվարկով:'
+    },
+    price: 6000,
+    category: 'consultation'
+  },
+  {
+    id: 'srv-15',
+    title: {
+      ru: 'Выезд на дом',
+      en: 'Home visit service',
+      hy: 'Տուն այցելություն'
+    },
+    description: {
+      ru: 'Выезд мастера на дом или в офис для диагностики и ремонта компьютерной техники.',
+      en: 'Master visit to home or office for computer equipment diagnostics and repair.',
+      hy: 'Մասնագետի այցելություն տուն կամ գրասենյակ համակարգչային տեխնիկայի ախտորոշման և վերանորոգման համար:'
+    },
+    price: 6000,
+    category: 'repair'
   }
 ];
 
@@ -214,13 +323,17 @@ const pricing: PriceItem[] = [
       en: 'Computer diagnostics',
       hy: 'Համակարգչի ախտորոշում'
     },
-    price: 500,
+    price: 8000,
     category: {
       ru: 'Диагностика',
       en: 'Diagnostics',
       hy: 'Ախտորոշում'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-2',
@@ -229,28 +342,36 @@ const pricing: PriceItem[] = [
       en: 'Laptop dust cleaning',
       hy: 'Նոութբուքի փոշու մաքրում'
     },
-    price: 1200,
+    price: 12000,
     category: {
       ru: 'Профилактика',
       en: 'Maintenance',
-      hy: 'Պահակալում'
+      hy: 'Մեյնթենենս'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-3',
     service: {
       ru: 'Замена термопасты',
       en: 'Thermal paste replacement',
-      hy: 'Թերմինային մածուկի փոխարինում'
+      hy: 'Թերմալ փաստի ռեպլեյս'
     },
-    price: 800,
+    price: 8000,
     category: {
       ru: 'Профилактика',
       en: 'Maintenance',
-      hy: 'Պահակալում'
+      hy: 'Մեյնթենենս'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-4',
@@ -259,13 +380,17 @@ const pricing: PriceItem[] = [
       en: 'Windows installation',
       hy: 'Windows տեղադրում'
     },
-    price: 1000,
+    price: 10000,
     category: {
       ru: 'Установка ПО',
       en: 'Software Installation',
       hy: 'Տեղադրում ծրագրերի'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-5',
@@ -274,13 +399,17 @@ const pricing: PriceItem[] = [
       en: 'Driver installation',
       hy: 'Դրայվերների տեղադրում'
     },
-    price: 500,
+    price: 5000,
     category: {
       ru: 'Установка ПО',
       en: 'Software Installation',
       hy: 'Տեղադրում ծրագրերի'
     },
-    unit: 'комплект'
+    unit: {
+      ru: 'комплект',
+      en: 'set',
+      hy: 'հավաքածու'
+    }
   },
   {
     id: 'price-6',
@@ -289,28 +418,36 @@ const pricing: PriceItem[] = [
       en: 'Office suite installation',
       hy: 'Գրասենյակային փաթեթի տեղադրում'
     },
-    price: 600,
+    price: 8000,
     category: {
       ru: 'Установка ПО',
       en: 'Software Installation',
       hy: 'Տեղադրում ծրագրերի'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-7',
     service: {
       ru: 'Настройка роутера',
       en: 'Router setup',
-      hy: 'Ռոутերի կարգավորում'
+      hy: 'Ռաութերի սեթափ'
     },
-    price: 1000,
+    price: 8000,
     category: {
       ru: 'Настройка сети',
       en: 'Network Setup',
       hy: 'Ցանցի կարգավորում'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-8',
@@ -319,13 +456,17 @@ const pricing: PriceItem[] = [
       en: 'Network cable laying',
       hy: 'Ցանցային մալուխի տեղադրում'
     },
-    price: 150,
+    price: 1500,
     category: {
       ru: 'Настройка сети',
       en: 'Network Setup',
       hy: 'Ցանցի կարգավորում'
     },
-    unit: 'м'
+    unit: {
+      ru: 'м',
+      en: 'm',
+      hy: 'մ'
+    }
   },
   {
     id: 'price-9',
@@ -334,13 +475,17 @@ const pricing: PriceItem[] = [
       en: 'Hard drive replacement',
       hy: 'Կոշտ սկավառակի փոխարինում'
     },
-    price: 800,
+    price: '10000-50000',
     category: {
       ru: 'Замена комплектующих',
       en: 'Component Replacement',
       hy: 'Բաղադրիչների փոխարինում'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-10',
@@ -349,13 +494,17 @@ const pricing: PriceItem[] = [
       en: 'RAM replacement',
       hy: 'Օպերատիվ հիշողության փոխարինում'
     },
-    price: 500,
+    price: '5000-20000',
     category: {
       ru: 'Замена комплектующих',
       en: 'Component Replacement',
       hy: 'Բաղադրիչների փոխարինում'
     },
-    unit: 'планка'
+    unit: {
+      ru: 'планка',
+      en: 'module',
+      hy: 'մոդուլ'
+    }
   },
   {
     id: 'price-11',
@@ -364,13 +513,17 @@ const pricing: PriceItem[] = [
       en: 'Laptop screen replacement',
       hy: 'Նոութբուքի էկրանի փոխարինում'
     },
-    price: 2500,
+    price: '25000-100000',
     category: {
       ru: 'Замена комплектующих',
       en: 'Component Replacement',
       hy: 'Բաղադրիչների փոխարինում'
     },
-    unit: 'шт'
+    unit: {
+      ru: 'шт',
+      en: 'pcs',
+      hy: 'հատ'
+    }
   },
   {
     id: 'price-12',
@@ -379,13 +532,17 @@ const pricing: PriceItem[] = [
       en: 'Data recovery (simple)',
       hy: 'Տվյալների վերականգնում (պարզ)'
     },
-    price: 2000,
+    price: 30000,
     category: {
       ru: 'Восстановление данных',
       en: 'Data Recovery',
       hy: 'Տվյալների վերականգնում'
     },
-    unit: 'устройство'
+    unit: {
+      ru: 'устройство',
+      en: 'device',
+      hy: 'սարք'
+    }
   }
 ];
 
@@ -635,11 +792,26 @@ app.get('/api/pricing', (c) => {
   const category = c.req.query('category');
   const lang = c.req.query('lang') || 'ru';
 
-  let filteredPricing = pricing.map(item => ({
-    ...item,
-    service: item.service[lang as keyof typeof item.service] || item.service.ru,
-    category: item.category[lang as keyof typeof item.category] || item.category.ru
-  }));
+  let filteredPricing = pricing.map(item => {
+    const priceValue = typeof item.price === 'string' && item.price.includes('-')
+      ? (() => {
+          const [min, max] = item.price.split('-').map(s => parseInt(s.trim()));
+          return {
+            price: max,
+            minPrice: min,
+            maxPrice: max
+          };
+        })()
+      : { price: typeof item.price === 'number' ? item.price : parseInt(item.price) };
+
+    return {
+      ...item,
+      ...priceValue,
+      service: item.service[lang as keyof typeof item.service] || item.service.ru,
+      category: item.category[lang as keyof typeof item.category] || item.category.ru,
+      unit: item.unit[lang as keyof typeof item.unit] || item.unit.ru
+    };
+  });
 
   if (category) {
     filteredPricing = filteredPricing.filter(p => p.category === category);

@@ -123,7 +123,12 @@ export function PriceTable() {
               {items.map(item => (
                 <tr key={item.id}>
                   <td>{item.service}</td>
-                  <td className="price-table__price">{item.price} ₽</td>
+                  <td className="price-table__price">
+                    {item.minPrice && item.maxPrice
+                      ? `${item.minPrice}-${item.maxPrice} ֏`
+                      : `${item.price} ֏`
+                    }
+                  </td>
                   <td>{item.unit}</td>
                 </tr>
               ))}
@@ -136,7 +141,12 @@ export function PriceTable() {
               <div key={item.id} className="price-table__card">
                 <div className="price-table__card-service">{item.service}</div>
                 <div className="price-table__card-details">
-                  <span className="price-table__card-price">{item.price} ₽</span>
+                  <span className="price-table__card-price">
+                    {item.minPrice && item.maxPrice
+                      ? `${item.minPrice}-${item.maxPrice} ֏`
+                      : `${item.price} ֏`
+                    }
+                  </span>
                   <span className="price-table__card-unit">{item.unit}</span>
                 </div>
               </div>
