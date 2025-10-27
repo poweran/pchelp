@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface LoadingProps {
   size?: 'small' | 'medium' | 'large';
@@ -9,8 +10,10 @@ interface LoadingProps {
 const Loading = memo<LoadingProps>(function Loading({
   size = 'medium',
   color = '#2563eb',
-  text = 'Загрузка...'
+  text
 }) {
+  const { t } = useTranslation();
+  const defaultText = text || t('common.loading');
   return (
     <div className="loading-container">
       <div
@@ -20,7 +23,7 @@ const Loading = memo<LoadingProps>(function Loading({
           borderTopColor: color,
         }}
       ></div>
-      {text && <span className="loading-text">{text}</span>}
+      <span className="loading-text">{defaultText}</span>
     </div>
   );
 });

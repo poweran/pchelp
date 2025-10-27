@@ -1,43 +1,37 @@
 import { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ServiceList } from '../components/services/ServiceList';
+import './ServicesPage.css';
 
 export default function ServicesPage() {
+  const { t } = useTranslation();
 
   return (
     <>
-        {/* Breadcrumbs */}
-        <div style={breadcrumbsContainerStyle}>
-          <nav style={breadcrumbsStyle}>
-            <a href="/" style={breadcrumbLinkStyle}>Главная</a>
-            <span style={breadcrumbSeparatorStyle}>/</span>
-            <span style={breadcrumbCurrentStyle}>Услуги</span>
-          </nav>
-        </div>
-
         {/* Заголовок страницы */}
-        <section style={headerSectionStyle}>
+        <section style={headerSectionStyle} className="services-header">
           <div style={containerStyle}>
-            <h1 style={pageTitleStyle}>Наши услуги</h1>
+            <h1 style={pageTitleStyle}>{t('servicesPage.title')}</h1>
             <p style={pageSubtitleStyle}>
-              Профессиональные услуги по ремонту и обслуживанию компьютерной техники
+              {t('servicesPage.subtitle')}
             </p>
           </div>
         </section>
 
 
         {/* Список услуг */}
-        <section style={servicesSectionStyle}>
+        <section style={servicesSectionStyle} className="services-section">
           <div style={containerStyle}>
             <ServiceList />
           </div>
         </section>
 
         {/* Призыв к действию */}
-        <section style={ctaSectionStyle}>
+        <section style={ctaSectionStyle} className="services-cta">
           <div style={ctaContainerStyle}>
-            <h2 style={ctaTitleStyle}>Не нашли нужную услугу?</h2>
+            <h2 style={ctaTitleStyle}>{t('servicesPage.noService')}</h2>
             <p style={ctaTextStyle}>
-              Свяжитесь с нами, и мы поможем решить вашу проблему
+              {t('servicesPage.contactUs')}
             </p>
             <div style={ctaButtonsStyle}>
               <button
@@ -50,7 +44,7 @@ export default function ServicesPage() {
                   e.currentTarget.style.backgroundColor = '#2563eb';
                 }}
               >
-                Оставить заявку
+                {t('servicesPage.leaveRequest')}
               </button>
               <button
                 onClick={() => window.location.href = '/contacts'}
@@ -62,7 +56,7 @@ export default function ServicesPage() {
                   e.currentTarget.style.backgroundColor = '#64748b';
                 }}
               >
-                Связаться с нами
+                {t('servicesPage.contact')}
               </button>
             </div>
           </div>
@@ -76,35 +70,6 @@ const containerStyle: CSSProperties = {
   maxWidth: '1280px',
   margin: '0 auto',
   padding: '0 1rem',
-};
-
-const breadcrumbsContainerStyle: CSSProperties = {
-  backgroundColor: '#ffffff',
-  borderBottom: '1px solid #e2e8f0',
-};
-
-const breadcrumbsStyle: CSSProperties = {
-  maxWidth: '1280px',
-  margin: '0 auto',
-  padding: '0.75rem 1rem',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  fontSize: '0.875rem',
-};
-
-const breadcrumbLinkStyle: CSSProperties = {
-  color: '#2563eb',
-  textDecoration: 'none',
-  transition: 'color 0.2s',
-};
-
-const breadcrumbSeparatorStyle: CSSProperties = {
-  color: '#94a3b8',
-};
-
-const breadcrumbCurrentStyle: CSSProperties = {
-  color: '#64748b',
 };
 
 const headerSectionStyle: CSSProperties = {

@@ -14,6 +14,8 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   outline: none;
+  position: relative;
+  overflow: hidden;
   user-select: none;
   white-space: nowrap;
 }

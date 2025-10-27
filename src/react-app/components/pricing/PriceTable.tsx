@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import { fetchPricing } from '../../utils/api';
 import type { PriceItem } from '../../types';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import './PriceTable.css';
 
 export function PriceTable() {
+  const { t } = useTranslation();
   const [priceItems, setPriceItems] = useState<PriceItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<PriceItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,15 +16,15 @@ export function PriceTable() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [categories, setCategories] = useState<string[]>([]);
 
-  // Загрузка прайс-листа при монтировании
+  // Загрузка прайс-листа при монтировании и изменении языка
   useEffect(() => {
     loadPricing();
-  }, []);
+  }, [i18n.language]);
 
-  // Применение фильтра при изменении данных или категории
+  // Применение фильтра при изменении данных, категории или языка
   useEffect(() => {
     applyFilter();
-  }, [priceItems, selectedCategory]);
+  }, [priceItems, selectedCategory, i18n.language]);
 
   // Функция для загрузки прайс-листа
   const loadPricing = async () => {
@@ -29,14 +32,14 @@ export function PriceTable() {
     setError(null);
 
     try {
-      const response = await fetchPricing();
+      const response = await fetchPricing(i18n.language);
 
       if (response.error) {
         setError(response.error);
         setPriceItems([]);
       } else if (response.data) {
         setPriceItems(response.data);
-        
+
         // Извлекаем уникальные категории
         const uniqueCategories = Array.from(
           new Set(response.data.map(item => item.category))
@@ -74,11 +77,11 @@ export function PriceTable() {
   }, {} as Record<string, PriceItem[]>);
 
   if (loading) {
-    return <div className="price-table__loading">Загрузка прайс-листа...</div>;
+    return <div className="price-table__loading">{t('priceTable.loading')}</div>;
   }
 
   if (error) {
-    return <div className="price-table__error">Ошибка: {error}</div>;
+    return <div className="price-table__error">{t('priceTable.error', { error })}</div>;
   }
 
   return (
@@ -89,7 +92,7 @@ export function PriceTable() {
           className={`price-table__filter-btn ${selectedCategory === 'all' ? 'price-table__filter-btn--active' : ''}`}
           onClick={() => setSelectedCategory('all')}
         >
-          Все категории
+          {t('priceTable.allCategories')}
         </button>
         {categories.map(category => (
           <button
@@ -111,9 +114,9 @@ export function PriceTable() {
           <table className="price-table__table">
             <thead>
               <tr>
-                <th>Услуга</th>
-                <th>Цена</th>
-                <th>Единица измерения</th>
+                <th>{t('priceTable.service')}</th>
+                <th>{t('priceTable.price')}</th>
+                <th>{t('priceTable.unit')}</th>
               </tr>
             </thead>
             <tbody>
@@ -144,7 +147,7 @@ export function PriceTable() {
 
       {filteredItems.length === 0 && (
         <div className="price-table__empty">
-          Нет услуг в выбранной категории
+          {t('priceTable.empty')}
         </div>
       )}
     </div>

@@ -9,17 +9,33 @@ type KnowledgeType = 'faq' | 'article';
 
 interface Service {
   id: string;
-  title: string;
-  description: string;
+  title: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  description: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
   price: number;
   category: ServiceCategory;
 }
 
 interface PriceItem {
   id: string;
-  service: string;
+  service: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
   price: number;
-  category: string;
+  category: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
   unit: string;
 }
 
@@ -37,9 +53,21 @@ interface Ticket {
 
 interface KnowledgeItem {
   id: string;
-  title: string;
-  content: string;
-  category: string;
+  title: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  content: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  category: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
   type: KnowledgeType;
 }
 
@@ -57,57 +85,121 @@ app.use('/*', cors({
 const services: Service[] = [
   {
     id: 'srv-1',
-    title: 'Ремонт ноутбуков',
-    description: 'Профессиональный ремонт ноутбуков любой сложности. Диагностика, замена комплектующих, чистка от пыли.',
+    title: {
+      ru: 'Ремонт ноутбуков',
+      en: 'Laptop repair',
+      hy: 'Նոութբուքների վերանորոգում'
+    },
+    description: {
+      ru: 'Профессиональный ремонт ноутбуков любой сложности. Диагностика, замена комплектующих, чистка от пыли.',
+      en: 'Professional laptop repair of any complexity. Diagnostics, component replacement, dust cleaning.',
+      hy: 'Պրոֆեսիոնալ նոութբուքների վերանորոգում ցանկացած բարդության. Ախտորոշում, բաղադրիչների փոխարինում, փոշու մաքրում:'
+    },
     price: 2500,
     category: 'repair'
   },
   {
     id: 'srv-2',
-    title: 'Ремонт компьютеров',
-    description: 'Ремонт настольных компьютеров. Замена комплектующих, модернизация, чистка системы охлаждения.',
+    title: {
+      ru: 'Ремонт компьютеров',
+      en: 'Computer repair',
+      hy: 'Համակարգիչների վերանորոգում'
+    },
+    description: {
+      ru: 'Ремонт настольных компьютеров. Замена комплектующих, модернизация, чистка системы охлаждения.',
+      en: 'Desktop computer repair. Component replacement, upgrading, cooling system cleaning.',
+      hy: 'Աշխատասեղանի համակարգիչների վերանորոգում. Բաղադրիչների փոխարինում, արդիականացում, սառեցման համակարգի մաքրում:'
+    },
     price: 2000,
     category: 'repair'
   },
   {
     id: 'srv-3',
-    title: 'Настройка Windows',
-    description: 'Установка и настройка операционной системы Windows. Установка драйверов, оптимизация системы.',
+    title: {
+      ru: 'Настройка Windows',
+      en: 'Windows setup',
+      hy: 'Windows-ի կարգավորում'
+    },
+    description: {
+      ru: 'Установка и настройка операционной системы Windows. Установка драйверов, оптимизация системы.',
+      en: 'Installation and configuration of Windows operating system. Driver installation, system optimization.',
+      hy: 'Windows օպերացիոն համակարգի տեղադրում և կարգավորում. Դրայվերների տեղադրում, համակարգի օպտիմալացում:'
+    },
     price: 1500,
     category: 'setup'
   },
   {
     id: 'srv-4',
-    title: 'Настройка сети',
-    description: 'Настройка домашней или офисной сети. Настройка роутера, Wi-Fi, локальной сети.',
+    title: {
+      ru: 'Настройка сети',
+      en: 'Network setup',
+      hy: 'Ցանցի կարգավորում'
+    },
+    description: {
+      ru: 'Настройка домашней или офисной сети. Настройка роутера, Wi-Fi, локальной сети.',
+      en: 'Home or office network setup. Router configuration, Wi-Fi, local network.',
+      hy: 'Տան կամ գրասենյակային ցանցի կարգավորում. Ռոутերի կարգավորում, Wi-Fi, տեղական ցանց:'
+    },
     price: 1800,
     category: 'setup'
   },
   {
     id: 'srv-5',
-    title: 'Восстановление данных',
-    description: 'Восстановление утерянных данных с жестких дисков, флешек, карт памяти.',
+    title: {
+      ru: 'Восстановление данных',
+      en: 'Data recovery',
+      hy: 'Տվյալների վերականգնում'
+    },
+    description: {
+      ru: 'Восстановление утерянных данных с жестких дисков, флешек, карт памяти.',
+      en: 'Recovery of lost data from hard drives, flash drives, memory cards.',
+      hy: 'Կորած տվյալների վերականգնում կոշտ սկավառակներից, ֆլեշ-դրայվերներից, հիշողության քարտերից:'
+    },
     price: 3500,
     category: 'recovery'
   },
   {
     id: 'srv-6',
-    title: 'Удаление вирусов',
-    description: 'Комплексная очистка системы от вирусов и вредоносного ПО. Установка антивируса.',
+    title: {
+      ru: 'Удаление вирусов',
+      en: 'Virus removal',
+      hy: 'Վիրուսների հեռացում'
+    },
+    description: {
+      ru: 'Комплексная очистка системы от вирусов и вредоносного ПО. Установка антивируса.',
+      en: 'Comprehensive system cleaning from viruses and malware. Antivirus installation.',
+      hy: 'Համակարգի համալիր մաքրում վիրուսներից և վնասակար ծրագրերից. Հականիշային ծրագրի տեղադրում:'
+    },
     price: 1200,
     category: 'recovery'
   },
   {
     id: 'srv-7',
-    title: 'Консультация по выбору ПК',
-    description: 'Помощь в подборе комплектующих для сборки компьютера под ваши задачи и бюджет.',
+    title: {
+      ru: 'Консультация по выбору ПК',
+      en: 'PC selection consultation',
+      hy: 'ՀՊ ընտրության խորհրդատվություն'
+    },
+    description: {
+      ru: 'Помощь в подборе комплектующих для сборки компьютера под ваши задачи и бюджет.',
+      en: 'Help in selecting components for assembling a computer for your tasks and budget.',
+      hy: 'Օգնություն համակարգիչ հավաքելու համար բաղադրիչների ընտրության մեջ ձեր առաջադրանքների և բյուջեի համար:'
+    },
     price: 800,
     category: 'consultation'
   },
   {
     id: 'srv-8',
-    title: 'IT-консультация',
-    description: 'Консультация по любым вопросам, связанным с компьютерной техникой и программным обеспечением.',
+    title: {
+      ru: 'IT-консультация',
+      en: 'IT consultation',
+      hy: 'IT խորհրդատվություն'
+    },
+    description: {
+      ru: 'Консультация по любым вопросам, связанным с компьютерной техникой и программным обеспечением.',
+      en: 'Consultation on any issues related to computer hardware and software.',
+      hy: 'Խորհրդատվություն համակարգչային տեխնիկայի և ծրագրային ապահովման հետ կապված ցանկացած հարցերով:'
+    },
     price: 1000,
     category: 'consultation'
   }
@@ -117,86 +209,182 @@ const services: Service[] = [
 const pricing: PriceItem[] = [
   {
     id: 'price-1',
-    service: 'Диагностика компьютера',
+    service: {
+      ru: 'Диагностика компьютера',
+      en: 'Computer diagnostics',
+      hy: 'Համակարգչի ախտորոշում'
+    },
     price: 500,
-    category: 'Диагностика',
+    category: {
+      ru: 'Диагностика',
+      en: 'Diagnostics',
+      hy: 'Ախտորոշում'
+    },
     unit: 'шт'
   },
   {
     id: 'price-2',
-    service: 'Чистка ноутбука от пыли',
+    service: {
+      ru: 'Чистка ноутбука от пыли',
+      en: 'Laptop dust cleaning',
+      hy: 'Նոութբուքի փոշու մաքրում'
+    },
     price: 1200,
-    category: 'Профилактика',
+    category: {
+      ru: 'Профилактика',
+      en: 'Maintenance',
+      hy: 'Պահակալում'
+    },
     unit: 'шт'
   },
   {
     id: 'price-3',
-    service: 'Замена термопасты',
+    service: {
+      ru: 'Замена термопасты',
+      en: 'Thermal paste replacement',
+      hy: 'Թերմինային մածուկի փոխարինում'
+    },
     price: 800,
-    category: 'Профилактика',
+    category: {
+      ru: 'Профилактика',
+      en: 'Maintenance',
+      hy: 'Պահակալում'
+    },
     unit: 'шт'
   },
   {
     id: 'price-4',
-    service: 'Установка Windows',
+    service: {
+      ru: 'Установка Windows',
+      en: 'Windows installation',
+      hy: 'Windows տեղադրում'
+    },
     price: 1000,
-    category: 'Установка ПО',
+    category: {
+      ru: 'Установка ПО',
+      en: 'Software Installation',
+      hy: 'Տեղադրում ծրագրերի'
+    },
     unit: 'шт'
   },
   {
     id: 'price-5',
-    service: 'Установка драйверов',
+    service: {
+      ru: 'Установка драйверов',
+      en: 'Driver installation',
+      hy: 'Դրայվերների տեղադրում'
+    },
     price: 500,
-    category: 'Установка ПО',
+    category: {
+      ru: 'Установка ПО',
+      en: 'Software Installation',
+      hy: 'Տեղադրում ծրագրերի'
+    },
     unit: 'комплект'
   },
   {
     id: 'price-6',
-    service: 'Установка офисного пакета',
+    service: {
+      ru: 'Установка офисного пакета',
+      en: 'Office suite installation',
+      hy: 'Գրասենյակային փաթեթի տեղադրում'
+    },
     price: 600,
-    category: 'Установка ПО',
+    category: {
+      ru: 'Установка ПО',
+      en: 'Software Installation',
+      hy: 'Տեղադրում ծրագրերի'
+    },
     unit: 'шт'
   },
   {
     id: 'price-7',
-    service: 'Настройка роутера',
+    service: {
+      ru: 'Настройка роутера',
+      en: 'Router setup',
+      hy: 'Ռոутերի կարգավորում'
+    },
     price: 1000,
-    category: 'Настройка сети',
+    category: {
+      ru: 'Настройка сети',
+      en: 'Network Setup',
+      hy: 'Ցանցի կարգավորում'
+    },
     unit: 'шт'
   },
   {
     id: 'price-8',
-    service: 'Прокладка сетевого кабеля',
+    service: {
+      ru: 'Прокладка сетевого кабеля',
+      en: 'Network cable laying',
+      hy: 'Ցանցային մալուխի տեղադրում'
+    },
     price: 150,
-    category: 'Настройка сети',
+    category: {
+      ru: 'Настройка сети',
+      en: 'Network Setup',
+      hy: 'Ցանցի կարգավորում'
+    },
     unit: 'м'
   },
   {
     id: 'price-9',
-    service: 'Замена жесткого диска',
+    service: {
+      ru: 'Замена жесткого диска',
+      en: 'Hard drive replacement',
+      hy: 'Կոշտ սկավառակի փոխարինում'
+    },
     price: 800,
-    category: 'Замена комплектующих',
+    category: {
+      ru: 'Замена комплектующих',
+      en: 'Component Replacement',
+      hy: 'Բաղադրիչների փոխարինում'
+    },
     unit: 'шт'
   },
   {
     id: 'price-10',
-    service: 'Замена оперативной памяти',
+    service: {
+      ru: 'Замена оперативной памяти',
+      en: 'RAM replacement',
+      hy: 'Օպերատիվ հիշողության փոխարինում'
+    },
     price: 500,
-    category: 'Замена комплектующих',
+    category: {
+      ru: 'Замена комплектующих',
+      en: 'Component Replacement',
+      hy: 'Բաղադրիչների փոխարինում'
+    },
     unit: 'планка'
   },
   {
     id: 'price-11',
-    service: 'Замена матрицы ноутбука',
+    service: {
+      ru: 'Замена матрицы ноутбука',
+      en: 'Laptop screen replacement',
+      hy: 'Նոութբուքի էկրանի փոխարինում'
+    },
     price: 2500,
-    category: 'Замена комплектующих',
+    category: {
+      ru: 'Замена комплектующих',
+      en: 'Component Replacement',
+      hy: 'Բաղադրիչների փոխարինում'
+    },
     unit: 'шт'
   },
   {
     id: 'price-12',
-    service: 'Восстановление данных (простое)',
+    service: {
+      ru: 'Восстановление данных (простое)',
+      en: 'Data recovery (simple)',
+      hy: 'Տվյալների վերականգնում (պարզ)'
+    },
     price: 2000,
-    category: 'Восстановление данных',
+    category: {
+      ru: 'Восстановление данных',
+      en: 'Data Recovery',
+      hy: 'Տվյալների վերականգնում'
+    },
     unit: 'устройство'
   }
 ];
@@ -206,59 +394,155 @@ const knowledgeBase: KnowledgeItem[] = [
   // FAQ
   {
     id: 'kb-faq-1',
-    title: 'Как часто нужно чистить компьютер от пыли?',
-    content: 'Рекомендуется проводить чистку компьютера от пыли каждые 6-12 месяцев, в зависимости от условий эксплуатации. Если компьютер находится в пыльном помещении или на полу, чистку следует проводить чаще. Признаки необходимости чистки: повышенный шум вентиляторов, перегрев компонентов, самопроизвольное выключение.',
-    category: 'Обслуживание',
+    title: {
+      ru: 'Как часто нужно чистить компьютер от пыли?',
+      en: 'How often should I clean my computer from dust?',
+      hy: 'Հաճախ որքան պետք է մաքրել համակարգիչը փոշուց?'
+    },
+    content: {
+      ru: 'Рекомендуется проводить чистку компьютера от пыли каждые 6-12 месяцев, в зависимости от условий эксплуатации. Если компьютер находится в пыльном помещении или на полу, чистку следует проводить чаще. Признаки необходимости чистки: повышенный шум вентиляторов, перегрев компонентов, самопроизвольное выключение.',
+      en: 'It is recommended to clean the computer from dust every 6-12 months, depending on operating conditions. If the computer is in a dusty room or on the floor, cleaning should be done more often. Signs that cleaning is needed: increased fan noise, component overheating, spontaneous shutdown.',
+      hy: 'Խորհուրդ է տրվում համակարգիչը փոշուց մաքրել ամեն 6-12 ամիսը մեկ՝ կախված շահագործման պայմաններից: Եթե համակարգիչը գտնվում է փոշոտ սենյակում կամ հատակին, մաքրումը պետք է անել ավելի հաճախ: Մաքրման անհրաժեշտության նշաններ. օդափոշիչների աճած աղմուկ, բաղադրիչների գերտաքացում, ինքնաբերաբար անջատում:'
+    },
+    category: {
+      ru: 'Обслуживание',
+      en: 'Maintenance',
+      hy: 'Սպասարկում'
+    },
     type: 'faq'
   },
   {
     id: 'kb-faq-2',
-    title: 'Что делать, если компьютер не включается?',
-    content: 'Первым делом проверьте подключение к электросети и убедитесь, что розетка работает. Проверьте, горит ли индикатор питания на системном блоке. Если нет - проблема может быть в блоке питания. Если индикатор горит, но компьютер не запускается - возможны проблемы с материнской платой, процессором или оперативной памятью. В этом случае рекомендуется обратиться к специалисту.',
-    category: 'Диагностика',
+    title: {
+      ru: 'Что делать, если компьютер не включается?',
+      en: 'What to do if the computer does not turn on?',
+      hy: 'Ի՞նչ անել, եթե համակարգիչը չի միանում:'
+    },
+    content: {
+      ru: 'Первым делом проверьте подключение к электросети и убедитесь, что розетка работает. Проверьте, горит ли индикатор питания на системном блоке. Если нет - проблема может быть в блоке питания. Если индикатор горит, но компьютер не запускается - возможны проблемы с материнской платой, процессором или оперативной памятью. В этом случае рекомендуется обратиться к специалисту.',
+      en: 'First, check the power connection and make sure the outlet works. Check if the power indicator on the system unit is lit. If not - the problem may be in the power supply. If the indicator lights up, but the computer does not start - there may be problems with the motherboard, processor or RAM. In this case, it is recommended to contact a specialist.',
+      hy: 'Առաջին հերթին ստուգեք էլեկտրական ցանցի միացումը և համոզվեք, որ վարդակը աշխատում է: Ստուգեք՝ լուսավորված է արդյոք սնուցման ինդիկատորը համակարգի բլոկի վրա: Եթե ոչ՝ խնդիրը կարող է լինել սնուցման բլոկում: Եթե ինդիկատորը լուսավորվում է, բայց համակարգիչը չի մեկնարկում՝ հնարավոր են խնդիրներ մայրական տախտակով, պրոցեսորով կամ օպերատիվ հիշողությամբ: Այս դեպքում խորհուրդ է տրվում դիմել մասնագետի:'
+    },
+    category: {
+      ru: 'Диагностика',
+      en: 'Diagnostics',
+      hy: 'Ախտորոշում'
+    },
     type: 'faq'
   },
   {
     id: 'kb-faq-3',
-    title: 'Как защитить компьютер от вирусов?',
-    content: 'Для защиты от вирусов следуйте этим правилам: 1) Установите надежный антивирус и регулярно обновляйте его базы. 2) Держите операционную систему и программы в актуальном состоянии. 3) Не открывайте подозрительные письма и вложения. 4) Скачивайте программы только с официальных сайтов. 5) Используйте сложные пароли. 6) Регулярно делайте резервные копии важных данных.',
-    category: 'Безопасность',
+    title: {
+      ru: 'Как защитить компьютер от вирусов?',
+      en: 'How to protect your computer from viruses?',
+      hy: 'Ինչպե՞ս պաշտպանել համակարգիչը վիրուսներից:'
+    },
+    content: {
+      ru: 'Для защиты от вирусов следуйте этим правилам: 1) Установите надежный антивирус и регулярно обновляйте его базы. 2) Держите операционную систему и программы в актуальном состоянии. 3) Не открывайте подозрительные письма и вложения. 4) Скачивайте программы только с официальных сайтов. 5) Используйте сложные пароли. 6) Регулярно делайте резервные копии важных данных.',
+      en: 'To protect against viruses, follow these rules: 1) Install reliable antivirus software and regularly update its databases. 2) Keep the operating system and programs up to date. 3) Do not open suspicious emails and attachments. 4) Download programs only from official websites. 5) Use strong passwords. 6) Regularly back up important data.',
+      hy: 'Վիրուսներից պաշտպանվելու համար հետևեք այս կանոններին. 1) Տեղադրեք հուսալի հականիշային ծրագիր և կանոնավոր թարմացրեք դրա բազաները: 2) Պահեք օպերացիոն համակարգը և ծրագրերը արդիական վիճակում: 3) Մի բացեք կասկածելի նամակներ և հավելվածներ: 4) Ծրագրերը ներբեռնեք միայն պաշտոնական կայլերից: 5) Օգտագործեք բարդ գաղտնաբառեր: 6) Կանոնավոր կրկնօրինակեք կարևոր տվյալները:'
+    },
+    category: {
+      ru: 'Безопасность',
+      en: 'Security',
+      hy: 'Անվտանգություն'
+    },
     type: 'faq'
   },
   {
     id: 'kb-faq-4',
-    title: 'Сколько оперативной памяти нужно для нормальной работы?',
-    content: 'Минимальные требования зависят от задач: для базовой работы (интернет, офисные программы) достаточно 8 ГБ; для мультимедиа и легких игр - 16 ГБ; для профессиональной работы с видео, 3D-графикой или современных игр на высоких настройках - 32 ГБ и более. Также важен тип памяти (DDR4/DDR5) и её частота.',
-    category: 'Железо',
+    title: {
+      ru: 'Сколько оперативной памяти нужно для нормальной работы?',
+      en: 'How much RAM is needed for normal operation?',
+      hy: 'Որքան օպերատիվ հիշողություն է անհրաժեշտ նորմալ աշխատանքի համար:'
+    },
+    content: {
+      ru: 'Минимальные требования зависят от задач: для базовой работы (интернет, офисные программы) достаточно 8 ГБ; для мультимедиа и легких игр - 16 ГБ; для профессиональной работы с видео, 3D-графикой или современных игр на высоких настройках - 32 ГБ и более. Также важен тип памяти (DDR4/DDR5) и её частота.',
+      en: 'Minimum requirements depend on tasks: 8 GB is enough for basic work (internet, office programs); 16 GB for multimedia and light games; 32 GB or more for professional video work, 3D graphics or modern games on high settings. The type of memory (DDR4/DDR5) and its frequency are also important.',
+      hy: 'Նվազագույն պահանջները կախված են առաջադրանքներից. հիմնական աշխատանքի համար (ինտերնետ, գրասենյակային ծրագրեր) բավական է 8 ԳԲ; մուլտիմեդիայի և թեթև խաղերի համար՝ 16 ԳԲ; վիդեոների հետ մասնագիտական աշխատանքի, 3D գրաֆիկայի կամ ժամանակակից խաղերի բարձր կարգավորումներով համար՝ 32 ԳԲ և ավելին: Կարևոր է նաև հիշողության տեսակը (DDR4/DDR5) և դրա հաճախականությունը:'
+    },
+    category: {
+      ru: 'Железо',
+      en: 'Hardware',
+      hy: 'Սարքավորումներ'
+    },
     type: 'faq'
   },
   {
     id: 'kb-faq-5',
-    title: 'Как ускорить работу старого компьютера?',
-    content: 'Способы ускорения старого компьютера: 1) Замените HDD на SSD - это даст максимальный прирост производительности. 2) Добавьте оперативной памяти до 8-16 ГБ. 3) Почистите систему от мусора и ненужных программ. 4) Отключите автозагрузку лишних приложений. 5) Обновите драйвера. 6) Переустановите операционную систему. 7) Почистите компьютер от пыли.',
-    category: 'Оптимизация',
+    title: {
+      ru: 'Как ускорить работу старого компьютера?',
+      en: 'How to speed up an old computer?',
+      hy: 'Ինչպե՞ս արագացնել հին համակարգչի աշխատանքը:'
+    },
+    content: {
+      ru: 'Способы ускорения старого компьютера: 1) Замените HDD на SSD - это даст максимальный прирост производительности. 2) Добавьте оперативной памяти до 8-16 ГБ. 3) Почистите систему от мусора и ненужных программ. 4) Отключите автозагрузку лишних приложений. 5) Обновите драйвера. 6) Переустановите операционную систему. 7) Почистите компьютер от пыли.',
+      en: 'Ways to speed up an old computer: 1) Replace HDD with SSD - this will give maximum performance boost. 2) Add RAM up to 8-16 GB. 3) Clean the system from garbage and unnecessary programs. 4) Disable autorun of unnecessary applications. 5) Update drivers. 6) Reinstall the operating system. 7) Clean the computer from dust.',
+      hy: 'Հին համակարգչի աշխատանքը արագացնելու եղանակներ. 1) Փոխարինեք HDD-ն SSD-ով՝ դա կտա առավելագույն արտադրողականության աճ: 2) Ավելացրեք օպերատիվ հիշողություն մինչև 8-16 ԳԲ: 3) Մաքրեք համակարգը աղբից և անհրաժեշտ ծրագրերից: 4) Անջատեք անհրաժեշտ ծրագրերի ինքնաթարմացումը: 5) Թարմացրեք դրայվերները: 6) Վերատեղադրեք օպերացիոն համակարգը: 7) Մաքրեք համակարգիչը փոշուց:'
+    },
+    category: {
+      ru: 'Оптимизация',
+      en: 'Optimization',
+      hy: 'Օպտիմալացում'
+    },
     type: 'faq'
   },
   // Статьи
   {
     id: 'kb-article-1',
-    title: 'Выбор комплектующих для игрового ПК в 2025 году',
-    content: 'Подробное руководство по выбору комплектующих для игрового компьютера. Процессор: рекомендуем Intel Core i5/i7 последних поколений или AMD Ryzen 5/7. Видеокарта: минимум RTX 4060 или RX 7600 для Full HD, RTX 4070 или выше для 2K/4K. Оперативная память: 16 ГБ DDR5 - минимум, 32 ГБ - оптимально. SSD: обязателен NVMe объемом от 500 ГБ для системы и игр. Блок питания: мощность от 650 Вт с сертификатом 80+ Gold. Охлаждение: башенный кулер от 120 мм или водяное охлаждение. Корпус: хорошая вентиляция и возможность прокладки кабелей за материнской платой.',
-    category: 'Сборка ПК',
+    title: {
+      ru: 'Выбор комплектующих для игрового ПК в 2025 году',
+      en: 'Choosing components for a gaming PC in 2025',
+      hy: 'Ընտրելով բաղադրիչներ խաղային ՀՊ համար 2025 թվականին'
+    },
+    content: {
+      ru: 'Подробное руководство по выбору комплектующих для игрового компьютера. Процессор: рекомендуем Intel Core i5/i7 последних поколений или AMD Ryzen 5/7. Видеокарта: минимум RTX 4060 или RX 7600 для Full HD, RTX 4070 или выше для 2K/4K. Оперативная память: 16 ГБ DDR5 - минимум, 32 ГБ - оптимально. SSD: обязателен NVMe объемом от 500 ГБ для системы и игр. Блок питания: мощность от 650 Вт с сертификатом 80+ Gold. Охлаждение: башенный кулер от 120 мм или водяное охлаждение. Корпус: хорошая вентиляция и возможность прокладки кабелей за материнской платой.',
+      en: 'Detailed guide on choosing components for a gaming computer. Processor: we recommend Intel Core i5/i7 latest generations or AMD Ryzen 5/7. Graphics card: minimum RTX 4060 or RX 7600 for Full HD, RTX 4070 or higher for 2K/4K. RAM: 16 GB DDR5 - minimum, 32 GB - optimal. SSD: NVMe with at least 500 GB capacity for system and games is mandatory. Power supply: power from 650 W with 80+ Gold certificate. Cooling: tower cooler from 120 mm or liquid cooling. Case: good ventilation and the ability to route cables behind the motherboard.',
+      hy: 'Խաղային համակարգչի համար բաղադրիչներ ընտրելու մանրամասն ուղեցույց: Պրոցեսոր՝ խորհուրդ ենք տալիս Intel Core i5/i7 վերջին սերունդների կամ AMD Ryzen 5/7: Տեսաքարտ՝ նվազագույնը RTX 4060 կամ RX 7600 Full HD համար, RTX 4070 կամ ավելի բարձր 2K/4K համար: Օպերատիվ հիշողություն՝ 16 ԳԲ DDR5 - նվազագույնը, 32 ԳԲ - օպտիմալ: SSD՝ պարտադիր է NVMe մինչև 500 ԳԲ ծավալով համակարգի և խաղերի համար: Սնուցման բլոկ՝ հզորություն 650 Վտ-ից 80+ Gold վկայագրությամբ: Սառեցում՝ 120 մմ բարձրության կուլեր կամ հեղուկ սառեցում: Կորպուս՝ լավ օդափոշիպ և մայրական տախտակի հետևում մալուխներ անցկացնելու հնարավորություն:'
+    },
+    category: {
+      ru: 'Сборка ПК',
+      en: 'PC Assembly',
+      hy: 'ՀՊ հավաքում'
+    },
     type: 'article'
   },
   {
     id: 'kb-article-2',
-    title: 'Правильная настройка Windows после установки',
-    content: 'Пошаговая инструкция по настройке Windows после установки: 1) Обновите систему до последней версии через Windows Update. 2) Установите все необходимые драйвера (чипсет, видеокарта, звук, сеть). 3) Настройте параметры конфиденциальности - отключите телеметрию и ненужные функции. 4) Установите необходимое ПО: браузер, архиватор, офисный пакет, медиаплеер. 5) Настройте антивирус. 6) Создайте точку восстановления системы. 7) Оптимизируйте автозагрузку. 8) Настройте план электропитания. 9) Отключите ненужные службы и эффекты. 10) Настройте параметры обновлений.',
-    category: 'Настройка ОС',
+    title: {
+      ru: 'Правильная настройка Windows после установки',
+      en: 'Proper Windows setup after installation',
+      hy: 'Ճիշտ կարգավորում Windows-ը տեղադրելուց հետո'
+    },
+    content: {
+      ru: 'Пошаговая инструкция по настройке Windows после установки: 1) Обновите систему до последней версии через Windows Update. 2) Установите все необходимые драйвера (чипсет, видеокарта, звук, сеть). 3) Настройте параметры конфиденциальности - отключите телеметрию и ненужные функции. 4) Установите необходимое ПО: браузер, архиватор, офисный пакет, медиаплеер. 5) Настройте антивирус. 6) Создайте точку восстановления системы. 7) Оптимизируйте автозагрузку. 8) Настройте план электропитания. 9) Отключите ненужные службы и эффекты. 10) Настройте параметры обновлений.',
+      en: 'Step-by-step instructions for setting up Windows after installation: 1) Update the system to the latest version via Windows Update. 2) Install all necessary drivers (chipset, graphics card, sound, network). 3) Configure privacy settings - disable telemetry and unnecessary functions. 4) Install necessary software: browser, archiver, office suite, media player. 5) Configure antivirus. 6) Create a system restore point. 7) Optimize autorun. 8) Configure power plan. 9) Disable unnecessary services and effects. 10) Configure update settings.',
+      hy: 'Քայլ առ քայլ հրահանգներ Windows-ի կարգավորման համար տեղադրելուց հետո. 1) Թարմացրեք համակարգը մինչև վերջին տարբերակը Windows Update-ի միջոցով: 2) Տեղադրեք բոլոր անհրաժեշտ դրայվերները (չիպսեթ, տեսաքարտ, ձայն, ցանց): 3) Կարգավորեք գաղտնիության կարգավորումները՝ անջատեք տելեմետրիան և անհրաժեշտ գործառույթները: 4) Տեղադրեք անհրաժեշտ ծրագրային ապահովումը՝ զննարկիչ, արխիվատոր, գրասենյակային փաթեթ, մեդիա նվագարկիչ: 5) Կարգավորեք հականիշային ծրագիրը: 6) Ստեղծեք համակարգի վերականգնման կետ: 7) Օպտիմալացրեք ինքնաթարմացումը: 8) Կարգավորեք էլեկտրաէներգիայի պլանը: 9) Անջատեք անհրաժեշտ ծառայություններն ու էֆեկտները: 10) Կարգավորեք թարմացումների կարգավորումները:'
+    },
+    category: {
+      ru: 'Настройка ОС',
+      en: 'OS Setup',
+      hy: 'ՕՀ կարգավորում'
+    },
     type: 'article'
   },
   {
     id: 'kb-article-3',
-    title: 'Признаки выхода из строя жесткого диска',
-    content: 'Жесткий диск - один из самых уязвимых компонентов компьютера. Основные признаки проблем: 1) Странные звуки (щелчки, скрежет, постукивание). 2) Медленная работа системы, долгая загрузка файлов. 3) Частые зависания и BSOD (синий экран смерти). 4) Ошибки при чтении/записи файлов. 5) Исчезновение файлов и папок. 6) SMART ошибки в диагностических утилитах. 7) Невозможность загрузки операционной системы. При обнаружении этих признаков немедленно сделайте резервную копию данных и обратитесь к специалисту. Средний срок жизни HDD - 3-5 лет, SSD - 5-7 лет при нормальной эксплуатации.',
-    category: 'Диагностика',
+    title: {
+      ru: 'Признаки выхода из строя жесткого диска',
+      en: 'Signs of hard drive failure',
+      hy: 'Կոշտ սկավառակի անսարքության նշաններ'
+    },
+    content: {
+      ru: 'Жесткий диск - один из самых уязвимых компонентов компьютера. Основные признаки проблем: 1) Странные звуки (щелчки, скрежет, постукивание). 2) Медленная работа системы, долгая загрузка файлов. 3) Частые зависания и BSOD (синий экран смерти). 4) Ошибки при чтении/записи файлов. 5) Исчезновение файлов и папок. 6) SMART ошибки в диагностических утилитах. 7) Невозможность загрузки операционной системы. При обнаружении этих признаков немедленно сделайте резервную копию данных и обратитесь к специалисту. Средний срок жизни HDD - 3-5 лет, SSD - 5-7 лет при нормальной эксплуатации.',
+      en: 'Hard drive is one of the most vulnerable components of a computer. Main signs of problems: 1) Strange sounds (clicking, grinding, knocking). 2) Slow system performance, long file loading. 3) Frequent freezes and BSOD (blue screen of death). 4) Errors when reading/writing files. 5) Disappearance of files and folders. 6) SMART errors in diagnostic utilities. 7) Inability to boot the operating system. When you detect these signs, immediately back up your data and contact a specialist. Average HDD lifespan - 3-5 years, SSD - 5-7 years with normal operation.',
+      hy: 'Կոշտ սկավառակը համակարգչի ամենախոցելի բաղադրիչներից մեկն է: Խնդիրների հիմնական նշաններ. 1) Անոմալ ձայներ (կտտացնումներ, քերելով ձայներ, թակելով ձայներ): 2) Համակարգի դանդաղ աշխատանք, ֆայլերի երկար բեռնում: 3) Հաճախակի կախումներ և BSOD (կապույտ մահվան էկրան): 4) Ֆայլերի կարդալու/գրելու սխալներ: 5) Ֆայլերի և թղթապանակների անհետացում: 6) SMART սխալներ ախտորոշիչ օգնականներում: 7) Օպերացիոն համակարգի բեռնման անկարողություն: Այս նշանները հայտնաբերելիս անմիջապես կրկնօրինակեք ձեր տվյալները և դիմեք մասնագետի: Միջին ծառայության ժամկետ HDD - 3-5 տարի, SSD - 5-7 տարի նորմալ շահագործման դեպքում:'
+    },
+    category: {
+      ru: 'Диагностика',
+      en: 'Diagnostics',
+      hy: 'Ախտորոշում'
+    },
     type: 'article'
   }
 ];
@@ -349,16 +633,21 @@ app.get('/api/services/:id', (c) => {
 // GET /api/pricing - весь прайс-лист с возможностью фильтрации по категории
 app.get('/api/pricing', (c) => {
   const category = c.req.query('category');
-  
-  let filteredPricing = pricing;
-  
+  const lang = c.req.query('lang') || 'ru';
+
+  let filteredPricing = pricing.map(item => ({
+    ...item,
+    service: item.service[lang as keyof typeof item.service] || item.service.ru,
+    category: item.category[lang as keyof typeof item.category] || item.category.ru
+  }));
+
   if (category) {
-    filteredPricing = pricing.filter(p => p.category === category);
+    filteredPricing = filteredPricing.filter(p => p.category === category);
   }
-  
+
   return c.json({
     data: filteredPricing,
-    message: category 
+    message: category
       ? `Прайс-лист для категории "${category}" загружен успешно`
       : 'Прайс-лист загружен успешно'
   });
@@ -482,19 +771,25 @@ app.put('/api/tickets/:id', async (c) => {
 app.get('/api/knowledge', (c) => {
   const type = c.req.query('type') as KnowledgeType | undefined;
   const category = c.req.query('category');
-  
-  let filteredKnowledge = knowledgeBase;
-  
+  const lang = c.req.query('lang') || 'ru';
+
+  let filteredKnowledge = knowledgeBase.map(item => ({
+    ...item,
+    title: item.title[lang as keyof typeof item.title] || item.title.ru,
+    content: item.content[lang as keyof typeof item.content] || item.content.ru,
+    category: item.category[lang as keyof typeof item.category] || item.category.ru
+  }));
+
   // Фильтрация по типу
   if (type && (type === 'faq' || type === 'article')) {
     filteredKnowledge = filteredKnowledge.filter(k => k.type === type);
   }
-  
+
   // Фильтрация по категории
   if (category) {
-    filteredKnowledge = filteredKnowledge.filter(k => k.category === category);
+    filteredKnowledge = filteredKnowledge.filter(k => k.category[lang as keyof typeof k.category] === category);
   }
-  
+
   return c.json({
     data: filteredKnowledge,
     message: type
@@ -507,16 +802,24 @@ app.get('/api/knowledge', (c) => {
 // GET /api/knowledge/:id - конкретная запись базы знаний
 app.get('/api/knowledge/:id', (c) => {
   const id = c.req.param('id');
+  const lang = c.req.query('lang') || 'ru';
   const item = knowledgeBase.find(k => k.id === id);
-  
+
   if (!item) {
     return c.json({
       error: 'Запись не найдена'
     }, 404);
   }
-  
+
+  const translatedItem = {
+    ...item,
+    title: item.title[lang as keyof typeof item.title] || item.title.ru,
+    content: item.content[lang as keyof typeof item.content] || item.content.ru,
+    category: item.category[lang as keyof typeof item.category] || item.category.ru
+  };
+
   return c.json({
-    data: item,
+    data: translatedItem,
     message: 'Запись загружена успешно'
   });
 });

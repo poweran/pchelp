@@ -1,6 +1,7 @@
 // Компонент для отображения карточки статьи
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { KnowledgeItem } from '../../types';
 import './ArticleCard.css';
 
@@ -9,7 +10,8 @@ interface ArticleCardProps {
 }
 
 export function ArticleCard({ article }: ArticleCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+   const { t } = useTranslation();
+   const [isExpanded, setIsExpanded] = useState(false);
 
   // Получаем превью контента (первые 150 символов)
   const previewLength = 150;
@@ -42,7 +44,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
             className="article-card__button"
             onClick={toggleExpanded}
           >
-            {isExpanded ? 'Свернуть' : 'Читать полностью'}
+            {isExpanded ? t('knowledgePage.articleCard.collapse') : t('knowledgePage.articleCard.readMore')}
           </button>
         )}
       </div>

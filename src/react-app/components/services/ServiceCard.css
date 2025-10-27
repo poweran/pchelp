@@ -1,18 +1,38 @@
 .service-card {
-  background: var(--color-background, #ffffff);
-  border: 1px solid var(--color-border, #e2e8f0);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
   padding: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.1), transparent);
+  transition: left 0.5s;
 }
 
 .service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px) scale(1.02) rotateX(5deg);
+  box-shadow: 0 0 30px rgba(0, 217, 255, 0.4), 0 10px 30px rgba(0, 0, 0, 0.2), 0 20px 40px rgba(0, 217, 255, 0.2);
+  border-color: var(--color-neon-blue);
+}
+
+.service-card:hover::before {
+  left: 100%;
 }
 
 .service-card__header {
@@ -28,6 +48,23 @@
   border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card__category::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.service-card__category:hover::before {
+  left: 100%;
 }
 
 .service-card__category--repair {
@@ -75,5 +112,12 @@
 .service-card__price {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-primary, #2563eb);
+  color: var(--color-neon-blue);
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.service-card:hover .service-card__price {
+  color: var(--color-neon-cyan);
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
 }

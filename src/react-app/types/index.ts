@@ -3,8 +3,16 @@
 // Типы для услуг
 export interface Service {
   id: string;
-  title: string;
-  description: string;
+  title: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  description: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
   price: number;
   category: ServiceCategory;
 }

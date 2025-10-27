@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTickets } from '../../hooks/useTickets';
 import type { TicketFormData, TicketPriority } from '../../types';
 import Input from '../common/Input';
@@ -24,9 +25,10 @@ const initialFormData: TicketFormData = {
 };
 
 export default function TicketForm() {
-  const [formData, setFormData] = useState<TicketFormData>(initialFormData);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const { loading, error, success, submitTicket, resetSuccess, resetError } = useTickets();
+   const { t } = useTranslation();
+   const [formData, setFormData] = useState<TicketFormData>(initialFormData);
+   const [errors, setErrors] = useState<FormErrors>({});
+   const { loading, error, success, submitTicket, resetSuccess, resetError } = useTickets();
 
   // Валидация email
   const validateEmail = (email: string): boolean => {
@@ -45,29 +47,29 @@ export default function TicketForm() {
     const newErrors: FormErrors = {};
 
     if (!formData.clientName.trim()) {
-      newErrors.clientName = 'Имя обязательно для заполнения';
+      newErrors.clientName = t('ticketForm.errorNameRequired');
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Телефон обязателен для заполнения';
+      newErrors.phone = t('ticketForm.errorPhoneRequired');
     } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = 'Некорректный формат телефона';
+      newErrors.phone = t('ticketForm.errorPhoneInvalid');
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email обязателен для заполнения';
+      newErrors.email = t('ticketForm.errorEmailRequired');
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Некорректный формат email';
+      newErrors.email = t('ticketForm.errorEmailInvalid');
     }
 
     if (!formData.serviceType) {
-      newErrors.serviceType = 'Выберите тип услуги';
+      newErrors.serviceType = t('ticketForm.errorServiceRequired');
     }
 
     if (!formData.description.trim()) {
-      newErrors.description = 'Описание проблемы обязательно';
+      newErrors.description = t('ticketForm.errorDescriptionRequired');
     } else if (formData.description.trim().length < 10) {
-      newErrors.description = 'Описание должно содержать минимум 10 символов';
+      newErrors.description = t('ticketForm.errorDescriptionLength');
     }
 
     setErrors(newErrors);
@@ -112,53 +114,53 @@ export default function TicketForm() {
 
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
-      <h2 style={titleStyle}>Создать заявку</h2>
-      
+      <h2 style={titleStyle}>{t('ticketForm.title')}</h2>
+
       {/* Сообщения об успехе/ошибке */}
       {success && (
         <div style={successMessageStyle}>
-          ✓ Заявка успешно создана! Мы свяжемся с вами в ближайшее время.
+          ✓ {t('ticketForm.successMessage')}
         </div>
       )}
-      
+
       {error && (
         <div style={errorMessageStyle}>
-          ✗ Ошибка при создании заявки: {error}
+          ✗ {t('ticketForm.errorMessage', { error })}
         </div>
       )}
 
       {/* Имя клиента */}
       <Input
-        label="Ваше имя"
+        label={t('ticketForm.labelName')}
         type="text"
         value={formData.clientName}
         onChange={(value) => handleChange('clientName', value)}
         error={errors.clientName}
-        placeholder="Иван Иванов"
+        placeholder={t('ticketForm.placeholderName')}
         required
         disabled={loading}
       />
 
       {/* Телефон */}
       <Input
-        label="Телефон"
+        label={t('ticketForm.labelPhone')}
         type="tel"
         value={formData.phone}
         onChange={(value) => handleChange('phone', value)}
         error={errors.phone}
-        placeholder="+7 (999) 123-45-67"
+        placeholder={t('ticketForm.placeholderPhone')}
         required
         disabled={loading}
       />
 
       {/* Email */}
       <Input
-        label="Email"
+        label={t('ticketForm.labelEmail')}
         type="email"
         value={formData.email}
         onChange={(value) => handleChange('email', value)}
         error={errors.email}
-        placeholder="example@email.com"
+        placeholder={t('ticketForm.placeholderEmail')}
         required
         disabled={loading}
       />
@@ -166,7 +168,7 @@ export default function TicketForm() {
       {/* Тип услуги */}
       <div style={fieldWrapperStyle}>
         <label style={labelStyle}>
-          Тип услуги<span style={requiredStyle}>*</span>
+          {t('ticketForm.labelServiceType')}
         </label>
         <select
           value={formData.serviceType}
@@ -177,13 +179,13 @@ export default function TicketForm() {
           }}
           disabled={loading}
         >
-          <option value="">Выберите услугу</option>
-          <option value="repair">Ремонт компьютера</option>
-          <option value="setup">Настройка ПО</option>
-          <option value="recovery">Восстановление данных</option>
-          <option value="consultation">Консультация</option>
-          <option value="installation">Установка оборудования</option>
-          <option value="virus-removal">Удаление вирусов</option>
+          <option value="">{t('ticketForm.selectDefault')}</option>
+          <option value="repair">{t('ticketForm.optionRepair')}</option>
+          <option value="setup">{t('ticketForm.optionSetup')}</option>
+          <option value="recovery">{t('ticketForm.optionRecovery')}</option>
+          <option value="consultation">{t('ticketForm.optionConsultation')}</option>
+          <option value="installation">{t('ticketForm.optionInstallation')}</option>
+          <option value="virus-removal">{t('ticketForm.optionVirusRemoval')}</option>
         </select>
         {errors.serviceType && (
           <span style={errorTextStyle}>{errors.serviceType}</span>
@@ -192,7 +194,7 @@ export default function TicketForm() {
 
       {/* Приоритет */}
       <div style={fieldWrapperStyle}>
-        <label style={labelStyle}>Приоритет</label>
+        <label style={labelStyle}>{t('ticketForm.labelPriority')}</label>
         <div style={radioGroupStyle}>
           <label style={radioLabelStyle}>
             <input
@@ -204,7 +206,7 @@ export default function TicketForm() {
               disabled={loading}
               style={radioStyle}
             />
-            <span>Низкий</span>
+            <span>{t('ticketForm.radioLow')}</span>
           </label>
           <label style={radioLabelStyle}>
             <input
@@ -216,7 +218,7 @@ export default function TicketForm() {
               disabled={loading}
               style={radioStyle}
             />
-            <span>Средний</span>
+            <span>{t('ticketForm.radioMedium')}</span>
           </label>
           <label style={radioLabelStyle}>
             <input
@@ -228,18 +230,18 @@ export default function TicketForm() {
               disabled={loading}
               style={radioStyle}
             />
-            <span>Высокий</span>
+            <span>{t('ticketForm.radioHigh')}</span>
           </label>
         </div>
       </div>
 
       {/* Описание проблемы */}
       <Textarea
-        label="Описание проблемы"
+        label={t('ticketForm.labelDescription')}
         value={formData.description}
         onChange={(value) => handleChange('description', value)}
         error={errors.description}
-        placeholder="Опишите подробно вашу проблему..."
+        placeholder={t('ticketForm.placeholderDescription')}
         required
         disabled={loading}
         rows={5}
@@ -252,7 +254,7 @@ export default function TicketForm() {
         disabled={loading}
         loading={loading}
       >
-        {loading ? 'Отправка...' : 'Отправить заявку'}
+        {loading ? t('ticketForm.submitLoading') : t('ticketForm.submitButton')}
       </Button>
     </form>
   );
@@ -285,11 +287,6 @@ const labelStyle: CSSProperties = {
   fontWeight: 500,
   color: '#1e293b',
   marginBottom: '0.25rem',
-};
-
-const requiredStyle: CSSProperties = {
-  color: '#ef4444',
-  marginLeft: '0.25rem',
 };
 
 const selectStyle: CSSProperties = {

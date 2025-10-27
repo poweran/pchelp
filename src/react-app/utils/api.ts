@@ -114,15 +114,18 @@ export async function fetchTicketById(id: string) {
 }
 
 // API функции для работы с базой знаний
-export async function fetchKnowledge() {
-  return get<KnowledgeItem[]>('/knowledge');
+export async function fetchKnowledge(lang?: string) {
+  const url = lang ? `/knowledge?lang=${lang}` : '/knowledge';
+  return get<KnowledgeItem[]>(url);
 }
 
-export async function fetchKnowledgeById(id: string) {
-  return get<KnowledgeItem>(`/knowledge/${id}`);
+export async function fetchKnowledgeById(id: string, lang?: string) {
+  const url = lang ? `/knowledge/${id}?lang=${lang}` : `/knowledge/${id}`;
+  return get<KnowledgeItem>(url);
 }
 
 // API функции для работы с прайс-листом
-export async function fetchPricing() {
-  return get<PriceItem[]>('/pricing');
+export async function fetchPricing(lang?: string) {
+  const url = lang ? `/pricing?lang=${lang}` : '/pricing';
+  return get<PriceItem[]>(url);
 }

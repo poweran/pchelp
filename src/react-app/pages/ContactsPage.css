@@ -1,3 +1,15 @@
+/* Анимации появления секций */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .contacts-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -5,8 +17,13 @@
 }
 
 .contacts-header {
+  animation: fadeInUp 0.8s ease-out;
   text-align: center;
   margin-bottom: 3rem;
+}
+
+.contacts-content {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 .contacts-header h1 {

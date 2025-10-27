@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useKnowledge } from '../hooks/useKnowledge';
 import { FAQItem } from '../components/knowledge/FAQItem';
 import { ArticleCard } from '../components/knowledge/ArticleCard';
@@ -9,10 +10,11 @@ import './KnowledgePage.css';
 type TabType = 'faq' | 'articles';
 
 const KnowledgePage: React.FC = () => {
-  const { filteredItems, loading, error, searchByTitle, filterByType } = useKnowledge();
-  // console.log('[KnowledgePage] Hook state:', { filteredItems: filteredItems.length, loading, error });
-  const [activeTab, setActiveTab] = useState<TabType>('faq');
-  const [searchQuery, setSearchQuery] = useState('');
+   const { t } = useTranslation();
+   const { filteredItems, loading, error, searchByTitle, filterByType } = useKnowledge();
+   // console.log('[KnowledgePage] Hook state:', { filteredItems: filteredItems.length, loading, error });
+   const [activeTab, setActiveTab] = useState<TabType>('faq');
+   const [searchQuery, setSearchQuery] = useState('');
 
   // Разделение элементов по типам
   const faqs = useMemo(() => {
@@ -64,7 +66,7 @@ const KnowledgePage: React.FC = () => {
   if (loading) {
     return (
       <div className="knowledge-page">
-        <div className="loading">Загрузка базы знаний...</div>
+        <div className="loading">{t('knowledgePage.loading')}</div>
       </div>
     );
   }
@@ -72,7 +74,7 @@ const KnowledgePage: React.FC = () => {
   if (error) {
     return (
       <div className="knowledge-page">
-        <div className="error">Ошибка загрузки: {error}</div>
+        <div className="error">{t('knowledgePage.error', { error })}</div>
       </div>
     );
   }
@@ -80,8 +82,8 @@ const KnowledgePage: React.FC = () => {
   return (
     <div className="knowledge-page">
       <header className="knowledge-header">
-        <h1>📚 База знаний</h1>
-        <p className="subtitle">Ответы на часто задаваемые вопросы и полезные статьи</p>
+        <h1>📚 {t('knowledgePage.title')}</h1>
+        <p className="subtitle">{t('knowledgePage.subtitle')}</p>
       </header>
 
       <div className="knowledge-controls">
@@ -90,24 +92,24 @@ const KnowledgePage: React.FC = () => {
             className={`tab ${activeTab === 'faq' ? 'active' : ''}`}
             onClick={() => handleTabChange('faq')}
           >
-            ❓ FAQ
+            {t('knowledgePage.tabFaq')}
           </button>
           <button
             className={`tab ${activeTab === 'articles' ? 'active' : ''}`}
             onClick={() => handleTabChange('articles')}
           >
-            📄 Статьи
+            {t('knowledgePage.tabArticles')}
           </button>
         </div>
 
         <div className="search-box">
-          <Input
-            type="text"
-            placeholder="🔍 Поиск по заголовкам..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-        </div>
+           <Input
+             type="text"
+             placeholder={t('knowledgePage.searchPlaceholder')}
+             value={searchQuery}
+             onChange={handleSearchChange}
+           />
+         </div>
       </div>
 
       <div className="knowledge-content">
@@ -115,7 +117,7 @@ const KnowledgePage: React.FC = () => {
           <div className="faq-section">
             {Object.keys(groupedFaqs).length === 0 ? (
               <div className="empty-state">
-                Ничего не найдено по запросу "{searchQuery}"
+                {t('knowledgePage.emptyState', { query: searchQuery })}
               </div>
             ) : (
               Object.entries(groupedFaqs).map(([category, items]) => (
@@ -136,7 +138,7 @@ const KnowledgePage: React.FC = () => {
           <div className="articles-section">
             {Object.keys(groupedArticles).length === 0 ? (
               <div className="empty-state">
-                Ничего не найдено по запросу "{searchQuery}"
+                {t('knowledgePage.emptyState', { query: searchQuery })}
               </div>
             ) : (
               Object.entries(groupedArticles).map(([category, items]) => (

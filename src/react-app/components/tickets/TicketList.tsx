@@ -1,9 +1,11 @@
 import { useEffect, CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTickets } from '../../hooks/useTickets';
 import TicketCard from './TicketCard';
 
 export default function TicketList() {
-  const { tickets, loading, error, loadTickets } = useTickets();
+   const { t } = useTranslation();
+   const { tickets, loading, error, loadTickets } = useTickets();
 
   useEffect(() => {
     loadTickets();
@@ -22,7 +24,7 @@ export default function TicketList() {
       <div style={containerStyle}>
         <div style={loadingStyle}>
           <div style={spinnerStyle}></div>
-          <p>Загрузка заявок...</p>
+          <p>{t('ticketList.loading')}</p>
         </div>
       </div>
     );
@@ -35,10 +37,10 @@ export default function TicketList() {
         <div style={errorStyle}>
           <span style={errorIconStyle}>⚠️</span>
           <div>
-            <h3 style={errorTitleStyle}>Ошибка загрузки</h3>
+            <h3 style={errorTitleStyle}>{t('ticketList.errorTitle')}</h3>
             <p style={errorMessageStyle}>{error}</p>
             <button onClick={loadTickets} style={retryButtonStyle}>
-              Попробовать снова
+              {t('ticketList.retryButton')}
             </button>
           </div>
         </div>
@@ -52,9 +54,9 @@ export default function TicketList() {
       <div style={containerStyle}>
         <div style={emptyStyle}>
           <span style={emptyIconStyle}>📋</span>
-          <h3 style={emptyTitleStyle}>Нет заявок</h3>
+          <h3 style={emptyTitleStyle}>{t('ticketList.emptyTitle')}</h3>
           <p style={emptyMessageStyle}>
-            Список заявок пуст. Создайте первую заявку, чтобы начать работу.
+            {t('ticketList.emptyMessage')}
           </p>
         </div>
       </div>
@@ -65,9 +67,9 @@ export default function TicketList() {
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h2 style={titleStyle}>Список заявок</h2>
+        <h2 style={titleStyle}>{t('ticketList.title')}</h2>
         <div style={countStyle}>
-          Всего: <strong>{tickets.length}</strong>
+          {t('ticketList.count', { count: tickets.length })}
         </div>
       </div>
 
@@ -80,7 +82,7 @@ export default function TicketList() {
       {loading && (
         <div style={loadingOverlayStyle}>
           <div style={smallSpinnerStyle}></div>
-          <span>Обновление...</span>
+          <span>{t('ticketList.loadingOverlay')}</span>
         </div>
       )}
     </div>

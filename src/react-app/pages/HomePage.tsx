@@ -1,8 +1,10 @@
-import { useState, FormEvent, CSSProperties, useCallback, memo } from 'react';
+import { useState, FormEvent, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
+import './HomePage.css';
 
 interface QuickFormData {
   name: string;
@@ -11,6 +13,7 @@ interface QuickFormData {
 }
 
 const HomePage = memo(function HomePage() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<QuickFormData>({
     name: '',
     phone: '',
@@ -34,72 +37,85 @@ const HomePage = memo(function HomePage() {
   }, []);
 
   return (
-    <>
+    <div className="home-page">
         {/* Hero секция */}
-        <section style={heroStyle}>
-          <div style={heroContentStyle}>
-            <h1 style={heroTitleStyle}>
-              Профессиональная компьютерная помощь
-            </h1>
-            <p style={heroSubtitleStyle}>
-              Ремонт, настройка и обслуживание компьютеров и ноутбуков.
-              Быстро, качественно, с гарантией.
-            </p>
-            <div style={heroButtonsStyle}>
-              <Button onClick={() => window.location.href = '/services'} aria-label="Перейти к странице услуг">
-                Наши услуги
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' })}
-                aria-label="Прокрутить страницу к форме заявки"
-              >
-                Оставить заявку
-              </Button>
-            </div>
+        <header className="hero">
+          <h1>
+            {t('homePage.heroTitle')}
+          </h1>
+          <p className="subtitle">
+            {t('homePage.heroSubtitle')}
+          </p>
+          <div className="hero-actions">
+            <Button onClick={() => window.location.href = '/services'} aria-label={t('homePage.servicesButton')}>
+              {t('homePage.servicesButton')}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' })}
+              aria-label={t('homePage.requestButton')}
+            >
+              {t('homePage.requestButton')}
+            </Button>
           </div>
-        </section>
+        </header>
 
         {/* Преимущества */}
-        <section style={advantagesStyle} aria-labelledby="advantages-title">
-          <h2 id="advantages-title" style={sectionTitleStyle}>Почему выбирают нас</h2>
-          <div style={advantagesGridStyle} role="list">
-            <Card role="listitem">
-              <div style={advantageCardStyle}>
-                <span style={advantageIconStyle} aria-hidden="true">⚡</span>
-                <h3 style={advantageTitleStyle}>Быстрый отклик</h3>
-                <p style={advantageTextStyle}>
-                  Выезд мастера в течение 2 часов. Срочный ремонт за 24 часа.
+        <section className="features" aria-labelledby="advantages-title">
+          <div className="features-header">
+            <h2 id="advantages-title" className="features-title">{t('homePage.whyUs')}</h2>
+            <p className="features-subtitle">
+              {t('homePage.featuresSubtitle')}
+            </p>
+          </div>
+          <div className="features-grid" role="list">
+            <Card role="listitem" onClick={() => {
+              const element = document.getElementById('quick-form');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}>
+              <div className="feature-card" title="Нажмите, чтобы перейти к форме">
+                <div className="feature-icon">
+                  <span aria-hidden="true">⚡</span>
+                </div>
+                <h3 className="feature-title">{t('homePage.quickResponse')}</h3>
+                <p className="feature-description">
+                  {t('homePage.quickResponseDesc')}
                 </p>
               </div>
             </Card>
 
-            <Card role="listitem">
-              <div style={advantageCardStyle}>
-                <span style={advantageIconStyle} aria-hidden="true">🎓</span>
-                <h3 style={advantageTitleStyle}>Профессионализм</h3>
-                <p style={advantageTextStyle}>
-                  Сертифицированные специалисты с опытом работы более 10 лет.
+            <Card role="listitem" onClick={() => window.location.href = '/services'}>
+              <div className="feature-card" title="Нажмите, чтобы узнать о наших услугах">
+                <div className="feature-icon">
+                  <span aria-hidden="true">🎓</span>
+                </div>
+                <h3 className="feature-title">{t('homePage.professionalism')}</h3>
+                <p className="feature-description">
+                  {t('homePage.professionalismDesc')}
                 </p>
               </div>
             </Card>
 
-            <Card role="listitem">
-              <div style={advantageCardStyle}>
-                <span style={advantageIconStyle} aria-hidden="true">💰</span>
-                <h3 style={advantageTitleStyle}>Честные цены</h3>
-                <p style={advantageTextStyle}>
-                  Прозрачное ценообразование. Бесплатная диагностика на месте.
+            <Card role="listitem" onClick={() => window.location.href = '/pricing'}>
+              <div className="feature-card" title="Нажмите, чтобы узнать о ценах">
+                <div className="feature-icon">
+                  <span aria-hidden="true">💰</span>
+                </div>
+                <h3 className="feature-title">{t('homePage.fairPrices')}</h3>
+                <p className="feature-description">
+                  {t('homePage.fairPricesDesc')}
                 </p>
               </div>
             </Card>
 
-            <Card role="listitem">
-              <div style={advantageCardStyle}>
-                <span style={advantageIconStyle} aria-hidden="true">✅</span>
-                <h3 style={advantageTitleStyle}>Гарантия качества</h3>
-                <p style={advantageTextStyle}>
-                  Гарантия на все виды работ до 6 месяцев. Качество проверено временем.
+            <Card role="listitem" onClick={() => window.location.href = '/knowledge'}>
+              <div className="feature-card" title="Нажмите, чтобы узнать больше о гарантиях">
+                <div className="feature-icon">
+                  <span aria-hidden="true">✅</span>
+                </div>
+                <h3 className="feature-title">{t('homePage.qualityGuarantee')}</h3>
+                <p className="feature-description">
+                  {t('homePage.qualityGuaranteeDesc')}
                 </p>
               </div>
             </Card>
@@ -107,22 +123,22 @@ const HomePage = memo(function HomePage() {
         </section>
 
         {/* Быстрая форма заявки */}
-        <section id="quick-form" style={quickFormSectionStyle} aria-labelledby="contact-form-title">
-          <div style={quickFormContainerStyle}>
-            <h2 id="contact-form-title" style={sectionTitleStyle}>Оставьте заявку</h2>
-            <p style={quickFormSubtitleStyle}>
-              Заполните форму, и мы свяжемся с вами в ближайшее время
+        <section id="quick-form" className="cta" aria-labelledby="contact-form-title">
+          <div className="cta-container">
+            <h2 id="contact-form-title" className="cta-title">{t('homePage.leaveRequest')}</h2>
+            <p className="cta-subtitle">
+              {t('homePage.formSubtitle')}
             </p>
 
             {showSuccess && (
-              <div style={successMessageStyle}>
-                ✓ Заявка отправлена! Мы свяжемся с вами в ближайшее время.
+              <div className="success-message">
+                {t('homePage.successMessage')}
               </div>
             )}
 
-            <form onSubmit={handleQuickSubmit} style={formStyle}>
+            <form onSubmit={handleQuickSubmit} className="form">
               <Input
-                label="Ваше имя"
+                label={t('homePage.yourName')}
                 type="text"
                 value={formData.name}
                 onChange={(value) => setFormData({ ...formData, name: value })}
@@ -132,7 +148,7 @@ const HomePage = memo(function HomePage() {
               />
 
               <Input
-                label="Телефон"
+                label={t('homePage.phone')}
                 type="tel"
                 value={formData.phone}
                 onChange={(value) => setFormData({ ...formData, phone: value })}
@@ -142,7 +158,7 @@ const HomePage = memo(function HomePage() {
               />
 
               <Textarea
-                label="Опишите проблему"
+                label={t('homePage.describeProblem')}
                 value={formData.description}
                 onChange={(value) => setFormData({ ...formData, description: value })}
                 placeholder="Кратко опишите вашу проблему..."
@@ -152,56 +168,58 @@ const HomePage = memo(function HomePage() {
               />
 
               <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
-                {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
+                {isSubmitting ? t('homePage.sending') : t('homePage.sendRequest')}
               </Button>
             </form>
 
-            <p style={noteStyle}>
-              Или позвоните нам: <a href="tel:+7XXXXXXXXXX" style={linkStyle}>+7 (XXX) XXX-XX-XX</a>
+            <p className="note">
+              {t('homePage.callUs')} <a href="tel:+7XXXXXXXXXX" className="link">+7 (XXX) XXX-XX-XX</a>
             </p>
           </div>
         </section>
 
         {/* Контактная информация */}
-        <section style={contactInfoStyle} aria-labelledby="contact-info-title">
-          <h2 id="contact-info-title" style={{ ...sectionTitleStyle, position: 'absolute', left: '-9999px' }}>
-            Контактная информация
+        <section className="contact" aria-labelledby="contact-info-title">
+          <h2 id="contact-info-title" className="visually-hidden">
+            {t('contacts.title')}
           </h2>
-          <div style={contactGridStyle} role="list">
-            <div style={contactItemStyle} role="listitem">
-              <span style={contactIconStyle} aria-hidden="true">📞</span>
-              <div>
-                <h3 style={contactTitleStyle}>Телефон</h3>
-                <p style={contactTextStyle}>+7 (XXX) XXX-XX-XX</p>
+          <div className="contact-container">
+            <div className="contact-grid" role="list">
+                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'tel:+7XXXXXXXXXX'}>
+                  <span className="contact-icon" aria-hidden="true">📞</span>
+                  <div>
+                    <h3 className="contact-title">{t('homePage.phoneTitle')}</h3>
+                    <p className="contact-text">+7 (XXX) XXX-XX-XX</p>
+                  </div>
+                </div>
+ 
+                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'mailto:info@pchelp.example'}>
+                  <span className="contact-icon" aria-hidden="true">📧</span>
+                  <div>
+                    <h3 className="contact-title">{t('homePage.email')}</h3>
+                    <p className="contact-text">info@pchelp.example</p>
+                  </div>
+                </div>
+ 
+                <div className="contact-item" role="listitem" onClick={() => window.location.href = '/contacts'}>
+                  <span className="contact-icon" aria-hidden="true">📍</span>
+                  <div>
+                    <h3 className="contact-title">{t('homePage.address')}</h3>
+                    <p className="contact-text">{t('homePage.fullAddress')}</p>
+                  </div>
+                </div>
+ 
+                <div className="contact-item" role="listitem" onClick={() => window.location.href = '/contacts'}>
+                  <span className="contact-icon" aria-hidden="true">🕐</span>
+                  <div>
+                    <h3 className="contact-title">{t('homePage.workingHours')}</h3>
+                    <p className="contact-text" dangerouslySetInnerHTML={{ __html: t('homePage.hours') }} />
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div style={contactItemStyle} role="listitem">
-              <span style={contactIconStyle} aria-hidden="true">📧</span>
-              <div>
-                <h3 style={contactTitleStyle}>Email</h3>
-                <p style={contactTextStyle}>info@pchelp.example</p>
-              </div>
-            </div>
-
-            <div style={contactItemStyle} role="listitem">
-              <span style={contactIconStyle} aria-hidden="true">📍</span>
-              <div>
-                <h3 style={contactTitleStyle}>Адрес</h3>
-                <p style={contactTextStyle}>г. Москва, ул. Примерная, д. 1</p>
-              </div>
-            </div>
-
-            <div style={contactItemStyle} role="listitem">
-              <span style={contactIconStyle} aria-hidden="true">🕐</span>
-              <div>
-                <h3 style={contactTitleStyle}>Режим работы</h3>
-                <p style={contactTextStyle}>Пн-Пт: 9:00-18:00<br />Сб-Вс: 10:00-16:00</p>
-              </div>
-            </div>
           </div>
         </section>
-    </>
+    </div>
   );
 });
 
@@ -209,163 +227,4 @@ HomePage.displayName = 'HomePage';
 
 export default HomePage;
 
-// Стили
-const heroStyle: CSSProperties = {
-  background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-  color: '#ffffff',
-  padding: '5rem 1rem',
-  textAlign: 'center',
-};
-
-const heroContentStyle: CSSProperties = {
-  maxWidth: '800px',
-  margin: '0 auto',
-};
-
-const heroTitleStyle: CSSProperties = {
-  fontSize: '3rem',
-  fontWeight: 'bold',
-  marginBottom: '1.5rem',
-  lineHeight: '1.2',
-};
-
-const heroSubtitleStyle: CSSProperties = {
-  fontSize: '1.25rem',
-  marginBottom: '2.5rem',
-  opacity: 0.95,
-  lineHeight: '1.6',
-};
-
-const heroButtonsStyle: CSSProperties = {
-  display: 'flex',
-  gap: '1rem',
-  justifyContent: 'center',
-  flexWrap: 'wrap',
-};
-
-const advantagesStyle: CSSProperties = {
-  maxWidth: '1280px',
-  margin: '0 auto',
-  padding: '4rem 1rem',
-};
-
-const sectionTitleStyle: CSSProperties = {
-  fontSize: '2.25rem',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  color: '#1e293b',
-  marginBottom: '3rem',
-};
-
-const advantagesGridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-  gap: '2rem',
-};
-
-const advantageCardStyle: CSSProperties = {
-  textAlign: 'center',
-};
-
-const advantageIconStyle: CSSProperties = {
-  fontSize: '3rem',
-  marginBottom: '1rem',
-  display: 'block',
-};
-
-const advantageTitleStyle: CSSProperties = {
-  fontSize: '1.25rem',
-  fontWeight: '600',
-  color: '#1e293b',
-  marginBottom: '0.75rem',
-};
-
-const advantageTextStyle: CSSProperties = {
-  fontSize: '0.95rem',
-  color: '#64748b',
-  lineHeight: '1.6',
-};
-
-const quickFormSectionStyle: CSSProperties = {
-  backgroundColor: '#ffffff',
-  padding: '4rem 1rem',
-};
-
-const quickFormContainerStyle: CSSProperties = {
-  maxWidth: '600px',
-  margin: '0 auto',
-};
-
-const quickFormSubtitleStyle: CSSProperties = {
-  textAlign: 'center',
-  color: '#64748b',
-  marginBottom: '2rem',
-  fontSize: '1rem',
-};
-
-const formStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1.25rem',
-  marginBottom: '1.5rem',
-};
-
-const successMessageStyle: CSSProperties = {
-  padding: '1rem',
-  backgroundColor: '#dcfce7',
-  border: '1px solid #22c55e',
-  borderRadius: '0.375rem',
-  color: '#166534',
-  fontSize: '0.95rem',
-  fontWeight: 500,
-  marginBottom: '1.5rem',
-  textAlign: 'center',
-};
-
-const noteStyle: CSSProperties = {
-  textAlign: 'center',
-  color: '#64748b',
-  fontSize: '0.95rem',
-};
-
-const linkStyle: CSSProperties = {
-  color: '#2563eb',
-  textDecoration: 'none',
-  fontWeight: 500,
-};
-
-const contactInfoStyle: CSSProperties = {
-  backgroundColor: '#f1f5f9',
-  padding: '3rem 1rem',
-};
-
-const contactGridStyle: CSSProperties = {
-  maxWidth: '1280px',
-  margin: '0 auto',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-  gap: '2rem',
-};
-
-const contactItemStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: '1rem',
-};
-
-const contactIconStyle: CSSProperties = {
-  fontSize: '2rem',
-};
-
-const contactTitleStyle: CSSProperties = {
-  fontSize: '1rem',
-  fontWeight: '600',
-  color: '#1e293b',
-  marginBottom: '0.5rem',
-};
-
-const contactTextStyle: CSSProperties = {
-  fontSize: '0.95rem',
-  color: '#64748b',
-  lineHeight: '1.6',
-};
+// Удалены инлайновые стили - теперь используются CSS классы из HomePage.module.css

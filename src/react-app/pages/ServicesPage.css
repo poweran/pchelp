@@ -1,0 +1,29 @@
+/* ServicesPage.css */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.services-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.services-header {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.services-section {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.services-cta {
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}

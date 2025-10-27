@@ -1,10 +1,12 @@
 import { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface FooterProps {
   className?: string;
 }
 
 export default function Footer({ className = '' }: FooterProps) {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -12,26 +14,26 @@ export default function Footer({ className = '' }: FooterProps) {
       <div style={containerStyle}>
         <div style={sectionStyle}>
           <h3 style={headingStyle}>PCHelp</h3>
-          <p style={textStyle}>Профессиональная компьютерная помощь</p>
+          <p style={textStyle}>{t('footer.description')}</p>
         </div>
 
         <div style={sectionStyle}>
-          <h4 style={subHeadingStyle}>Контакты</h4>
-          <p style={textStyle}>📞 +7 (XXX) XXX-XX-XX</p>
-          <p style={textStyle}>📧 info@pchelp.example</p>
-          <p style={textStyle}>📍 г. Москва</p>
+          <h4 style={subHeadingStyle}>{t('footer.contacts')}</h4>
+          <p style={textStyle}>📞 {t('footer.phone')}</p>
+          <p style={textStyle}>📧 {t('footer.email')}</p>
+          <p style={textStyle}>📍 {t('footer.address')}</p>
         </div>
 
         <div style={sectionStyle}>
-          <h4 style={subHeadingStyle}>Часы работы</h4>
-          <p style={textStyle}>Пн-Пт: 9:00 - 18:00</p>
-          <p style={textStyle}>Сб-Вс: 10:00 - 16:00</p>
+          <h4 style={subHeadingStyle}>{t('footer.hours')}</h4>
+          <p style={textStyle}>{t('footer.weekdays')}</p>
+          <p style={textStyle}>{t('footer.weekends')}</p>
         </div>
       </div>
 
       <div style={copyrightStyle}>
         <p style={textStyle}>
-          © {currentYear} PCHelp. Все права защищены.
+          © {currentYear} PCHelp. {t('footer.copyright')}
         </p>
       </div>
     </footer>
@@ -39,8 +41,8 @@ export default function Footer({ className = '' }: FooterProps) {
 }
 
 const footerStyle: CSSProperties = {
-  backgroundColor: '#1e293b',
-  color: '#e2e8f0',
+  backgroundColor: 'var(--color-background)',
+  color: 'var(--color-text)',
   padding: '3rem 0 1rem',
   marginTop: 'auto',
 };
@@ -64,26 +66,26 @@ const sectionStyle: CSSProperties = {
 const headingStyle: CSSProperties = {
   fontSize: '1.5rem',
   fontWeight: 'bold',
-  color: '#2563eb',
+  color: 'var(--color-primary)',
   marginBottom: '0.5rem',
 };
 
 const subHeadingStyle: CSSProperties = {
   fontSize: '1.125rem',
   fontWeight: '600',
-  color: '#ffffff',
+  color: 'var(--color-text)',
   marginBottom: '0.5rem',
 };
 
 const textStyle: CSSProperties = {
   fontSize: '0.875rem',
-  color: '#cbd5e1',
+  color: 'var(--color-secondary)',
   margin: '0.25rem 0',
   lineHeight: '1.5',
 };
 
 const copyrightStyle: CSSProperties = {
-  borderTop: '1px solid #334155',
+  borderTop: '1px solid var(--color-border)',
   paddingTop: '1rem',
   textAlign: 'center',
   maxWidth: '1280px',

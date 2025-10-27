@@ -1,37 +1,31 @@
 import { useState, CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import TicketForm from '../components/tickets/TicketForm';
 import TicketList from '../components/tickets/TicketList';
 import Input from '../components/common/Input';
+import './TicketsPage.css';
 
 type TabType = 'create' | 'my-tickets';
 
 export default function TicketsPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('create');
-  const [searchQuery, setSearchQuery] = useState('');
+   const { t } = useTranslation();
+   const [activeTab, setActiveTab] = useState<TabType>('create');
+   const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <>
-        {/* Breadcrumbs */}
-        <div style={breadcrumbsContainerStyle}>
-          <nav style={breadcrumbsStyle}>
-            <a href="/" style={breadcrumbLinkStyle}>Главная</a>
-            <span style={breadcrumbSeparatorStyle}>/</span>
-            <span style={breadcrumbCurrentStyle}>Заявки</span>
-          </nav>
-        </div>
-
         {/* Заголовок страницы */}
-        <section style={headerSectionStyle}>
+        <section style={headerSectionStyle} className="tickets-header">
           <div style={containerStyle}>
-            <h1 style={pageTitleStyle}>Заявки</h1>
+            <h1 style={pageTitleStyle}>{t('ticketsPage.title')}</h1>
             <p style={pageSubtitleStyle}>
-              Создайте новую заявку или просмотрите статус существующих
+              {t('ticketsPage.subtitle')}
             </p>
           </div>
         </section>
 
         {/* Tabs навигация */}
-        <section style={tabsSectionStyle}>
+        <section style={tabsSectionStyle} className="tickets-tabs">
           <div style={containerStyle}>
             <div style={tabsContainerStyle}>
               <button
@@ -42,7 +36,7 @@ export default function TicketsPage() {
                 }}
                 onMouseEnter={(e) => {
                   if (activeTab !== 'create') {
-                    e.currentTarget.style.backgroundColor = '#f1f5f9';
+                    e.currentTarget.style.backgroundColor = '#eff6ff';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -52,9 +46,9 @@ export default function TicketsPage() {
                 }}
               >
                 <span style={tabIconStyle}>✏️</span>
-                Создать заявку
+                {t('ticketsPage.tabCreate')}
               </button>
-              
+
               <button
                 onClick={() => setActiveTab('my-tickets')}
                 style={{
@@ -63,7 +57,7 @@ export default function TicketsPage() {
                 }}
                 onMouseEnter={(e) => {
                   if (activeTab !== 'my-tickets') {
-                    e.currentTarget.style.backgroundColor = '#f1f5f9';
+                    e.currentTarget.style.backgroundColor = '#eff6ff';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -73,34 +67,34 @@ export default function TicketsPage() {
                 }}
               >
                 <span style={tabIconStyle}>📋</span>
-                Мои заявки
+                {t('ticketsPage.tabMyTickets')}
               </button>
             </div>
           </div>
         </section>
 
         {/* Контент */}
-        <section style={contentSectionStyle}>
+        <section style={contentSectionStyle} className="tickets-content">
           <div style={containerStyle}>
             {activeTab === 'create' ? (
               <div style={formContainerStyle}>
                 <TicketForm />
-                
+
                 {/* Дополнительная информация */}
                 <div style={infoBoxStyle}>
-                  <h3 style={infoTitleStyle}>💡 Полезная информация</h3>
+                  <h3 style={infoTitleStyle}>💡 {t('ticketsPage.infoTitle')}</h3>
                   <ul style={infoListStyle}>
                     <li style={infoItemStyle}>
-                      Заявки обрабатываются в течение 2 часов в рабочее время
+                      {t('ticketsPage.infoItem1')}
                     </li>
                     <li style={infoItemStyle}>
-                      Для срочных вопросов используйте приоритет "Высокий"
+                      {t('ticketsPage.infoItem2')}
                     </li>
                     <li style={infoItemStyle}>
-                      Мы свяжемся с вами по указанному телефону или email
+                      {t('ticketsPage.infoItem3')}
                     </li>
                     <li style={infoItemStyle}>
-                      Вы можете отслеживать статус заявки во вкладке "Мои заявки"
+                      {t('ticketsPage.infoItem4')}
                     </li>
                   </ul>
                 </div>
@@ -114,17 +108,17 @@ export default function TicketsPage() {
                     type="text"
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder="🔍 Поиск по имени или ID заявки..."
+                    placeholder={`🔍 ${t('ticketsPage.searchPlaceholder')}`}
                   />
                 </div>
 
                 {/* Список заявок */}
                 <TicketList />
-                
+
                 {/* Подсказка если нет заявок */}
                 <div style={hintBoxStyle}>
                   <p style={hintTextStyle}>
-                    <strong>Совет:</strong> Чтобы создать новую заявку, перейдите на вкладку "Создать заявку"
+                    <strong>{t('ticketsPage.hint')}</strong>
                   </p>
                 </div>
               </div>
@@ -133,12 +127,12 @@ export default function TicketsPage() {
         </section>
 
         {/* Контактная информация внизу */}
-        <section style={contactSectionStyle}>
+        <section style={contactSectionStyle} className="tickets-contact">
           <div style={containerStyle}>
             <div style={contactBoxStyle}>
-              <h3 style={contactTitleStyle}>Нужна помощь?</h3>
+              <h3 style={contactTitleStyle}>{t('ticketsPage.contactTitle')}</h3>
               <p style={contactTextStyle}>
-                Свяжитесь с нами напрямую:
+                {t('ticketsPage.contactText')}
               </p>
               <div style={contactLinksStyle}>
                 <a href="tel:+7XXXXXXXXXX" style={contactLinkStyle}>
@@ -160,35 +154,6 @@ const containerStyle: CSSProperties = {
   maxWidth: '1280px',
   margin: '0 auto',
   padding: '0 1rem',
-};
-
-const breadcrumbsContainerStyle: CSSProperties = {
-  backgroundColor: '#ffffff',
-  borderBottom: '1px solid #e2e8f0',
-};
-
-const breadcrumbsStyle: CSSProperties = {
-  maxWidth: '1280px',
-  margin: '0 auto',
-  padding: '0.75rem 1rem',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  fontSize: '0.875rem',
-};
-
-const breadcrumbLinkStyle: CSSProperties = {
-  color: '#2563eb',
-  textDecoration: 'none',
-  transition: 'color 0.2s',
-};
-
-const breadcrumbSeparatorStyle: CSSProperties = {
-  color: '#94a3b8',
-};
-
-const breadcrumbCurrentStyle: CSSProperties = {
-  color: '#64748b',
 };
 
 const headerSectionStyle: CSSProperties = {
@@ -233,13 +198,13 @@ const tabButtonStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: '0.5rem',
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
+  padding: '0.5rem 0.75rem',
+  fontSize: '0.95rem',
   fontWeight: 500,
   color: '#64748b',
   backgroundColor: 'transparent',
   border: 'none',
-  borderBottom: '3px solid transparent',
+  borderRadius: '0.375rem',
   cursor: 'pointer',
   transition: 'all 0.2s',
   outline: 'none',
@@ -247,8 +212,8 @@ const tabButtonStyle: CSSProperties = {
 
 const activeTabButtonStyle: CSSProperties = {
   color: '#2563eb',
-  borderBottomColor: '#2563eb',
-  backgroundColor: '#f8fafc',
+  backgroundColor: '#dbeafe',
+  fontWeight: 600,
 };
 
 const tabIconStyle: CSSProperties = {

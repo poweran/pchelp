@@ -3,9 +3,11 @@ import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
 import Button from '../components/common/Button';
 import type { ContactFormData } from '../types';
+import { useTranslation } from 'react-i18next';
 import './ContactsPage.css';
 
 const ContactsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -40,8 +42,8 @@ const ContactsPage: React.FC = () => {
   return (
     <div className="contacts-page">
       <header className="contacts-header">
-        <h1>📞 Контакты</h1>
-        <p className="subtitle">Свяжитесь с нами удобным для вас способом</p>
+        <h1>{t('contactsPage.title')}</h1>
+        <p className="subtitle">{t('contactsPage.subtitle')}</p>
       </header>
 
       <div className="contacts-content">
@@ -49,24 +51,18 @@ const ContactsPage: React.FC = () => {
           <div className="contact-card">
             <div className="contact-card-icon">📍</div>
             <div className="contact-card-content">
-              <h3>Адрес офиса</h3>
-              <p>г. Москва, ул. Примерная, д. 123, офис 456</p>
-              <p className="contact-note">Прием клиентов по предварительной записи</p>
+              <h3>{t('contactsPage.officeAddress')}</h3>
+              <p>{t('contactsPage.officeAddressText')}</p>
+              <p className="contact-note">{t('contactsPage.officeNote')}</p>
             </div>
           </div>
 
           <div className="contact-card">
             <div className="contact-card-icon">📱</div>
             <div className="contact-card-content">
-              <h3>Телефоны</h3>
+              <h3>{t('contactsPage.phones')}</h3>
               <p>
-                <a href="tel:+74951234567">+7 (495) 123-45-67</a> — Основной
-              </p>
-              <p>
-                <a href="tel:+79161234567">+7 (916) 123-45-67</a> — Мобильный
-              </p>
-              <p>
-                <a href="tel:+74957654321">+7 (495) 765-43-21</a> — Для корпоративных клиентов
+                <a href="tel:+37495019753">+374 (95) 01-97-53 — {t('contactsPage.phoneMain')}</a>
               </p>
             </div>
           </div>
@@ -74,12 +70,12 @@ const ContactsPage: React.FC = () => {
           <div className="contact-card">
             <div className="contact-card-icon">✉️</div>
             <div className="contact-card-content">
-              <h3>Email</h3>
+              <h3>{t('contactsPage.email')}</h3>
               <p>
-                <a href="mailto:info@pchelp.ru">info@pchelp.ru</a> — Общие вопросы
+                <a href="mailto:info@pchelp.ru">{t('contactsPage.emailGeneral')}</a>
               </p>
               <p>
-                <a href="mailto:support@pchelp.ru">support@pchelp.ru</a> — Техподдержка
+                <a href="mailto:support@pchelp.ru">{t('contactsPage.emailSupport')}</a>
               </p>
             </div>
           </div>
@@ -87,23 +83,23 @@ const ContactsPage: React.FC = () => {
           <div className="contact-card">
             <div className="contact-card-icon">🕐</div>
             <div className="contact-card-content">
-              <h3>График работы</h3>
-              <p>Понедельник — Пятница: 9:00 — 20:00</p>
-              <p>Суббота: 10:00 — 18:00</p>
-              <p>Воскресенье: выходной</p>
-              <p className="contact-note">Выездные работы — круглосуточно по договоренности</p>
+              <h3>{t('contactsPage.workingHours')}</h3>
+              <p>{t('contactsPage.mondayFriday')}</p>
+              <p>{t('contactsPage.saturday')}</p>
+              <p>{t('contactsPage.sunday')}</p>
+              <p className="contact-note">{t('contactsPage.fieldServiceNote')}</p>
             </div>
           </div>
 
           <div className="contact-card map-card">
             <div className="contact-card-icon">🗺️</div>
             <div className="contact-card-content">
-              <h3>Как нас найти</h3>
+              <h3>{t('contactsPage.howToFind')}</h3>
               <div className="map-placeholder">
                 <div className="map-placeholder-content">
-                  <p>📍 Карта проезда</p>
-                  <p className="map-note">Ближайшее метро: Площадь Революции</p>
-                  <p className="map-note">5 минут пешком от выхода №3</p>
+                  <p>📍 {t('contactsPage.mapTitle')}</p>
+                  <p className="map-note">{t('contactsPage.nearestMetro')}</p>
+                  <p className="map-note">{t('contactsPage.walkingDistance')}</p>
                 </div>
               </div>
             </div>
@@ -111,54 +107,54 @@ const ContactsPage: React.FC = () => {
         </div>
 
         <div className="contacts-form-section">
-          <h2>✍️ Форма обратной связи</h2>
+          <h2>{t('contactsPage.feedbackForm')}</h2>
           <p className="form-description">
-            Оставьте ваше сообщение, и мы свяжемся с вами в ближайшее время
+            {t('contactsPage.formDescription')}
           </p>
 
           {submitSuccess && (
             <div className="success-message">
-              ✅ Ваше сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.
+              {t('contactsPage.successMessage')}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="contact-form">
             <div className="form-group">
-              <label htmlFor="name">Ваше имя *</label>
+              <label htmlFor="name">{t('contactsPage.nameLabel')}</label>
               <Input
                 type="text"
-                placeholder="Иван Иванов"
+                placeholder={t('contactsPage.namePlaceholder')}
                 value={formData.name}
                 onChange={(value) => handleChange(value, 'name')}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email *</label>
+              <label htmlFor="email">{t('contactsPage.emailLabel')}</label>
               <Input
                 type="email"
-                placeholder="ivan@example.com"
+                placeholder={t('contactsPage.emailPlaceholder')}
                 value={formData.email}
                 onChange={(value) => handleChange(value, 'email')}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="message">Сообщение *</label>
+              <label htmlFor="message">{t('contactsPage.messageLabel')}</label>
               <Textarea
-                placeholder="Опишите ваш вопрос или проблему..."
+                placeholder={t('contactsPage.messagePlaceholder')}
                 value={formData.message}
                 onChange={(value) => handleChange(value, 'message')}
                 rows={6}
               />
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
               className="submit-button"
             >
-              {isSubmitting ? 'Отправка...' : '📤 Отправить сообщение'}
+              {isSubmitting ? t('contactsPage.submitting') : t('contactsPage.submitButton')}
             </Button>
           </form>
         </div>

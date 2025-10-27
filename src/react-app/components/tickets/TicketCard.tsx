@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Ticket } from '../../types';
 import Card from '../common/Card';
 
@@ -7,65 +8,68 @@ interface TicketCardProps {
 }
 
 export default function TicketCard({ ticket }: TicketCardProps) {
-  // Получить стиль для статуса
-  const getStatusStyle = (status: Ticket['status']): CSSProperties => {
-    switch (status) {
-      case 'new':
-        return { ...badgeStyle, backgroundColor: '#dbeafe', color: '#1e40af' };
-      case 'in-progress':
-        return { ...badgeStyle, backgroundColor: '#fed7aa', color: '#9a3412' };
-      case 'completed':
-        return { ...badgeStyle, backgroundColor: '#dcfce7', color: '#166534' };
-      case 'cancelled':
-        return { ...badgeStyle, backgroundColor: '#f3f4f6', color: '#4b5563' };
-      default:
-        return badgeStyle;
-    }
-  };
+   const { t } = useTranslation();
 
-  // Получить текст статуса на русском
-  const getStatusText = (status: Ticket['status']): string => {
-    switch (status) {
-      case 'new':
-        return 'Новая';
-      case 'in-progress':
-        return 'В работе';
-      case 'completed':
-        return 'Завершена';
-      case 'cancelled':
-        return 'Отменена';
-      default:
-        return status;
-    }
-  };
+   // Получить стиль для статуса
+   const getStatusStyle = (status: Ticket['status']): CSSProperties => {
+     switch (status) {
+       case 'new':
+         return { ...badgeStyle, backgroundColor: '#dbeafe', color: '#1e40af' };
+       case 'in-progress':
+         return { ...badgeStyle, backgroundColor: '#fed7aa', color: '#9a3412' };
+       case 'completed':
+         return { ...badgeStyle, backgroundColor: '#dcfce7', color: '#166534' };
+       case 'cancelled':
+         return { ...badgeStyle, backgroundColor: '#f3f4f6', color: '#4b5563' };
+       default:
+         return badgeStyle;
+     }
+   };
 
-  // Получить стиль для приоритета
-  const getPriorityStyle = (priority: Ticket['priority']): CSSProperties => {
-    switch (priority) {
-      case 'low':
-        return { ...priorityBadgeStyle, backgroundColor: '#f3f4f6', color: '#4b5563' };
-      case 'medium':
-        return { ...priorityBadgeStyle, backgroundColor: '#fef3c7', color: '#92400e' };
-      case 'high':
-        return { ...priorityBadgeStyle, backgroundColor: '#fee2e2', color: '#991b1b' };
-      default:
-        return priorityBadgeStyle;
-    }
-  };
+   // Получить текст статуса
+   const getStatusText = (status: Ticket['status']): string => {
+     switch (status) {
+       case 'new':
+         return t('ticketCard.statusNew');
+       case 'in-progress':
+         return t('ticketCard.statusInProgress');
+       case 'completed':
+         return t('ticketCard.statusCompleted');
+       case 'cancelled':
+         return t('ticketCard.statusCancelled');
+       default:
+         return status;
+     }
+   };
 
-  // Получить текст приоритета на русском
-  const getPriorityText = (priority: Ticket['priority']): string => {
-    switch (priority) {
-      case 'low':
-        return 'Низкий';
-      case 'medium':
-        return 'Средний';
-      case 'high':
-        return 'Высокий';
-      default:
-        return priority;
-    }
-  };
+   // Получить стиль для приоритета
+   const getPriorityStyle = (priority: Ticket['priority']): CSSProperties => {
+     switch (priority) {
+       case 'low':
+         return { ...priorityBadgeStyle, backgroundColor: '#f3f4f6', color: '#4b5563' };
+       case 'medium':
+         return { ...priorityBadgeStyle, backgroundColor: '#fef3c7', color: '#92400e' };
+       case 'high':
+         return { ...priorityBadgeStyle, backgroundColor: '#fee2e2', color: '#991b1b' };
+       default:
+         return priorityBadgeStyle;
+     }
+   };
+
+   // Получить текст приоритета
+   const getPriorityText = (priority: Ticket['priority']): string => {
+     switch (priority) {
+       case 'low':
+         return t('ticketCard.priorityLow');
+       case 'medium':
+         return t('ticketCard.priorityMedium');
+       case 'high':
+         return t('ticketCard.priorityHigh');
+       default:
+         return priority;
+     }
+   };
+
 
   // Форматировать дату
   const formatDate = (dateString: string): string => {
@@ -84,7 +88,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
       <div style={cardContentStyle}>
         {/* Заголовок с ID и статусом */}
         <div style={headerStyle}>
-          <div style={idStyle}>Заявка #{ticket.id}</div>
+          <div style={idStyle}>{t('ticketCard.title', { id: ticket.id })}</div>
           <div style={badgesContainerStyle}>
             <span style={getPriorityStyle(ticket.priority)}>
               {getPriorityText(ticket.priority)}
@@ -94,13 +98,13 @@ export default function TicketCard({ ticket }: TicketCardProps) {
             </span>
           </div>
         </div>
-
+ 
         {/* Информация о клиенте */}
         <div style={sectionStyle}>
-          <div style={labelStyle}>Клиент:</div>
+          <div style={labelStyle}>{t('ticketCard.labelClient')}</div>
           <div style={valueStyle}>{ticket.clientName}</div>
         </div>
-
+ 
         {/* Контактная информация */}
         <div style={contactsStyle}>
           <div style={contactItemStyle}>
@@ -116,23 +120,23 @@ export default function TicketCard({ ticket }: TicketCardProps) {
             </a>
           </div>
         </div>
-
+ 
         {/* Тип услуги */}
         <div style={sectionStyle}>
-          <div style={labelStyle}>Услуга:</div>
+          <div style={labelStyle}>{t('ticketCard.labelService')}</div>
           <div style={valueStyle}>{getServiceTypeText(ticket.serviceType)}</div>
         </div>
-
+ 
         {/* Описание проблемы */}
         <div style={sectionStyle}>
-          <div style={labelStyle}>Описание:</div>
+          <div style={labelStyle}>{t('ticketCard.labelDescription')}</div>
           <div style={descriptionStyle}>{ticket.description}</div>
         </div>
-
+ 
         {/* Дата создания */}
         <div style={footerStyle}>
           <span style={dateStyle}>
-            📅 Создана: {formatDate(ticket.createdAt)}
+            {t('ticketCard.footerDate', { date: formatDate(ticket.createdAt) })}
           </span>
         </div>
       </div>

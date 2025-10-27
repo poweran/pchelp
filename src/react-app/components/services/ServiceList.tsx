@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ServiceCategory } from '../../types';
 import { useServices } from '../../hooks/useServices';
 import { ServiceCard } from './ServiceCard';
@@ -8,16 +9,17 @@ interface ServiceListProps {
   filterCategory?: ServiceCategory | null;
 }
 
-const categoryLabels: Record<ServiceCategory, string> = {
-  repair: 'Ремонт',
-  setup: 'Настройка',
-  recovery: 'Восстановление',
-  consultation: 'Консультация',
-};
-
 export function ServiceList({ filterCategory = null }: ServiceListProps) {
+  const { t } = useTranslation();
   const { services, loading, error, loadServices } = useServices();
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(filterCategory);
+
+  const categoryLabels: Record<ServiceCategory, string> = {
+    repair: t('servicesPage.repair'),
+    setup: t('servicesPage.setup'),
+    recovery: t('servicesPage.recovery'),
+    consultation: t('servicesPage.consultation'),
+  };
 
   // console.log('[ServiceList] Services loaded:', services.length, 'items');
 
@@ -35,7 +37,7 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
     return (
       <div className="service-list__loading">
         <div className="spinner"></div>
-        <p>Загрузка услуг...</p>
+        <p>{t('servicesPage.loading')}</p>
       </div>
     );
   }
@@ -43,9 +45,9 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
   if (error) {
     return (
       <div className="service-list__error">
-        <p>Ошибка загрузки услуг: {error}</p>
+        <p>{t('servicesPage.error')}: {error}</p>
         <button onClick={loadServices} className="retry-button">
-          Попробовать снова
+          {t('servicesPage.retry')}
         </button>
       </div>
     );
@@ -58,7 +60,7 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
           className={`filter-button ${selectedCategory === null ? 'filter-button--active' : ''}`}
           onClick={() => setSelectedCategory(null)}
         >
-          Все услуги
+          {t('servicesPage.allServices')}
         </button>
         {categories.map(category => (
           <button
@@ -73,7 +75,7 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
 
       {filteredServices.length === 0 ? (
         <div className="service-list__empty">
-          <p>Услуги не найдены</p>
+          <p>{t('servicesPage.noServices')}</p>
         </div>
       ) : (
         <div className="service-list__grid">

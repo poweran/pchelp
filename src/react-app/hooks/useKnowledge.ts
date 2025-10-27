@@ -1,6 +1,7 @@
 // Хук для работы с базой знаний
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchKnowledge, fetchKnowledgeById } from '../utils/api';
 import type { KnowledgeItem, KnowledgeType } from '../types';
 
@@ -15,6 +16,7 @@ interface UseKnowledgeResult {
 }
 
 export function useKnowledge(): UseKnowledgeResult {
+  const { i18n } = useTranslation();
   const [items, setItems] = useState<KnowledgeItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,10 +24,10 @@ export function useKnowledge(): UseKnowledgeResult {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<KnowledgeType | 'all'>('all');
 
-  // Загрузка базы знаний при монтировании
+  // Загрузка базы знаний при монтировании и изменении языка
   useEffect(() => {
     loadKnowledge();
-  }, []);
+  }, [i18n.language]);
 
   // Применение фильтров при изменении данных или фильтров
   useEffect(() => {
@@ -38,7 +40,7 @@ export function useKnowledge(): UseKnowledgeResult {
     setError(null);
 
     try {
-      const response = await fetchKnowledge();
+      const response = await fetchKnowledge(i18n.language);
 
       // console.log('[useKnowledge] Error loading data:', response.error);
       if (response.error) {
@@ -57,7 +59,7 @@ export function useKnowledge(): UseKnowledgeResult {
         setError('Не удалось загрузить данные');
         setItems([]);
       }
-      
+
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
       setError(message);

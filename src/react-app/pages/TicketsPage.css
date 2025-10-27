@@ -1,0 +1,33 @@
+/* TicketsPage.css */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tickets-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.tickets-header {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.tickets-tabs {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.tickets-content {
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.tickets-contact {
+  animation: fadeInUp 0.8s ease-out 0.6s both;
+}

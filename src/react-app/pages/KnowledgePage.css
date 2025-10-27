@@ -1,3 +1,15 @@
+/* Анимации появления секций */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .knowledge-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -5,8 +17,17 @@
 }
 
 .knowledge-header {
+  animation: fadeInUp 0.8s ease-out;
   text-align: center;
   margin-bottom: 2rem;
+}
+
+.knowledge-controls {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.knowledge-content {
+  animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
 .knowledge-header h1 {

@@ -10,6 +10,7 @@ interface LinkProps {
   className?: string;
   activeClassName?: string;
   style?: React.CSSProperties;
+  onClick?: (e?: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 /**
@@ -21,7 +22,8 @@ export function Link({
   children,
   className = '',
   activeClassName = '',
-  style = {}
+  style = {},
+  onClick
 }: LinkProps) {
   const [currentPath, setCurrentPath] = useState<string>(getCurrentPath());
 
@@ -40,6 +42,11 @@ export function Link({
   // console.log(`[Link] Путь "${to}" - текущий путь: "${currentPath}", isActive: ${isActive}`);
 
   const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    // Вызываем пользовательский onClick, если он есть
+    if (onClick) {
+      onClick(e);
+    }
+
     // Предотвращаем стандартное поведение ссылки (перезагрузку страницы)
     e.preventDefault();
 
