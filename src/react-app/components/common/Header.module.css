@@ -393,6 +393,7 @@
 }
 
 /* Responsive breakpoints */
+/* Планшеты и десктопы (768px+) - показываем десктопное меню */
 @media (max-width: 767px) {
   .headerContainer {
     padding: 0 var(--spacing-md);
@@ -413,6 +414,14 @@
   .headerActions {
     gap: var(--spacing-xs);
   }
+
+  .headerMobileMenu {
+    padding: var(--spacing-sm);
+  }
+
+  .headerMobileNavLink {
+    padding: var(--spacing-sm);
+  }
 }
 
 @media (max-width: 639px) {
@@ -425,8 +434,33 @@
     font-size: var(--font-size-lg);
   }
 
+  .headerMobileMenu {
+    padding: var(--spacing-sm);
+  }
+
   .headerMobileNavLink {
     font-size: var(--font-size-lg);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Additional mobile fixes */
+@media (max-width: 767px) {
+  .header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .headerContainer {
+    gap: 0;
+  }
+
+  .headerMobileMenu {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
   }
 }
