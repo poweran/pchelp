@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
 import { Link } from './Link';
 import LanguageSwitcher from './LanguageSwitcher';
 import styles from './Header.module.css';
