@@ -11,5 +11,10 @@
   "assets": {
     "directory": "./dist/client",
     "not_found_handling": "single-page-application"
+  },
+  "vars": {
+    "RESEND_API_KEY": "re_tezbWk1H_ACdEsFEue5qFYP5ZH1ekUxM7",
+    "EMAIL_FROM": "onboarding@resend.dev",
+    "EMAIL_TO": "artur.yudin.88@gmail.com"
   }
 }

@@ -31,20 +31,23 @@ export function useTickets() {
    */
   const submitTicket = async (ticketData: TicketFormData) => {
     setState(prev => ({ ...prev, loading: true, error: null, success: false }));
-    
+
     try {
       const response = await createTicket(ticketData);
-      
+
       if (response.error) {
         setState(prev => ({ ...prev, loading: false, error: response.error!, success: false }));
         return { success: false, error: response.error };
       } else {
-        setState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: null, 
+        // После успешного создания обновляем список тикетов
+        const ticketsResponse = await fetchTickets();
+
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: null,
           success: true,
-          tickets: response.data ? [response.data, ...prev.tickets] : prev.tickets
+          tickets: ticketsResponse.data ? Array.isArray(ticketsResponse.data) ? ticketsResponse.data : [] : prev.tickets
         }));
         return { success: true, data: response.data };
       }

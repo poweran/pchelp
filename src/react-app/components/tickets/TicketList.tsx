@@ -69,7 +69,7 @@ export default function TicketList() {
       <div style={headerStyle}>
         <h2 style={titleStyle}>{t('ticketList.title')}</h2>
         <div style={countStyle}>
-          {t('ticketList.count', { count: tickets.length })}
+          {t('ticketList.count')}: {tickets.length}
         </div>
       </div>
 

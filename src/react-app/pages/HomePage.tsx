@@ -4,11 +4,14 @@ import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
+import { useTickets } from '../hooks/useTickets';
+import type { TicketFormData } from '../types';
 import './HomePage.css';
 
 interface QuickFormData {
   name: string;
   phone: string;
+  email: string;
   description: string;
 }
 
@@ -17,24 +20,64 @@ const HomePage = memo(function HomePage() {
   const [formData, setFormData] = useState<QuickFormData>({
     name: '',
     phone: '',
+    email: '',
     description: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
+  const { loading, error, success, submitTicket, resetError } = useTickets();
+
+  const validateForm = useCallback((): boolean => {
+    const errors: {[key: string]: string | undefined} = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Имя обязательно для заполнения';
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = 'Телефон обязателен для заполнения';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email обязателен для заполнения';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Некорректный формат email';
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Описание проблемы обязательно';
+    } else if (formData.description.trim().length < 10) {
+      errors.description = 'Описание должно содержать минимум 10 символов';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [formData]);
 
   const handleQuickSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    resetError();
 
-    // Имитация отправки
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-      setFormData({ name: '', phone: '', description: '' });
+    if (!validateForm()) {
+      return;
+    }
 
-      setTimeout(() => setShowSuccess(false), 5000);
-    }, 1000);
-  }, []);
+    // Преобразование данных в формат TicketFormData
+    const ticketData: TicketFormData = {
+      clientName: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      serviceType: 'consultation', // По умолчанию консультация для быстрой формы
+      description: formData.description,
+      priority: 'medium', // По умолчанию средний приоритет
+    };
+
+    const result = await submitTicket(ticketData);
+
+    if (result.success) {
+      setFormData({ name: '', phone: '', email: '', description: '' });
+      setValidationErrors({});
+    }
+  }, [formData, submitTicket, resetError, validateForm]);
 
   return (
     <div className="home-page">
@@ -130,9 +173,15 @@ const HomePage = memo(function HomePage() {
               {t('homePage.formSubtitle')}
             </p>
 
-            {showSuccess && (
+            {success && (
               <div className="success-message">
                 {t('homePage.successMessage')}
+              </div>
+            )}
+
+            {error && (
+              <div className="error-message">
+                ✗ Ошибка при отправке заявки: {error}
               </div>
             )}
 
@@ -141,34 +190,68 @@ const HomePage = memo(function HomePage() {
                 label={t('homePage.yourName')}
                 type="text"
                 value={formData.name}
-                onChange={(value) => setFormData({ ...formData, name: value })}
+                onChange={(value) => {
+                  setFormData({ ...formData, name: value });
+                  if (validationErrors.name) {
+                    setValidationErrors(prev => ({ ...prev, name: undefined }));
+                  }
+                }}
+                error={validationErrors.name}
                 placeholder={t('homePage.namePlaceholder')}
                 required
-                disabled={isSubmitting}
+                disabled={loading}
               />
 
               <Input
                 label={t('homePage.phone')}
                 type="tel"
                 value={formData.phone}
-                onChange={(value) => setFormData({ ...formData, phone: value })}
+                onChange={(value) => {
+                  setFormData({ ...formData, phone: value });
+                  if (validationErrors.phone) {
+                    setValidationErrors(prev => ({ ...prev, phone: undefined }));
+                  }
+                }}
+                error={validationErrors.phone}
                 placeholder="+374 (99) 12-34-56"
                 required
-                disabled={isSubmitting}
+                disabled={loading}
+              />
+
+              <Input
+                label={t('homePage.email')}
+                type="email"
+                value={formData.email}
+                onChange={(value) => {
+                  setFormData({ ...formData, email: value });
+                  if (validationErrors.email) {
+                    setValidationErrors(prev => ({ ...prev, email: undefined }));
+                  }
+                }}
+                error={validationErrors.email}
+                placeholder="example@email.com"
+                required
+                disabled={loading}
               />
 
               <Textarea
                 label={t('homePage.describeProblem')}
                 value={formData.description}
-                onChange={(value) => setFormData({ ...formData, description: value })}
+                onChange={(value) => {
+                  setFormData({ ...formData, description: value });
+                  if (validationErrors.description) {
+                    setValidationErrors(prev => ({ ...prev, description: undefined }));
+                  }
+                }}
+                error={validationErrors.description}
                 placeholder={t('homePage.describeProblemPlaceholder')}
                 required
-                disabled={isSubmitting}
+                disabled={loading}
                 rows={4}
               />
 
-              <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
-                {isSubmitting ? t('homePage.sending') : t('homePage.sendRequest')}
+              <Button type="submit" disabled={loading} loading={loading}>
+                {loading ? t('homePage.sending') : t('homePage.sendRequest')}
               </Button>
             </form>
 

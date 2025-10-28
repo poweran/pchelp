@@ -110,6 +110,17 @@ export default function TicketsPage() {
                     onChange={setSearchQuery}
                     placeholder={`🔍 ${t('ticketsPage.searchPlaceholder')}`}
                   />
+                  {/* Кнопка обновления списка */}
+                  <button
+                    onClick={() => {
+                      // Перезагрузка страницы для обновления списка
+                      window.location.reload();
+                    }}
+                    style={refreshButtonStyle}
+                    title="Обновить список заявок"
+                  >
+                    🔄
+                  </button>
                 </div>
 
                 {/* Список заявок */}
@@ -240,6 +251,21 @@ const listContainerStyle: CSSProperties = {
 const searchContainerStyle: CSSProperties = {
   maxWidth: '600px',
   width: '100%',
+  display: 'flex',
+  gap: '0.5rem',
+  alignItems: 'flex-end',
+};
+
+const refreshButtonStyle: CSSProperties = {
+  padding: '0.625rem 0.75rem',
+  fontSize: '0.875rem',
+  borderRadius: '0.375rem',
+  border: '1px solid #e2e8f0',
+  backgroundColor: '#ffffff',
+  color: '#64748b',
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+  outline: 'none',
 };
 
 const infoBoxStyle: CSSProperties = {

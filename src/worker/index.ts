@@ -1,6 +1,12 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
+type Env = {
+  RESEND_API_KEY: string;
+  EMAIL_FROM: string;
+  EMAIL_TO: string;
+};
+
 // Импортируем типы
 type ServiceCategory = 'repair' | 'setup' | 'recovery' | 'consultation';
 type TicketPriority = 'low' | 'medium' | 'high';
@@ -77,6 +83,79 @@ interface KnowledgeItem {
 
 
 const app = new Hono<{ Bindings: Env }>();
+
+// Функция отправки email через Resend
+async function sendEmail(env: Env, subject: string, htmlContent: string) {
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: env.EMAIL_FROM,
+        to: [env.EMAIL_TO],
+        subject: subject,
+        html: htmlContent,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Resend API error:', response.status, errorText);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return false;
+  }
+}
+
+// Функция генерации HTML письма для новой заявки
+function generateTicketEmailHtml(ticket: Ticket): string {
+  const priorityLabels = {
+    low: 'Низкий',
+    medium: 'Средний',
+    high: 'Высокий'
+  };
+
+  const serviceTypeLabels = {
+    'repair': 'Ремонт',
+    'setup': 'Настройка',
+    'recovery': 'Восстановление',
+    'consultation': 'Консультация',
+    'installation': 'Установка',
+    'virus-removal': 'Удаление вирусов'
+  };
+
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #1e293b;">Новая заявка на обслуживание</h2>
+      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Информация о клиенте</h3>
+        <p><strong>Имя:</strong> ${ticket.clientName}</p>
+        <p><strong>Телефон:</strong> ${ticket.phone}</p>
+        <p><strong>Email:</strong> ${ticket.email}</p>
+      </div>
+      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Детали заявки</h3>
+        <p><strong>Тип услуги:</strong> ${serviceTypeLabels[ticket.serviceType as keyof typeof serviceTypeLabels] || ticket.serviceType}</p>
+        <p><strong>Приоритет:</strong> ${priorityLabels[ticket.priority]}</p>
+        <p><strong>Дата создания:</strong> ${new Date(ticket.createdAt).toLocaleString('ru-RU')}</p>
+      </div>
+      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Описание проблемы</h3>
+        <p style="white-space: pre-wrap;">${ticket.description}</p>
+      </div>
+      <div style="background-color: #dcfce7; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #22c55e;">
+        <p style="margin: 0; color: #166534;"><strong>ID заявки:</strong> ${ticket.id}</p>
+      </div>
+    </div>
+  `;
+}
 
 // Добавляем CORS middleware
 app.use('/*', cors({
@@ -829,7 +908,7 @@ app.get('/api/pricing', (c) => {
 app.post('/api/tickets', async (c) => {
   try {
     const body = await c.req.json();
-    
+
     // Валидация данных
     const validation = validateTicketData(body);
     if (!validation.valid) {
@@ -853,6 +932,21 @@ app.post('/api/tickets', async (c) => {
     };
 
     tickets.push(newTicket);
+
+    // Отправка email уведомления
+    const env = c.env as Env;
+    if (env.RESEND_API_KEY && env.RESEND_API_KEY !== 'your-resend-api-key-here') {
+      const emailSubject = `Новая заявка #${newTicket.id} - ${newTicket.clientName}`;
+      const emailHtml = generateTicketEmailHtml(newTicket);
+
+      const emailSent = await sendEmail(env, emailSubject, emailHtml);
+      if (!emailSent) {
+        console.error('Failed to send email notification for ticket:', newTicket.id);
+        // Не возвращаем ошибку, чтобы не блокировать создание заявки
+      }
+    } else {
+      console.log('Email sending skipped: Resend API key not configured');
+    }
 
     return c.json({
       data: newTicket,

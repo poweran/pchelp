@@ -205,11 +205,10 @@
     "emptyTitle": "No tickets",
     "emptyMessage": "Ticket list is empty. Create your first ticket to get started.",
     "title": "Ticket list",
-    "count": "Total: {count}",
+    "count": "Total",
     "loadingOverlay": "Updating..."
   },
   "ticketCard": {
-    "title": "Ticket #{id}",
     "statusNew": "New",
     "statusInProgress": "In progress",
     "statusCompleted": "Completed",
@@ -220,7 +219,14 @@
     "labelClient": "Client:",
     "labelService": "Service:",
     "labelDescription": "Description:",
-    "footerDate": "📅 Created: {date}"
+    "services": {
+      "repair": "Computer repair",
+      "setup": "Software setup",
+      "recovery": "Data recovery",
+      "consultation": "Consultation",
+      "installation": "Equipment installation",
+      "virus-removal": "Virus removal"
+    }
   },
   "knowledgePage": {
     "title": "Knowledge Base",

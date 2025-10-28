@@ -88,7 +88,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
       <div style={cardContentStyle}>
         {/* Заголовок с ID и статусом */}
         <div style={headerStyle}>
-          <div style={idStyle}>{t('ticketCard.title', { id: ticket.id })}</div>
+          <div style={idStyle}>{ticket.id}</div>
           <div style={badgesContainerStyle}>
             <span style={getPriorityStyle(ticket.priority)}>
               {getPriorityText(ticket.priority)}
@@ -136,7 +136,7 @@ export default function TicketCard({ ticket }: TicketCardProps) {
         {/* Дата создания */}
         <div style={footerStyle}>
           <span style={dateStyle}>
-            {t('ticketCard.footerDate', { date: formatDate(ticket.createdAt) })}
+            {formatDate(ticket.createdAt)}
           </span>
         </div>
       </div>
@@ -146,15 +146,8 @@ export default function TicketCard({ ticket }: TicketCardProps) {
 
 // Вспомогательная функция для получения текста типа услуги
 function getServiceTypeText(serviceType: string): string {
-  const types: Record<string, string> = {
-    'repair': 'Ремонт компьютера',
-    'setup': 'Настройка ПО',
-    'recovery': 'Восстановление данных',
-    'consultation': 'Консультация',
-    'installation': 'Установка оборудования',
-    'virus-removal': 'Удаление вирусов',
-  };
-  return types[serviceType] || serviceType;
+  const { t } = useTranslation();
+  return t(`ticketCard.services.${serviceType}`, { defaultValue: serviceType });
 }
 
 // Стили
@@ -166,10 +159,9 @@ const cardContentStyle: CSSProperties = {
 
 const headerStyle: CSSProperties = {
   display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  flexWrap: 'wrap',
-  gap: '0.75rem',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  gap: '0.5rem',
   paddingBottom: '0.75rem',
   borderBottom: '1px solid #e2e8f0',
 };
@@ -178,12 +170,14 @@ const idStyle: CSSProperties = {
   fontSize: '1.125rem',
   fontWeight: 600,
   color: '#1e293b',
+  textAlign: 'left',
 };
 
 const badgesContainerStyle: CSSProperties = {
   display: 'flex',
   gap: '0.5rem',
   flexWrap: 'wrap',
+  justifyContent: 'flex-start',
 };
 
 const badgeStyle: CSSProperties = {
@@ -203,6 +197,7 @@ const sectionStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: '0.25rem',
+  textAlign: 'left',
 };
 
 const labelStyle: CSSProperties = {
@@ -223,6 +218,7 @@ const contactsStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   gap: '0.5rem',
+  textAlign: 'left',
 };
 
 const contactItemStyle: CSSProperties = {
@@ -253,6 +249,7 @@ const descriptionStyle: CSSProperties = {
 const footerStyle: CSSProperties = {
   paddingTop: '0.75rem',
   borderTop: '1px solid #e2e8f0',
+  textAlign: 'left',
 };
 
 const dateStyle: CSSProperties = {
