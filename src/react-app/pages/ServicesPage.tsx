@@ -73,12 +73,11 @@ const containerStyle: CSSProperties = {
 
 const headerSectionStyle: CSSProperties = {
   backgroundColor: '#ffffff',
-  padding: '3rem 0',
+  padding: '2rem',
   borderBottom: '1px solid #e2e8f0',
 };
 
 const pageTitleStyle: CSSProperties = {
-  fontSize: '2.5rem',
   fontWeight: 'bold',
   color: '#1e293b',
   marginBottom: '1rem',

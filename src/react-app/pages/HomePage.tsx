@@ -142,7 +142,7 @@ const HomePage = memo(function HomePage() {
                 type="text"
                 value={formData.name}
                 onChange={(value) => setFormData({ ...formData, name: value })}
-                placeholder="Иван Иванов"
+                placeholder={t('homePage.namePlaceholder')}
                 required
                 disabled={isSubmitting}
               />
@@ -152,7 +152,7 @@ const HomePage = memo(function HomePage() {
                 type="tel"
                 value={formData.phone}
                 onChange={(value) => setFormData({ ...formData, phone: value })}
-                placeholder="+7 (999) 123-45-67"
+                placeholder="+374 (99) 12-34-56"
                 required
                 disabled={isSubmitting}
               />
@@ -161,7 +161,7 @@ const HomePage = memo(function HomePage() {
                 label={t('homePage.describeProblem')}
                 value={formData.description}
                 onChange={(value) => setFormData({ ...formData, description: value })}
-                placeholder="Кратко опишите вашу проблему..."
+                placeholder={t('homePage.describeProblemPlaceholder')}
                 required
                 disabled={isSubmitting}
                 rows={4}

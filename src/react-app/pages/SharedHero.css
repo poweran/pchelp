@@ -21,9 +21,6 @@
   position: relative;
   overflow: hidden;
   box-shadow: 0 16px 64px rgba(0, 0, 0, 0.4);
-  text-align: center;
-  margin-bottom: 3rem;
-  padding: 2rem 0;
 }
 
 .hero::before {
@@ -38,7 +35,7 @@
 }
 
 .hero h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin-bottom: 0.5rem;
   color: #333;
 }
@@ -61,8 +58,12 @@
 }
 
 @media (max-width: 768px) {
+  .hero {
+    padding: 1rem;
+  }
+
   .hero h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .hero .subtitle {
@@ -72,20 +73,6 @@
   .hero-actions {
     flex-direction: column;
     align-items: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero {
-    padding: 1rem 0;
-  }
-
-  .hero h1 {
-    font-size: 1.75rem;
-  }
-
-  .hero .subtitle {
-    font-size: 0.9rem;
   }
 }
 

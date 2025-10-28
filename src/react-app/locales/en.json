@@ -55,7 +55,9 @@
     "address": "Address",
     "workingHours": "Working hours",
     "fullAddress": "Yerevan, Narekatsi Street, Building 15, Office 11",
-    "hours": "Mon-Fri: 9:00-20:00<br />Sat: 10:00-18:00"
+    "hours": "Mon-Fri: 9:00-20:00<br />Sat: 10:00-18:00",
+    "namePlaceholder": "John Doe",
+    "describeProblemPlaceholder": "Briefly describe your problem..."
   },
   "services": {
     "title": "Our Services",

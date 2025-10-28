@@ -162,7 +162,7 @@ const headerSectionStyle: CSSProperties = {
 };
 
 const pageTitleStyle: CSSProperties = {
-  fontSize: '2.5rem',
+  fontSize: '2rem',
   fontWeight: 'bold',
   color: '#1e293b',
   marginBottom: '1rem',
