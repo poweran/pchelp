@@ -19,15 +19,14 @@ export default function Footer({ className = '' }: FooterProps) {
 
         <div style={sectionStyle}>
           <h4 style={subHeadingStyle}>{t('footer.contacts')}</h4>
-          <p style={textStyle}>📞 {t('footer.phone')}</p>
-          <p style={textStyle}>📧 {t('footer.email')}</p>
-          <p style={textStyle}>📍 {t('footer.address')}</p>
+          <p style={textStyle}>📞 +374 (95) 01-97-53</p>
+          <p style={textStyle}>📧 info@pchelp.linkpc.net</p>
         </div>
 
         <div style={sectionStyle}>
           <h4 style={subHeadingStyle}>{t('footer.hours')}</h4>
-          <p style={textStyle}>{t('footer.weekdays')}</p>
-          <p style={textStyle}>{t('footer.weekends')}</p>
+          <p style={textStyle}>{t('footer.weekdays')}: 9:00 - 20:00</p>
+          <p style={textStyle}>{t('footer.saturday')}: 10:00 - 18:00</p>
         </div>
       </div>
 

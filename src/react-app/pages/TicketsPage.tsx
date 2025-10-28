@@ -15,7 +15,7 @@ export default function TicketsPage() {
   return (
     <>
         {/* Заголовок страницы */}
-        <section style={headerSectionStyle} className="tickets-header">
+        <section style={headerSectionStyle} className="tickets-header hero">
           <div style={containerStyle}>
             <h1 style={pageTitleStyle}>{t('ticketsPage.title')}</h1>
             <p style={pageSubtitleStyle}>
@@ -135,11 +135,11 @@ export default function TicketsPage() {
                 {t('ticketsPage.contactText')}
               </p>
               <div style={contactLinksStyle}>
-                <a href="tel:+7XXXXXXXXXX" style={contactLinkStyle}>
-                  📞 +7 (XXX) XXX-XX-XX
+                <a href="tel:+37495019753" style={contactLinkStyle}>
+                  📞 +374 (95) 01-97-53
                 </a>
-                <a href="mailto:info@pchelp.example" style={contactLinkStyle}>
-                  📧 info@pchelp.example
+                <a href="mailto:info@pchelp.linkpc.net" style={contactLinkStyle}>
+                  📧 info@pchelp.linkpc.net
                 </a>
               </div>
             </div>
@@ -153,7 +153,6 @@ export default function TicketsPage() {
 const containerStyle: CSSProperties = {
   maxWidth: '1280px',
   margin: '0 auto',
-  padding: '0 1rem',
 };
 
 const headerSectionStyle: CSSProperties = {
@@ -190,7 +189,7 @@ const tabsSectionStyle: CSSProperties = {
 const tabsContainerStyle: CSSProperties = {
   display: 'flex',
   gap: '0.5rem',
-  padding: '1rem 0',
+  padding: '1rem',
   flexWrap: 'wrap',
 };
 

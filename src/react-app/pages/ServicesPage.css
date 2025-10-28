@@ -1,4 +1,6 @@
 /* ServicesPage.css */
+@import './SharedHero.css';
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -13,7 +15,6 @@
 .services-page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1rem;
 }
 
 .services-header {

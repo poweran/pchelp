@@ -1,8 +1,7 @@
 /* HomePage.css - Стили главной страницы в стиле KnowledgePage */
 .home-page {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  max-width: 1280px;
 }
 
 /* Анимации появления секций */
@@ -22,8 +21,7 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 2rem;
+  padding: var(--spacing-lg);
   position: relative;
   overflow: hidden;
   box-shadow: 0 16px 64px rgba(0, 0, 0, 0.4);
@@ -115,7 +113,7 @@
   text-align: center;
   padding: 2rem;
   background: white;
-  border-radius: 8px;
+  border-radius: 0px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
@@ -162,7 +160,7 @@
   background-color: #f8f9fa;
   padding: 3rem 1rem;
   text-align: center;
-  border-radius: 12px;
+  border-radius: 0px;
   margin: 3rem 0;
 }
 
@@ -194,7 +192,7 @@
   padding: 1rem;
   background-color: #d4edda;
   border: 1px solid #c3e6cb;
-  border-radius: 0.375rem;
+  border-radius: 0px;
   color: #155724;
   font-size: 0.95rem;
   font-weight: 500;
@@ -237,7 +235,7 @@
   gap: 1rem;
   padding: 1.5rem;
   background: white;
-  border-radius: 8px;
+  border-radius: 0px;
   border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
   cursor: pointer;

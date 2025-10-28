@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from './Link';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -11,10 +11,30 @@ interface HeaderProps {
 export default function Header({ className = '' }: HeaderProps) {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // console.log('[Header] Компонент перерендерен');
 
@@ -63,6 +83,7 @@ export default function Header({ className = '' }: HeaderProps) {
             <LanguageSwitcher />
 
             <button
+              ref={buttonRef}
               className={`${styles.headerMobileMenuButton} ${isMenuOpen ? styles.open : ''}`}
               onClick={toggleMenu}
               aria-label="Toggle menu"
@@ -72,7 +93,7 @@ export default function Header({ className = '' }: HeaderProps) {
           </div>
         </nav>
 
-        <div className={`${styles.headerMobileMenu} ${isMenuOpen ? styles.open : ''}`}>
+        <div ref={menuRef} className={`${styles.headerMobileMenu} ${isMenuOpen ? styles.open : ''}`}>
           <ul className={styles.headerMobileNavList}>
             <li>
               <Link

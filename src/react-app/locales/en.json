@@ -18,12 +18,9 @@
     "copyright": "All rights reserved.",
     "description": "Professional computer help",
     "contacts": "Contacts",
-    "phone": "+374 (95) 01-97-53",
-    "email": "info@pchelp.example",
-    "address": "Moscow",
     "hours": "Working hours",
-    "weekdays": "Mon-Fri: 9:00 - 18:00",
-    "weekends": "Sat-Sun: 10:00 - 16:00"
+    "weekdays": "Mon-Fri",
+    "saturday": "Sat"
   },
   "home": {
     "welcome": "Welcome to PC Help",
@@ -35,6 +32,7 @@
     "servicesButton": "Our services",
     "requestButton": "Leave a request",
     "whyUs": "Why choose us",
+    "featuresSubtitle": "Our advantages that will help you make a decision",
     "quickResponse": "Quick response",
     "quickResponseDesc": "Master arrival within 2 hours. Urgent repair in 24 hours.",
     "professionalism": "Professionalism",
@@ -56,8 +54,8 @@
     "email": "Email",
     "address": "Address",
     "workingHours": "Working hours",
-    "fullAddress": "Moscow, Example st., 1",
-    "hours": "Mon-Fri: 9:00-18:00<br />Sat-Sun: 10:00-16:00"
+    "fullAddress": "Yerevan, Narekatsi Street, Building 15, Office 11",
+    "hours": "Mon-Fri: 9:00-20:00<br />Sat: 10:00-18:00"
   },
   "services": {
     "title": "Our Services",
@@ -71,10 +69,7 @@
     "title": "💰 Our prices",
     "subtitle": "Transparent pricing for all types of services",
     "disclaimerTitle": "Please note",
-    "disclaimerText": "The prices listed are basic and may vary depending on the complexity of the work, materials used, and the urgency of the order completion. You can find out the exact cost after diagnostics or consultation with a specialist.",
-    "consultationTitle": "Need a consultation?",
-    "consultationText": "Our specialists will help you choose the optimal solution and calculate the exact cost of the work",
-    "consultationButton": "📝 Order consultation"
+    "disclaimerText": "The prices listed are basic and may vary depending on the complexity of the work, materials used, and the urgency of the order completion. You can find out the exact cost after diagnostics or consultation with a specialist."
   },
   "priceTable": {
     "loading": "Loading price list...",
@@ -101,19 +96,19 @@
     "title": "📞 Contacts",
     "subtitle": "Contact us in a way convenient for you",
     "officeAddress": "Office address",
-    "officeAddressText": "Moscow, Example st., 123, office 456",
+    "officeAddressText": "Yerevan, Narekatsi Street, Building 15, Office 11",
     "officeNote": "Client reception by appointment",
-    "phones": "Phones",
-    "phoneMain": "+374 (95) 01-97-53 — Main",
+    "phoneNumber": "Phone number",
+    "phoneMain": "Main",
     "email": "Email",
     "emailGeneral": "General questions",
     "emailSupport": "Technical support",
     "workingHours": "Working hours",
-    "mondayFriday": "Monday — Friday: 9:00 — 20:00",
-    "saturday": "Saturday: 10:00 — 18:00",
+    "mondayFriday": "Monday — Friday",
+    "saturday": "Saturday",
     "sunday": "Sunday: day off",
-    "fieldServiceNote": "Field work — around the clock by agreement",
-    "howToFind": "How to find us",
+    "dayOff": "day off",
+    "fieldServiceNote": "Outbound work — around the clock by agreement",
     "mapTitle": "Route map",
     "nearestMetro": "Nearest metro: Revolution Square",
     "walkingDistance": "5 minutes walk from exit №3",

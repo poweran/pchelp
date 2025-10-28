@@ -41,7 +41,7 @@ const ContactsPage: React.FC = () => {
 
   return (
     <div className="contacts-page">
-      <header className="contacts-header">
+        <header className="contacts-header hero">
         <h1>{t('contactsPage.title')}</h1>
         <p className="subtitle">{t('contactsPage.subtitle')}</p>
       </header>
@@ -60,7 +60,7 @@ const ContactsPage: React.FC = () => {
           <div className="contact-card">
             <div className="contact-card-icon">📱</div>
             <div className="contact-card-content">
-              <h3>{t('contactsPage.phones')}</h3>
+              <h3>{t('contactsPage.phoneNumber')}</h3>
               <p>
                 <a href="tel:+37495019753">+374 (95) 01-97-53 — {t('contactsPage.phoneMain')}</a>
               </p>
@@ -72,10 +72,10 @@ const ContactsPage: React.FC = () => {
             <div className="contact-card-content">
               <h3>{t('contactsPage.email')}</h3>
               <p>
-                <a href="mailto:info@pchelp.ru">{t('contactsPage.emailGeneral')}</a>
+                <a href="mailto:info@pchelp.linkpc.net">info@pchelp.linkpc.net — {t('contactsPage.emailGeneral')}</a>
               </p>
               <p>
-                <a href="mailto:support@pchelp.ru">{t('contactsPage.emailSupport')}</a>
+                <a href="mailto:support@pchelp.linkpc.net">support@pchelp.linkpc.net — {t('contactsPage.emailSupport')}</a>
               </p>
             </div>
           </div>
@@ -84,24 +84,10 @@ const ContactsPage: React.FC = () => {
             <div className="contact-card-icon">🕐</div>
             <div className="contact-card-content">
               <h3>{t('contactsPage.workingHours')}</h3>
-              <p>{t('contactsPage.mondayFriday')}</p>
-              <p>{t('contactsPage.saturday')}</p>
-              <p>{t('contactsPage.sunday')}</p>
+              <p>{t('contactsPage.mondayFriday')}: 9:00 — 20:00</p>
+              <p>{t('contactsPage.saturday')}: 10:00 — 18:00</p>
+              <p>{t('contactsPage.sunday')}: {t('contactsPage.dayOff')}</p>
               <p className="contact-note">{t('contactsPage.fieldServiceNote')}</p>
-            </div>
-          </div>
-
-          <div className="contact-card map-card">
-            <div className="contact-card-icon">🗺️</div>
-            <div className="contact-card-content">
-              <h3>{t('contactsPage.howToFind')}</h3>
-              <div className="map-placeholder">
-                <div className="map-placeholder-content">
-                  <p>📍 {t('contactsPage.mapTitle')}</p>
-                  <p className="map-note">{t('contactsPage.nearestMetro')}</p>
-                  <p className="map-note">{t('contactsPage.walkingDistance')}</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

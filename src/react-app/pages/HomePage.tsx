@@ -173,7 +173,7 @@ const HomePage = memo(function HomePage() {
             </form>
 
             <p className="note">
-              {t('homePage.callUs')} <a href="tel:+7XXXXXXXXXX" className="link">+7 (XXX) XXX-XX-XX</a>
+              {t('homePage.callUs')} <a href="tel:+37495019753" className="link">+374 (95) 01-97-53</a>
             </p>
           </div>
         </section>
@@ -185,19 +185,19 @@ const HomePage = memo(function HomePage() {
           </h2>
           <div className="contact-container">
             <div className="contact-grid" role="list">
-                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'tel:+7XXXXXXXXXX'}>
+                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'tel:+37495019753'}>
                   <span className="contact-icon" aria-hidden="true">📞</span>
                   <div>
                     <h3 className="contact-title">{t('homePage.phoneTitle')}</h3>
-                    <p className="contact-text">+7 (XXX) XXX-XX-XX</p>
+                    <p className="contact-text">+374 (95) 01-97-53</p>
                   </div>
                 </div>
- 
-                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'mailto:info@pchelp.example'}>
+
+                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'mailto:info@pchelp.linkpc.net'}>
                   <span className="contact-icon" aria-hidden="true">📧</span>
                   <div>
                     <h3 className="contact-title">{t('homePage.email')}</h3>
-                    <p className="contact-text">info@pchelp.example</p>
+                    <p className="contact-text">info@pchelp.linkpc.net</p>
                   </div>
                 </div>
  

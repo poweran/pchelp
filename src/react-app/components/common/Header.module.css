@@ -5,7 +5,7 @@
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 1001;
   transition: all var(--transition-normal);
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.95);
@@ -125,7 +125,7 @@
 
 .headerMobileMenuIcon {
   display: block;
-  width: 24px;
+  width: 30px;
   height: 2px;
   background-color: currentColor;
   position: relative;
@@ -136,7 +136,7 @@
 .headerMobileMenuIcon::after {
   content: '';
   position: absolute;
-  width: 24px;
+  width: 30px;
   height: 2px;
   background-color: currentColor;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -154,20 +154,19 @@
 
 .headerMobileMenuButton:hover .headerMobileMenuIcon,
 .headerMobileMenuButton.open .headerMobileMenuIcon {
-  background-color: var(--color-primary);
-  transform: rotate(90deg);
+  background-color: transparent;
 }
 
 .headerMobileMenuButton:hover .headerMobileMenuIcon::before,
 .headerMobileMenuButton.open .headerMobileMenuIcon::before {
   background-color: var(--color-primary);
-  transform: rotate(45deg) translateX(6px);
+  transform: rotate(45deg) translate(5px, 8px);
 }
 
 .headerMobileMenuButton:hover .headerMobileMenuIcon::after,
 .headerMobileMenuButton.open .headerMobileMenuIcon::after {
   background-color: var(--color-primary);
-  transform: rotate(-45deg) translateX(-6px);
+  transform: rotate(-45deg) translate(5px, -8px);
 }
 
 /* Mobile menu */
@@ -186,7 +185,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 100;
+  z-index: 1000;
 }
 
 .headerMobileMenu.open {
@@ -398,7 +397,16 @@
     padding: 0 var(--spacing-md);
   }
 
+  /* Keep the nav container visible on small screens so the actions
+     (language switcher / mobile menu button) remain accessible.
+     Hide only the desktop nav list of links. */
   .headerNav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  .headerNavList {
     display: none;
   }
 
@@ -408,6 +416,31 @@
 
   .headerSearch {
     display: none;
+  }
+
+  .headerActions {
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Collapse the desktop nav earlier on medium screens so the layout
+   doesn't break around ~1024-1040px. This hides the inline link list
+   and shows the mobile menu button instead. */
+@media (max-width: 1040px) {
+  .headerNav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  /* hide desktop inline links and rely on mobile menu */
+  .headerNavList {
+    display: none;
+  }
+
+  /* ensure the mobile menu button is visible at this breakpoint */
+  .headerMobileMenuButton {
+    display: block;
   }
 
   .headerActions {

@@ -2,7 +2,7 @@
 .ticketCard {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  border-radius: 0px;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: all var(--transition-normal);
@@ -36,7 +36,7 @@
 
 .ticketStatus {
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
   font-size: var(--font-size-xs);
   font-weight: 500;
   text-transform: uppercase;
@@ -125,7 +125,7 @@
   align-items: center;
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
+  border-radius: 0px;
   font-size: var(--font-size-xs);
   font-weight: 500;
 }
@@ -176,7 +176,7 @@
   height: 24px;
   border: 2px solid var(--color-border);
   border-top: 2px solid var(--color-primary);
-  border-radius: 50%;
+  border-radius: 0px;
   animation: spin 1s linear infinite;
   z-index: 10;
 }
@@ -230,7 +230,7 @@
 
 /* Compact variant */
 .ticketCardCompact {
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 .ticketCardCompact .ticketCardHeader,

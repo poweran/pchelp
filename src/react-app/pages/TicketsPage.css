@@ -1,4 +1,6 @@
 /* TicketsPage.css */
+@import './SharedHero.css';
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

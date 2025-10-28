@@ -2,7 +2,7 @@
 .serviceCard {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  border-radius: 0px;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: all var(--transition-normal);
@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--border-radius-xl);
+  border-radius: 0px;
   background-color: rgba(255, 255, 255, 0.2);
   font-size: var(--font-size-2xl);
 }
@@ -147,7 +147,7 @@
   background-color: var(--color-primary);
   color: white;
   padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -165,7 +165,7 @@
 }
 
 .serviceCardCompact {
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 .serviceCardCompact .serviceCardHeader,
@@ -208,7 +208,7 @@
   height: 32px;
   border: 3px solid var(--color-border);
   border-top: 3px solid var(--color-primary);
-  border-radius: 50%;
+  border-radius: 0px;
   animation: spin 1s linear infinite;
   z-index: 100;
 }

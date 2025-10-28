@@ -54,7 +54,7 @@ function App() {
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header />
 
-        <main style={{ flex: 1, maxWidth: '1280px', margin: '0 auto', padding: '2rem 1rem', width: '100%' }}>
+        <main style={{ flex: 1, maxWidth: '1280px', margin: '0 auto', width: '100%' }}>
           <ErrorBoundary>
             <Router routes={routes} />
           </ErrorBoundary>

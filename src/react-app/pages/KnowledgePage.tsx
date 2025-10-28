@@ -81,7 +81,7 @@ const KnowledgePage: React.FC = () => {
 
   return (
     <div className="knowledge-page">
-      <header className="knowledge-header">
+      <header className="knowledge-header hero">
         <h1>📚 {t('knowledgePage.title')}</h1>
         <p className="subtitle">{t('knowledgePage.subtitle')}</p>
       </header>

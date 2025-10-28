@@ -384,7 +384,7 @@ const pricing: PriceItem[] = [
     category: {
       ru: 'Установка ПО',
       en: 'Software Installation',
-      hy: 'Տեղադրում ծրագրերի'
+      hy: 'Ծրագրեր'
     },
     unit: {
       ru: 'шт',
@@ -403,7 +403,7 @@ const pricing: PriceItem[] = [
     category: {
       ru: 'Установка ПО',
       en: 'Software Installation',
-      hy: 'Տեղադրում ծրագրերի'
+      hy: 'Ծրագրեր'
     },
     unit: {
       ru: 'комплект',
@@ -422,7 +422,7 @@ const pricing: PriceItem[] = [
     category: {
       ru: 'Установка ПО',
       en: 'Software Installation',
-      hy: 'Տեղադրում ծրագրերի'
+      hy: 'Ծրագրեր'
     },
     unit: {
       ru: 'шт',

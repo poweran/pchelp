@@ -56,6 +56,8 @@ export function addRouteChangeListener(listener: RouteChangeListener): () => voi
  */
 function notifyListeners(path: string): void {
   listeners.forEach(listener => listener(path));
+  // Сбрасываем скролл на начало страницы при изменении маршрута
+  window.scrollTo(0, 0);
 }
 
 /**

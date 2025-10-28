@@ -32,10 +32,10 @@
   --spacing-xl: 2rem;    /* 32px */
 
   /* Border radius */
-  --border-radius-sm: 0.25rem; /* 4px */
-  --border-radius-md: 0.5rem;  /* 8px */
-  --border-radius-lg: 0.75rem; /* 12px */
-  --border-radius-xl: 1rem;    /* 16px */
+  --border-radius-sm: 0px; /* 0px */
+  --border-radius-md: 0px;  /* 0px */
+  --border-radius-lg: 0px; /* 0px */
+  --border-radius-xl: 0px;    /* 0px */
 
   /* Тени */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -184,7 +184,7 @@ button {
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 5px;
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -348,16 +348,16 @@ button {
 
 @keyframes morph {
   0%, 100% {
-    border-radius: 8px;
+    border-radius: 0px;
   }
   25% {
-    border-radius: 50%;
+    border-radius: 0px;
   }
   50% {
-    border-radius: 0;
+    border-radius: 0px;
   }
   75% {
-    border-radius: 25px;
+    border-radius: 0px;
   }
 }
 
@@ -567,7 +567,7 @@ button {
 .spinner {
   border: 2px solid var(--color-border);
   border-top: 2px solid var(--color-primary);
-  border-radius: 50%;
+  border-radius: 0px;
   width: 20px;
   height: 20px;
   animation: spin 1s linear infinite;
@@ -586,7 +586,7 @@ button {
 .loading-spinner {
   border: 3px solid var(--color-border);
   border-top: 3px solid var(--color-primary);
-  border-radius: 50%;
+  border-radius: 0px;
   animation: spin 1s linear infinite;
 }
 

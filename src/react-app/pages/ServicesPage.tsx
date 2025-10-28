@@ -9,7 +9,7 @@ export default function ServicesPage() {
   return (
     <>
         {/* Заголовок страницы */}
-        <section style={headerSectionStyle} className="services-header">
+        <section style={headerSectionStyle} className="services-header hero">
           <div style={containerStyle}>
             <h1 style={pageTitleStyle}>{t('servicesPage.title')}</h1>
             <p style={pageSubtitleStyle}>
@@ -69,7 +69,6 @@ export default function ServicesPage() {
 const containerStyle: CSSProperties = {
   maxWidth: '1280px',
   margin: '0 auto',
-  padding: '0 1rem',
 };
 
 const headerSectionStyle: CSSProperties = {

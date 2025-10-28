@@ -2,7 +2,7 @@
 .priceTable {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  border-radius: 0px;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: all var(--transition-normal);
@@ -31,7 +31,7 @@
   background-color: var(--color-primary);
   color: white;
   padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -195,7 +195,7 @@
   height: 32px;
   border: 3px solid var(--color-border);
   border-top: 3px solid var(--color-primary);
-  border-radius: 50%;
+  border-radius: 0px;
   animation: spin 1s linear infinite;
   z-index: 100;
 }
@@ -215,7 +215,7 @@
 
 /* Compact variant */
 .priceTableCompact {
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
 }
 
 .priceTableCompact .priceTableHeader,
@@ -244,7 +244,7 @@
   background-color: var(--color-success);
   color: white;
   padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-md);
+  border-radius: 0px;
   font-size: var(--font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -271,7 +271,7 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 0;
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  border-radius: 0px;
   overflow: hidden;
 }
 
@@ -325,7 +325,7 @@
   .pricingComparisonGrid {
     grid-template-columns: 1fr;
     gap: 0;
-    border-radius: var(--border-radius-md);
+    border-radius: 0px;
   }
 
   .priceTableComparison {
