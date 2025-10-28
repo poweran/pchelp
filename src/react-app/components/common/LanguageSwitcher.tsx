@@ -10,10 +10,10 @@ interface LanguageOption {
 }
 
 const languages: LanguageOption[] = [
-  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'hy', name: 'Հայերեն', flag: '🇦🇲' },
-];
+   { code: 'hy', name: 'Հայերեն', flag: '🇦🇲' },
+   { code: 'en', name: 'English', flag: '🇺🇸' },
+   { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+ ];
 
 export default function LanguageSwitcher() {
   const { t } = useTranslation();
@@ -46,10 +46,11 @@ export default function LanguageSwitcher() {
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
+    localStorage.setItem('i18nextLng', langCode);
     setIsOpen(false);
   };
 
-  const currentLanguage = languages.find(lang => lang.code === currentLang) || languages[0];
+  const currentLanguage = languages.find(lang => lang.code === currentLang) || languages.find(lang => lang.code === 'hy') || languages[0];
 
   return (
     <div className={styles.languageSwitcher} ref={dropdownRef}>
