@@ -1,5 +1,6 @@
-import { useState, CSSProperties } from 'react';
+import { useState, useEffect, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTickets } from '../hooks/useTickets';
 import TicketForm from '../components/tickets/TicketForm';
 import TicketList from '../components/tickets/TicketList';
 import Input from '../components/common/Input';
@@ -9,10 +10,36 @@ import './TicketsPage.css';
 type TabType = 'create' | 'my-tickets';
 
 export default function TicketsPage() {
-   const { t } = useTranslation();
-   const [activeTab, setActiveTab] = useState<TabType>('create');
-   const [searchQuery, setSearchQuery] = useState('');
+    const { t } = useTranslation();
+    const [activeTab, setActiveTab] = useState<TabType>('create');
+    const [searchQuery, setSearchQuery] = useState('');
+    const { tickets, loading, error, loadTickets } = useTickets();
 
+    // Инициализация загрузки тикетов при первом рендере
+    useEffect(() => {
+      loadTickets();
+    }, []);
+
+    // Фильтрация тикетов по поисковому запросу
+    const filteredTickets = searchQuery
+      ? tickets.filter(ticket =>
+          ticket.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ticket.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ticket.id.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : tickets;
+
+    const [refreshing, setRefreshing] = useState(false);
+
+    const handleRefresh = async () => {
+      setRefreshing(true);
+      try {
+        await loadTickets();
+      } finally {
+        setRefreshing(false);
+      }
+    };
   return (
     <>
         {/* Заголовок страницы */}
@@ -87,10 +114,7 @@ export default function TicketsPage() {
                   />
                   {/* Кнопка обновления списка */}
                   <Button
-                    onClick={() => {
-                      // Перезагрузка страницы для обновления списка
-                      window.location.reload();
-                    }}
+                    onClick={handleRefresh}
                     variant="secondary"
                   >
                     🔄
@@ -98,7 +122,7 @@ export default function TicketsPage() {
                 </div>
 
                 {/* Список заявок */}
-                <TicketList />
+                <TicketList tickets={filteredTickets} loading={loading || refreshing} error={error} loadTickets={loadTickets} />
 
                 {/* Подсказка если нет заявок */}
                 <div style={hintBoxStyle}>

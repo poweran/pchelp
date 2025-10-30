@@ -165,8 +165,8 @@
   },
   "ticketForm": {
     "title": "Create ticket",
-    "successMessage": "✓ Ticket created successfully! We will contact you soon.",
-    "errorMessage": "✗ Error creating ticket: {error}",
+    "successMessage": "Ticket created successfully! We will contact you soon.",
+    "errorMessage": "Error creating ticket: {error}",
     "labelName": "Your name",
     "placeholderName": "John Doe",
     "labelPhone": "Phone",

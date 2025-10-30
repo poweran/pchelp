@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { D1Database } from "@cloudflare/workers-types";
 
 type Env = {
   RESEND_API_KEY: string;
   EMAIL_FROM: string;
   EMAIL_TO: string;
+  DB: D1Database;
 };
 
 // Импортируем типы
@@ -783,13 +785,9 @@ const knowledgeBase: KnowledgeItem[] = [
   }
 ];
 
-// In-memory хранилище для заявок
-let tickets: Ticket[] = [];
-let ticketIdCounter = 1;
-
 // Функция генерации ID для заявок
 function generateTicketId(): string {
-  return `ticket-${ticketIdCounter++}`;
+  return `ticket-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // Функция валидации email
@@ -931,10 +929,29 @@ app.post('/api/tickets', async (c) => {
       createdAt: new Date().toISOString()
     };
 
-    tickets.push(newTicket);
+    // Сохранение в D1 базу данных
+    const env = c.env as Env;
+    const result = await env.DB.prepare(
+      'INSERT INTO tickets (id, client_name, phone, email, service_type, description, priority, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    )
+    .bind(
+      newTicket.id,
+      newTicket.clientName,
+      newTicket.phone,
+      newTicket.email,
+      newTicket.serviceType,
+      newTicket.description,
+      newTicket.priority,
+      newTicket.status,
+      newTicket.createdAt
+    )
+    .run();
+
+    if (!result.success) {
+      throw new Error('Failed to save ticket to database');
+    }
 
     // Отправка email уведомления
-    const env = c.env as Env;
     if (env.RESEND_API_KEY && env.RESEND_API_KEY !== 'your-resend-api-key-here') {
       const emailSubject = `Новая заявка #${newTicket.id} - ${newTicket.clientName}`;
       const emailHtml = generateTicketEmailHtml(newTicket);
@@ -961,34 +978,75 @@ app.post('/api/tickets', async (c) => {
 });
 
 // GET /api/tickets - список всех заявок
-app.get('/api/tickets', (c) => {
-  // Сортировка по дате создания (новые сначала)
-  const sortedTickets = [...tickets].sort((a, b) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+app.get('/api/tickets', async (c) => {
+  try {
+    const env = c.env as Env;
+    const result = await env.DB.prepare(
+      'SELECT * FROM tickets ORDER BY created_at DESC'
+    ).all();
 
-  return c.json({
-    data: sortedTickets,
-    message: 'Список заявок загружен успешно',
-    total: sortedTickets.length
-  });
+    const tickets: Ticket[] = result.results.map((row: any) => ({
+      id: row.id,
+      clientName: row.client_name,
+      phone: row.phone,
+      email: row.email,
+      serviceType: row.service_type,
+      description: row.description,
+      priority: row.priority,
+      status: row.status,
+      createdAt: row.created_at
+    }));
+
+    return c.json({
+      data: tickets,
+      message: 'Список заявок загружен успешно',
+      total: tickets.length
+    });
+  } catch (error) {
+    return c.json({
+      error: 'Ошибка при загрузке заявок',
+      details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+    }, 500);
+  }
 });
 
 // GET /api/tickets/:id - детали конкретной заявки
-app.get('/api/tickets/:id', (c) => {
-  const id = c.req.param('id');
-  const ticket = tickets.find(t => t.id === id);
-  
-  if (!ticket) {
+app.get('/api/tickets/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const env = c.env as Env;
+    const result = await env.DB.prepare(
+      'SELECT * FROM tickets WHERE id = ?'
+    ).bind(id).first();
+
+    if (!result) {
+      return c.json({
+        error: 'Заявка не найдена'
+      }, 404);
+    }
+
+    const ticket: Ticket = {
+      id: result.id as string,
+      clientName: result.client_name as string,
+      phone: result.phone as string,
+      email: result.email as string,
+      serviceType: result.service_type as string,
+      description: result.description as string,
+      priority: result.priority as TicketPriority,
+      status: result.status as TicketStatus,
+      createdAt: result.created_at as string
+    };
+
     return c.json({
-      error: 'Заявка не найдена'
-    }, 404);
+      data: ticket,
+      message: 'Заявка загружена успешно'
+    });
+  } catch (error) {
+    return c.json({
+      error: 'Ошибка при загрузке заявки',
+      details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+    }, 500);
   }
-  
-  return c.json({
-    data: ticket,
-    message: 'Заявка загружена успешно'
-  });
 });
 
 // PUT /api/tickets/:id - обновление статуса заявки
@@ -996,10 +1054,14 @@ app.put('/api/tickets/:id', async (c) => {
   try {
     const id = c.req.param('id');
     const body = await c.req.json();
-    
-    const ticketIndex = tickets.findIndex(t => t.id === id);
-    
-    if (ticketIndex === -1) {
+    const env = c.env as Env;
+
+    // Проверка существования заявки
+    const existingTicket = await env.DB.prepare(
+      'SELECT * FROM tickets WHERE id = ?'
+    ).bind(id).first();
+
+    if (!existingTicket) {
       return c.json({
         error: 'Заявка не найдена'
       }, 404);
@@ -1013,16 +1075,61 @@ app.put('/api/tickets/:id', async (c) => {
       }, 400);
     }
 
-    // Обновление заявки
-    if (body.status) {
-      tickets[ticketIndex].status = body.status;
-    }
-    if (body.priority && ['low', 'medium', 'high'].includes(body.priority)) {
-      tickets[ticketIndex].priority = body.priority;
+    // Валидация приоритета
+    if (body.priority && !['low', 'medium', 'high'].includes(body.priority)) {
+      return c.json({
+        error: 'Некорректный приоритет заявки',
+        details: ['Приоритет должен быть одним из: low, medium, high']
+      }, 400);
     }
 
+    // Обновление заявки
+    let updateFields = [];
+    let updateValues = [];
+
+    if (body.status) {
+      updateFields.push('status = ?');
+      updateValues.push(body.status);
+    }
+    if (body.priority) {
+      updateFields.push('priority = ?');
+      updateValues.push(body.priority);
+    }
+
+    if (updateFields.length > 0) {
+      updateValues.push(id);
+      const result = await env.DB.prepare(
+        `UPDATE tickets SET ${updateFields.join(', ')} WHERE id = ?`
+      ).bind(...updateValues).run();
+
+      if (!result.success) {
+        throw new Error('Failed to update ticket in database');
+      }
+    }
+
+    // Получение обновленной заявки
+    const updatedTicketResult = await env.DB.prepare(
+      'SELECT * FROM tickets WHERE id = ?'
+    ).bind(id).first();
+
+    if (!updatedTicketResult) {
+      throw new Error('Failed to retrieve updated ticket');
+    }
+
+    const updatedTicket: Ticket = {
+      id: updatedTicketResult.id as string,
+      clientName: updatedTicketResult.client_name as string,
+      phone: updatedTicketResult.phone as string,
+      email: updatedTicketResult.email as string,
+      serviceType: updatedTicketResult.service_type as string,
+      description: updatedTicketResult.description as string,
+      priority: updatedTicketResult.priority as TicketPriority,
+      status: updatedTicketResult.status as TicketStatus,
+      createdAt: updatedTicketResult.created_at as string
+    };
+
     return c.json({
-      data: tickets[ticketIndex],
+      data: updatedTicket,
       message: 'Заявка успешно обновлена'
     });
   } catch (error) {

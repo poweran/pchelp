@@ -1,17 +1,20 @@
-import { useEffect, CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useTickets } from '../../hooks/useTickets';
+import type { Ticket } from '../../types';
 import TicketCard from './TicketCard';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
 
-export default function TicketList() {
-   const { t } = useTranslation();
-   const { tickets, loading, error, loadTickets } = useTickets();
+interface TicketListProps {
+  tickets: Ticket[];
+  loading: boolean;
+  error: string | null;
+  loadTickets: () => Promise<void>;
+}
 
-  useEffect(() => {
-    loadTickets();
-  }, []);
+export default function TicketList({ tickets, loading, error, loadTickets }: TicketListProps) {
+    const { t } = useTranslation();
+
 
   // Сортировка заявок по дате создания (новые сначала)
   const sortedTickets = [...tickets].sort((a, b) => {
@@ -72,17 +75,19 @@ export default function TicketList() {
         </div>
       </div>
 
-      <div style={listStyle}>
-        {sortedTickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} />
-        ))}
-      </div>
-
-      {loading && (
-        <div style={loadingOverlayStyle}>
-          <Loading size="small" text={t('ticketList.loadingOverlay')} />
+      <div style={{ position: 'relative' }}>
+        <div style={listStyle}>
+          {sortedTickets.map((ticket) => (
+            <TicketCard key={ticket.id} ticket={ticket} />
+          ))}
         </div>
-      )}
+
+        {loading && (
+          <div style={loadingOverlayStyle}>
+            <Loading size="medium" text={t('ticketList.loadingOverlay')} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -177,15 +182,19 @@ const emptyMessageStyle: CSSProperties = {
 };
 
 const loadingOverlayStyle: CSSProperties = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   justifyContent: 'center',
-  gap: '0.75rem',
-  padding: '1rem',
-  backgroundColor: '#f8fafc',
+  paddingTop: '2rem',
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  backdropFilter: 'blur(1px)',
   borderRadius: '0.5rem',
-  fontSize: '0.875rem',
-  color: '#64748b',
+  zIndex: 10,
 };
 
 
