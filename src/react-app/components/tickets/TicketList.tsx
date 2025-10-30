@@ -52,13 +52,22 @@ export default function TicketList({ tickets, loading, error, loadTickets }: Tic
 
   // Пустой список
   if (tickets.length === 0) {
+    const userIdentifierString = localStorage.getItem('userIdentifier');
+    const isNewUser = !userIdentifierString;
+    const emptyTitle = isNewUser
+      ? t('ticketList.emptyTitleNewUser', 'Добро пожаловать!')
+      : t('ticketList.emptyTitleUser', 'У вас пока нет заявок');
+    const emptyMessage = isNewUser
+      ? t('ticketList.emptyMessageNewUser', 'Создайте свою первую заявку на обслуживание, заполнив форму выше.')
+      : t('ticketList.emptyMessageUser', 'Создайте свою первую заявку на обслуживание, заполнив форму выше.');
+
     return (
       <div style={containerStyle}>
         <div style={emptyStyle}>
           <span style={emptyIconStyle}>📋</span>
-          <h3 style={emptyTitleStyle}>{t('ticketList.emptyTitle')}</h3>
+          <h3 style={emptyTitleStyle}>{emptyTitle}</h3>
           <p style={emptyMessageStyle}>
-            {t('ticketList.emptyMessage')}
+            {emptyMessage}
           </p>
         </div>
       </div>

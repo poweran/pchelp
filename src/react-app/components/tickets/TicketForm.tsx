@@ -86,12 +86,19 @@ export default function TicketForm() {
     }
 
     const result = await submitTicket(formData);
-    
+
     if (result.success) {
+      // Сохранение комбинации email и телефона пользователя в localStorage для фильтрации тикетов
+      const userIdentifier = JSON.stringify({
+        email: formData.email,
+        phone: formData.phone
+      });
+      localStorage.setItem('userIdentifier', userIdentifier);
+
       // Очистка формы после успешной отправки
       setFormData(initialFormData);
       setErrors({});
-      
+
       // Автоматически скрыть сообщение об успехе через 5 секунд
       setTimeout(() => {
         resetSuccess();
