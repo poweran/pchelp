@@ -1140,6 +1140,29 @@ app.put('/api/tickets/:id', async (c) => {
   }
 });
 
+// DELETE /api/tickets/:id - удаление заявки
+app.delete('/api/tickets/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const env = c.env as Env;
+
+    // Проверка существования заявки
+    const existing = await env.DB.prepare('SELECT id FROM tickets WHERE id = ?').bind(id).first();
+    if (!existing) {
+      return c.json({ error: 'Заявка не найдена' }, 404);
+    }
+
+    const result = await env.DB.prepare('DELETE FROM tickets WHERE id = ?').bind(id).run();
+    if (!result.success) {
+      throw new Error('Failed to delete ticket from database');
+    }
+
+    return c.json({ data: null, message: 'Заявка успешно удалена' });
+  } catch (error) {
+    return c.json({ error: 'Ошибка при удалении заявки', details: error instanceof Error ? error.message : 'Неизвестная ошибка' }, 500);
+  }
+});
+
 // GET /api/knowledge - список всех записей базы знаний с фильтрацией
 app.get('/api/knowledge', (c) => {
   const type = c.req.query('type') as KnowledgeType | undefined;

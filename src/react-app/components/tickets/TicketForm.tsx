@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from '../../hooks/useTickets';
 import type { TicketFormData, TicketPriority } from '../../types';
@@ -15,6 +15,12 @@ interface FormErrors {
   description?: string;
 }
 
+interface UserIdentifier {
+  clientName: string;
+  email: string;
+  phone: string;
+}
+
 const initialFormData: TicketFormData = {
   clientName: '',
   phone: '',
@@ -25,10 +31,48 @@ const initialFormData: TicketFormData = {
 };
 
 export default function TicketForm() {
-   const { t } = useTranslation();
-   const [formData, setFormData] = useState<TicketFormData>(initialFormData);
-   const [errors, setErrors] = useState<FormErrors>({});
-   const { loading, error, success, submitTicket, resetSuccess, resetError } = useTickets();
+    const { t } = useTranslation();
+    const [formData, setFormData] = useState<TicketFormData>(initialFormData);
+    const [errors, setErrors] = useState<FormErrors>({});
+    const { loading, error, success, submitTicket, resetSuccess, resetError } = useTickets();
+
+    // Загрузка сохраненных данных пользователя при первом рендере
+    useEffect(() => {
+      const userIdentifierString = localStorage.getItem('userIdentifier');
+      if (userIdentifierString) {
+        try {
+          const userIdentifier: UserIdentifier = JSON.parse(userIdentifierString);
+          setFormData(prev => ({
+            ...prev,
+            clientName: userIdentifier.clientName || '',
+            phone: userIdentifier.phone || '',
+            email: userIdentifier.email || '',
+          }));
+        } catch (error) {
+          console.error('Error parsing userIdentifier from localStorage:', error);
+        }
+      }
+    }, []);
+
+    // Загрузка сохраненных данных после успешной отправки формы
+    useEffect(() => {
+      if (success) {
+        const userIdentifierString = localStorage.getItem('userIdentifier');
+        if (userIdentifierString) {
+          try {
+            const userIdentifier: UserIdentifier = JSON.parse(userIdentifierString);
+            setFormData(prev => ({
+              ...prev,
+              clientName: userIdentifier.clientName || '',
+              phone: userIdentifier.phone || '',
+              email: userIdentifier.email || '',
+            }));
+          } catch (error) {
+            console.error('Error parsing userIdentifier from localStorage:', error);
+          }
+        }
+      }
+    }, [success]);
 
   // Валидация email
   const validateEmail = (email: string): boolean => {
@@ -88,8 +132,9 @@ export default function TicketForm() {
     const result = await submitTicket(formData);
 
     if (result.success) {
-      // Сохранение комбинации email и телефона пользователя в localStorage для фильтрации тикетов
+      // Сохранение данных пользователя в localStorage для фильтрации тикетов и автозаполнения формы
       const userIdentifier = JSON.stringify({
+        clientName: formData.clientName,
         email: formData.email,
         phone: formData.phone
       });

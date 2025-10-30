@@ -9,30 +9,38 @@ import './TicketsPage.css';
 
 type TabType = 'create' | 'my-tickets';
 
+interface UserIdentifier {
+  clientName: string;
+  email: string;
+  phone: string;
+}
+
 export default function TicketsPage() {
-     const { t } = useTranslation();
-     const [activeTab, setActiveTab] = useState<TabType>('create');
-     const [searchQuery, setSearchQuery] = useState('');
-     const { tickets, loading, error, loadTickets } = useTickets();
+      const { t } = useTranslation();
+      const [activeTab, setActiveTab] = useState<TabType>('create');
+      const [searchQuery, setSearchQuery] = useState('');
+      const { tickets, loading, error, loadTickets } = useTickets();
 
-     // Инициализация загрузки тикетов при первом рендере
-     useEffect(() => {
-       loadTickets();
-     }, []);
+      // Инициализация загрузки тикетов при первом рендере
+      useEffect(() => {
+        loadTickets();
+      }, []);
 
-     // Получение идентификатора пользователя из localStorage для фильтрации
-     const userIdentifierString = localStorage.getItem('userIdentifier');
-     const userIdentifier = userIdentifierString ? JSON.parse(userIdentifierString) : null;
+      // Получение идентификатора пользователя из localStorage для фильтрации
+      const userIdentifierString = localStorage.getItem('userIdentifier');
+      const userIdentifier = userIdentifierString ? JSON.parse(userIdentifierString) as UserIdentifier : null;
 
-     // Фильтрация тикетов: сначала по идентификатору пользователя, затем по поисковому запросу
-     let filteredTickets = tickets;
+      // Фильтрация тикетов: сначала по идентификатору пользователя, затем по поисковому запросу
+      let filteredTickets = tickets;
 
-     // Если пользователь авторизован (есть сохраненные данные), показывать только его тикеты
-     if (userIdentifier) {
-       filteredTickets = filteredTickets.filter(ticket =>
-         ticket.email === userIdentifier.email && ticket.phone === userIdentifier.phone
-       );
-     }
+      // Если пользователь авторизован (есть сохраненные данные), показывать только его тикеты
+      if (userIdentifier) {
+        filteredTickets = filteredTickets.filter(ticket =>
+          ticket.clientName === userIdentifier.clientName &&
+          ticket.email === userIdentifier.email &&
+          ticket.phone === userIdentifier.phone
+        );
+      }
 
      // Дополнительная фильтрация по поисковому запросу
      filteredTickets = searchQuery

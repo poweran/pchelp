@@ -2,12 +2,15 @@ import { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Ticket } from '../../types';
 import Card from '../common/Card';
+import Button from '../common/Button';
 
 interface TicketCardProps {
   ticket: Ticket;
+  onDelete?: (id: string) => void;
+  deleting?: boolean;
 }
 
-export default function TicketCard({ ticket }: TicketCardProps) {
+export default function TicketCard({ ticket, onDelete, deleting = false }: TicketCardProps) {
    const { t } = useTranslation();
 
    // Получить стиль для статуса
@@ -86,9 +89,26 @@ export default function TicketCard({ ticket }: TicketCardProps) {
   return (
     <Card>
       <div style={cardContentStyle}>
-        {/* Заголовок с ID и статусом */}
+        {/* Заголовок с ID, действиями и статусом */}
         <div style={headerStyle}>
-          <div style={idStyle}>{ticket.id}</div>
+          <div style={headerTopStyle}>
+            <div style={idStyle}>{ticket.id}</div>
+            <div style={actionsStyle}>
+              {onDelete && (
+                <Button
+                  variant="danger"
+                  size="small"
+                  iconOnly
+                  onClick={() => onDelete(ticket.id)}
+                  disabled={deleting}
+                  className="ticket-delete-button"
+                  aria-label={deleting ? t('ticketList.deleting', 'Удаление...') : t('ticketList.deleteButton', 'Удалить')}
+                >
+                  <span aria-hidden title={deleting ? t('ticketList.deleting', 'Удаление...') : t('ticketList.deleteButton', 'Удалить')}>🗑️</span>
+                </Button>
+              )}
+            </div>
+          </div>
           <div style={badgesContainerStyle}>
             <span style={getPriorityStyle(ticket.priority)}>
               {getPriorityText(ticket.priority)}
@@ -164,6 +184,20 @@ const headerStyle: CSSProperties = {
   gap: '0.5rem',
   paddingBottom: '0.75rem',
   borderBottom: '1px solid #e2e8f0',
+};
+
+const headerTopStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  gap: '0.5rem',
+};
+
+const actionsStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
 };
 
 const idStyle: CSSProperties = {

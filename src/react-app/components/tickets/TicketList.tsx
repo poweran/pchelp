@@ -1,9 +1,10 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Ticket } from '../../types';
 import TicketCard from './TicketCard';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
+import { del } from '../../utils/api';
 
 interface TicketListProps {
   tickets: Ticket[];
@@ -14,6 +15,7 @@ interface TicketListProps {
 
 export default function TicketList({ tickets, loading, error, loadTickets }: TicketListProps) {
     const { t } = useTranslation();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
 
   // Сортировка заявок по дате создания (новые сначала)
@@ -87,7 +89,36 @@ export default function TicketList({ tickets, loading, error, loadTickets }: Tic
       <div style={{ position: 'relative' }}>
         <div style={listStyle}>
           {sortedTickets.map((ticket) => (
-            <TicketCard key={ticket.id} ticket={ticket} />
+            <div key={ticket.id} style={ticketItemStyle}>
+              <div style={{ flex: 1 }}>
+                <TicketCard
+                  ticket={ticket}
+                  deleting={deletingId === ticket.id}
+                  onDelete={async (id: string) => {
+                    const confirmed = window.confirm(
+                      t('ticketList.confirmDelete', 'Вы уверены, что хотите удалить эту заявку?')
+                    );
+                    if (!confirmed) return;
+                    try {
+                      setDeletingId(id);
+                      const res = await del(`/tickets/${id}`);
+                      if (res.error) {
+                        // Показываем ошибку пользователю
+                        alert(t('ticketList.deleteError', { defaultValue: 'Не удалось удалить заявку: ' }) + res.error);
+                      } else {
+                        // Обновляем список
+                        await loadTickets();
+                      }
+                    } catch (e) {
+                      const msg = e instanceof Error ? e.message : String(e);
+                      alert(t('ticketList.deleteError', { defaultValue: 'Не удалось удалить заявку: ' }) + msg);
+                    } finally {
+                      setDeletingId(null);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           ))}
         </div>
 
@@ -134,6 +165,14 @@ const listStyle: CSSProperties = {
   flexDirection: 'column',
   gap: '1rem',
 };
+
+const ticketItemStyle: CSSProperties = {
+  display: 'flex',
+  gap: '0.75rem',
+  alignItems: 'flex-start',
+};
+
+/* ticketActionsStyle removed — actions are rendered inside TicketCard now */
 
 
 const errorStyle: CSSProperties = {
