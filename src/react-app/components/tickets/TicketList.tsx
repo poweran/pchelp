@@ -2,6 +2,8 @@ import { useEffect, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from '../../hooks/useTickets';
 import TicketCard from './TicketCard';
+import Button from '../common/Button';
+import Loading from '../common/Loading';
 
 export default function TicketList() {
    const { t } = useTranslation();
@@ -22,10 +24,7 @@ export default function TicketList() {
   if (loading && tickets.length === 0) {
     return (
       <div style={containerStyle}>
-        <div style={loadingStyle}>
-          <div style={spinnerStyle}></div>
-          <p>{t('ticketList.loading')}</p>
-        </div>
+        <Loading text={t('ticketList.loading')} />
       </div>
     );
   }
@@ -39,9 +38,9 @@ export default function TicketList() {
           <div>
             <h3 style={errorTitleStyle}>{t('ticketList.errorTitle')}</h3>
             <p style={errorMessageStyle}>{error}</p>
-            <button onClick={loadTickets} style={retryButtonStyle}>
-              {t('ticketList.retryButton')}
-            </button>
+             <Button onClick={loadTickets} variant="danger">
+               {t('ticketList.retryButton')}
+             </Button>
           </div>
         </div>
       </div>
@@ -81,8 +80,7 @@ export default function TicketList() {
 
       {loading && (
         <div style={loadingOverlayStyle}>
-          <div style={smallSpinnerStyle}></div>
-          <span>{t('ticketList.loadingOverlay')}</span>
+          <Loading size="small" text={t('ticketList.loadingOverlay')} />
         </div>
       )}
     </div>
@@ -123,24 +121,6 @@ const listStyle: CSSProperties = {
   gap: '1rem',
 };
 
-const loadingStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '3rem 1rem',
-  gap: '1rem',
-  color: '#64748b',
-};
-
-const spinnerStyle: CSSProperties = {
-  width: '3rem',
-  height: '3rem',
-  border: '4px solid #e2e8f0',
-  borderTop: '4px solid #2563eb',
-  borderRadius: '50%',
-  animation: 'spin 1s linear infinite',
-};
 
 const errorStyle: CSSProperties = {
   display: 'flex',
@@ -167,18 +147,6 @@ const errorMessageStyle: CSSProperties = {
   fontSize: '0.875rem',
   color: '#7f1d1d',
   margin: '0 0 1rem 0',
-};
-
-const retryButtonStyle: CSSProperties = {
-  padding: '0.5rem 1rem',
-  backgroundColor: '#ef4444',
-  color: '#ffffff',
-  border: 'none',
-  borderRadius: '0.375rem',
-  fontSize: '0.875rem',
-  fontWeight: 500,
-  cursor: 'pointer',
-  transition: 'background-color 0.2s',
 };
 
 const emptyStyle: CSSProperties = {
@@ -220,14 +188,6 @@ const loadingOverlayStyle: CSSProperties = {
   color: '#64748b',
 };
 
-const smallSpinnerStyle: CSSProperties = {
-  width: '1rem',
-  height: '1rem',
-  border: '2px solid #e2e8f0',
-  borderTop: '2px solid #2563eb',
-  borderRadius: '50%',
-  animation: 'spin 1s linear infinite',
-};
 
 // Добавляем keyframes для анимации спиннера в глобальный стиль
 if (typeof document !== 'undefined') {

@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode, CSSProperties } from 'react';
+import Button from './Button';
 
 interface Props {
   children: ReactNode;
@@ -64,9 +65,9 @@ function DefaultErrorFallback({ error }: ErrorFallbackProps) {
           </details>
         )}
 
-        <button onClick={handleReload} style={reloadButtonStyle}>
+        <Button onClick={handleReload} variant="primary">
           Перезагрузить страницу
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -132,16 +133,4 @@ const errorDetailsStyle: CSSProperties = {
   whiteSpace: 'pre-wrap',
   overflow: 'auto',
   maxHeight: '200px',
-};
-
-const reloadButtonStyle: CSSProperties = {
-  backgroundColor: '#2563eb',
-  color: '#ffffff',
-  border: 'none',
-  padding: '0.75rem 1.5rem',
-  borderRadius: '0.375rem',
-  fontSize: '0.875rem',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  transition: 'background-color 0.2s',
 };

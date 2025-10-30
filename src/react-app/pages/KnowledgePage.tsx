@@ -4,6 +4,8 @@ import { useKnowledge } from '../hooks/useKnowledge';
 import { FAQItem } from '../components/knowledge/FAQItem';
 import { ArticleCard } from '../components/knowledge/ArticleCard';
 import Input from '../components/common/Input';
+import Button from '../components/common/Button';
+import Loading from '../components/common/Loading';
 import type { KnowledgeItem, KnowledgeType } from '../types';
 import './KnowledgePage.css';
 
@@ -66,7 +68,7 @@ const KnowledgePage: React.FC = () => {
   if (loading) {
     return (
       <div className="knowledge-page">
-        <div className="loading">{t('knowledgePage.loading')}</div>
+        <Loading />
       </div>
     );
   }
@@ -82,24 +84,26 @@ const KnowledgePage: React.FC = () => {
   return (
     <div className="knowledge-page">
       <header className="knowledge-header hero">
-        <h1>📚 {t('knowledgePage.title')}</h1>
+        <h1>{t('knowledgePage.title')}</h1>
         <p className="subtitle">{t('knowledgePage.subtitle')}</p>
       </header>
 
       <div className="knowledge-controls">
         <div className="tabs">
-          <button
+          <Button
             className={`tab ${activeTab === 'faq' ? 'active' : ''}`}
             onClick={() => handleTabChange('faq')}
+            variant="secondary"
           >
             {t('knowledgePage.tabFaq')}
-          </button>
-          <button
+          </Button>
+          <Button
             className={`tab ${activeTab === 'articles' ? 'active' : ''}`}
             onClick={() => handleTabChange('articles')}
+            variant="secondary"
           >
             {t('knowledgePage.tabArticles')}
-          </button>
+          </Button>
         </div>
 
         <div className="search-box">

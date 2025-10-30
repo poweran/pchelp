@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import Button from './Button';
 
 interface ErrorMessageProps {
   message: string;
@@ -14,9 +15,9 @@ export default function ErrorMessage({ message, onRetry, className = '' }: Error
         <div style={textContainerStyle}>
           <p style={messageStyle}>{message}</p>
           {onRetry && (
-            <button onClick={onRetry} style={retryButtonStyle}>
+            <Button onClick={onRetry} variant="danger">
               Попробовать снова
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -55,17 +56,4 @@ const messageStyle: CSSProperties = {
   fontSize: '0.875rem',
   lineHeight: '1.5',
   color: '#dc2626',
-};
-
-const retryButtonStyle: CSSProperties = {
-  marginTop: '0.5rem',
-  padding: '0.375rem 0.75rem',
-  fontSize: '0.75rem',
-  fontWeight: 'bold',
-  color: '#dc2626',
-  backgroundColor: 'transparent',
-  border: '1px solid #dc2626',
-  borderRadius: '0.25rem',
-  cursor: 'pointer',
-  transition: 'all 0.2s ease',
 };

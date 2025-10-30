@@ -19,6 +19,7 @@
 
 .services-header {
   animation: fadeInUp 0.8s ease-out;
+  text-align: center;
 }
 
 .services-section {

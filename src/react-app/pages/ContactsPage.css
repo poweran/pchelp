@@ -35,19 +35,22 @@
 .contacts-header .subtitle {
   font-size: 1.1rem;
   color: #666;
-  margin: 0;
+  margin: 0 auto;
 }
 
 .contacts-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 3rem;
+  align-items: stretch;
+  margin-bottom: 3rem;
 }
 
 .contacts-info {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  flex: 1;
+  justify-content: space-between;
 }
 
 .contact-card {
@@ -133,6 +136,7 @@
   padding: 2rem;
   border: 2px solid #e0e0e0;
   border-radius: 0px;
+  flex: 1;
 }
 
 .contacts-form-section h2 {
@@ -175,20 +179,11 @@
   font-size: 1rem;
 }
 
-.submit-button {
-  margin-top: 0.5rem;
-  font-size: 1.1rem;
-  padding: 1rem;
-}
-
-.submit-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* Удален кастомный стиль submit-button, теперь используется компонент Button с variant="success" */
 
 @media (max-width: 968px) {
   .contacts-content {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 2rem;
   }
 

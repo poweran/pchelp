@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { ServiceCategory } from '../../types';
 import { useServices } from '../../hooks/useServices';
 import { ServiceCard } from './ServiceCard';
+import Button from '../common/Button';
+import Loading from '../common/Loading';
 import './ServiceList.css';
 
 interface ServiceListProps {
@@ -34,21 +36,16 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
   const categories: ServiceCategory[] = ['repair', 'setup', 'recovery', 'consultation'];
 
   if (loading) {
-    return (
-      <div className="service-list__loading">
-        <div className="spinner"></div>
-        <p>{t('servicesPage.loading')}</p>
-      </div>
-    );
+    return <Loading text={t('servicesPage.loading')} />;
   }
 
   if (error) {
     return (
       <div className="service-list__error">
         <p>{t('servicesPage.error')}: {error}</p>
-        <button onClick={loadServices} className="retry-button">
+        <Button onClick={loadServices} variant="danger">
           {t('servicesPage.retry')}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -56,20 +53,22 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
   return (
     <div className="service-list">
       <div className="service-list__filters">
-        <button
-          className={`filter-button ${selectedCategory === null ? 'filter-button--active' : ''}`}
+        <Button
+          className={`${selectedCategory === null ? 'filter-button--active' : ''}`}
           onClick={() => setSelectedCategory(null)}
+          variant={selectedCategory === null ? 'primary' : 'secondary'}
         >
           {t('servicesPage.allServices')}
-        </button>
+        </Button>
         {categories.map(category => (
-          <button
+          <Button
             key={category}
-            className={`filter-button ${selectedCategory === category ? 'filter-button--active' : ''}`}
+            className={`${selectedCategory === category ? 'filter-button--active' : ''}`}
             onClick={() => setSelectedCategory(category)}
+            variant={selectedCategory === category ? 'primary' : 'secondary'}
           >
             {categoryLabels[category]}
-          </button>
+          </Button>
         ))}
       </div>
 

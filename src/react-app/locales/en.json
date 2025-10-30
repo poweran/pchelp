@@ -68,7 +68,7 @@
     "description": "Our service tariffs."
   },
   "pricingPage": {
-    "title": "💰 Our prices",
+    "title": "Our prices",
     "subtitle": "Transparent pricing for all types of services",
     "disclaimerTitle": "Please note",
     "disclaimerText": "The prices listed are basic and may vary depending on the complexity of the work, materials used, and the urgency of the order completion. You can find out the exact cost after diagnostics or consultation with a specialist."
@@ -95,7 +95,7 @@
     "description": "Contact us."
   },
   "contactsPage": {
-    "title": "📞 Contacts",
+    "title": "Contacts",
     "subtitle": "Contact us in a way convenient for you",
     "officeAddress": "Office address",
     "officeAddressText": "Yerevan, Narekatsi Street, Building 15, Office 11",

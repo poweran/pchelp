@@ -5,6 +5,8 @@ import { fetchPricing } from '../../utils/api';
 import type { PriceItem } from '../../types';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import Button from '../common/Button';
+import Loading from '../common/Loading';
 import './PriceTable.css';
 
 export function PriceTable() {
@@ -77,7 +79,7 @@ export function PriceTable() {
   }, {} as Record<string, PriceItem[]>);
 
   if (loading) {
-    return <div className="price-table__loading">{t('priceTable.loading')}</div>;
+    return <Loading text={t('priceTable.loading')} />;
   }
 
   if (error) {
@@ -88,20 +90,22 @@ export function PriceTable() {
     <div className="price-table">
       {/* Фильтр по категориям */}
       <div className="price-table__filters">
-        <button
-          className={`price-table__filter-btn ${selectedCategory === 'all' ? 'price-table__filter-btn--active' : ''}`}
+        <Button
+          className={`${selectedCategory === 'all' ? 'price-table__filter-btn--active' : ''}`}
           onClick={() => setSelectedCategory('all')}
+          variant={selectedCategory === 'all' ? 'primary' : 'secondary'}
         >
           {t('priceTable.allCategories')}
-        </button>
+        </Button>
         {categories.map(category => (
-          <button
+          <Button
             key={category}
-            className={`price-table__filter-btn ${selectedCategory === category ? 'price-table__filter-btn--active' : ''}`}
+            className={`${selectedCategory === category ? 'price-table__filter-btn--active' : ''}`}
             onClick={() => setSelectedCategory(category)}
+            variant={selectedCategory === category ? 'primary' : 'secondary'}
           >
             {category}
-          </button>
+          </Button>
         ))}
       </div>
 

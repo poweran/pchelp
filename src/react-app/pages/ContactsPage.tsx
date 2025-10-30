@@ -2,41 +2,82 @@ import React, { useState } from 'react';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
 import Button from '../components/common/Button';
-import type { ContactFormData } from '../types';
+import type { TicketFormData } from '../types';
 import { useTranslation } from 'react-i18next';
+import { useTickets } from '../hooks/useTickets';
 import './ContactsPage.css';
 
 const ContactsPage: React.FC = () => {
   const { t } = useTranslation();
-  const [formData, setFormData] = useState<ContactFormData>({
-    name: '',
+  const [formData, setFormData] = useState<TicketFormData>({
+    clientName: '',
+    phone: '',
     email: '',
-    message: '',
+    serviceType: 'consultation',
+    description: '',
+    priority: 'medium',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
+  const { loading, error, success, submitTicket, resetError } = useTickets();
 
-  const handleChange = (value: string, field: keyof ContactFormData) => {
+  const validateForm = () => {
+    const errors: {[key: string]: string | undefined} = {};
+
+    if (!formData.clientName.trim()) {
+      errors.clientName = 'Имя обязательно для заполнения';
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = 'Телефон обязателен для заполнения';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email обязателен для заполнения';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Некорректный формат email';
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Сообщение обязательно';
+    } else if (formData.description.trim().length < 10) {
+      errors.description = 'Сообщение должно содержать минимум 10 символов';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleChange = (value: string, field: keyof TicketFormData) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    resetError();
 
-    // Имитация отправки формы
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({ name: '', email: '', message: '' });
-      
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 3000);
-    }, 1000);
+    if (!validateForm()) {
+      return;
+    }
+
+    const result = await submitTicket(formData);
+
+    if (result.success) {
+      setFormData({
+        clientName: '',
+        phone: '',
+        email: '',
+        serviceType: 'consultation',
+        description: '',
+        priority: 'medium',
+      });
+      setValidationErrors({});
+    }
   };
 
   return (
@@ -62,7 +103,7 @@ const ContactsPage: React.FC = () => {
             <div className="contact-card-content">
               <h3>{t('contactsPage.phoneNumber')}</h3>
               <p>
-                <a href="tel:+37495019753">+374 (95) 01-97-53 — {t('contactsPage.phoneMain')}</a>
+                <a href="tel:+37495019753">+374 (95) 01-97-53</a> — {t('contactsPage.phoneMain')}
               </p>
             </div>
           </div>
@@ -72,10 +113,10 @@ const ContactsPage: React.FC = () => {
             <div className="contact-card-content">
               <h3>{t('contactsPage.email')}</h3>
               <p>
-                <a href="mailto:info@pchelp.linkpc.net">info@pchelp.linkpc.net — {t('contactsPage.emailGeneral')}</a>
+                <a href="mailto:info@pchelp.linkpc.net">info@pchelp.linkpc.net</a> — {t('contactsPage.emailGeneral')}
               </p>
               <p>
-                <a href="mailto:support@pchelp.linkpc.net">support@pchelp.linkpc.net — {t('contactsPage.emailSupport')}</a>
+                <a href="mailto:support@pchelp.linkpc.net">support@pchelp.linkpc.net</a> — {t('contactsPage.emailSupport')}
               </p>
             </div>
           </div>
@@ -98,20 +139,40 @@ const ContactsPage: React.FC = () => {
             {t('contactsPage.formDescription')}
           </p>
 
-          {submitSuccess && (
+          {success && (
             <div className="success-message">
               {t('contactsPage.successMessage')}
             </div>
           )}
 
+          {error && (
+            <div className="error-message">
+              Ошибка при отправке сообщения: {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="contact-form">
             <div className="form-group">
-              <label htmlFor="name">{t('contactsPage.nameLabel')}</label>
+              <label htmlFor="clientName">{t('contactsPage.nameLabel')}</label>
               <Input
                 type="text"
                 placeholder={t('contactsPage.namePlaceholder')}
-                value={formData.name}
-                onChange={(value) => handleChange(value, 'name')}
+                value={formData.clientName}
+                onChange={(value) => handleChange(value, 'clientName')}
+                error={validationErrors.clientName}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone">Телефон *</label>
+              <Input
+                type="tel"
+                placeholder="+374 (99) 12-34-56"
+                value={formData.phone}
+                onChange={(value) => handleChange(value, 'phone')}
+                error={validationErrors.phone}
+                disabled={loading}
               />
             </div>
 
@@ -122,25 +183,29 @@ const ContactsPage: React.FC = () => {
                 placeholder={t('contactsPage.emailPlaceholder')}
                 value={formData.email}
                 onChange={(value) => handleChange(value, 'email')}
+                error={validationErrors.email}
+                disabled={loading}
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="message">{t('contactsPage.messageLabel')}</label>
+              <label htmlFor="description">{t('contactsPage.messageLabel')}</label>
               <Textarea
                 placeholder={t('contactsPage.messagePlaceholder')}
-                value={formData.message}
-                onChange={(value) => handleChange(value, 'message')}
+                value={formData.description}
+                onChange={(value) => handleChange(value, 'description')}
+                error={validationErrors.description}
                 rows={6}
+                disabled={loading}
               />
             </div>
 
             <Button
               type="submit"
-              disabled={isSubmitting}
-              className="submit-button"
+              disabled={loading}
+              variant="success"
             >
-              {isSubmitting ? t('contactsPage.submitting') : t('contactsPage.submitButton')}
+              {loading ? t('contactsPage.submitting') : t('contactsPage.submitButton')}
             </Button>
           </form>
         </div>

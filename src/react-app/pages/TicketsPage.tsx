@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import TicketForm from '../components/tickets/TicketForm';
 import TicketList from '../components/tickets/TicketList';
 import Input from '../components/common/Input';
+import Button from '../components/common/Button';
 import './TicketsPage.css';
 
 type TabType = 'create' | 'my-tickets';
@@ -28,53 +29,27 @@ export default function TicketsPage() {
         <section style={tabsSectionStyle} className="tickets-tabs">
           <div style={containerStyle}>
             <div style={tabsContainerStyle}>
-              <button
+              <Button
                 onClick={() => setActiveTab('create')}
-                style={{
-                  ...tabButtonStyle,
-                  ...(activeTab === 'create' ? activeTabButtonStyle : {}),
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== 'create') {
-                    e.currentTarget.style.backgroundColor = '#eff6ff';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== 'create') {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
+                variant={activeTab === 'create' ? 'primary' : 'secondary'}
               >
                 <span style={tabIconStyle}>✏️</span>
                 {t('ticketsPage.tabCreate')}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={() => setActiveTab('my-tickets')}
-                style={{
-                  ...tabButtonStyle,
-                  ...(activeTab === 'my-tickets' ? activeTabButtonStyle : {}),
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== 'my-tickets') {
-                    e.currentTarget.style.backgroundColor = '#eff6ff';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== 'my-tickets') {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
+                variant={activeTab === 'my-tickets' ? 'primary' : 'secondary'}
               >
                 <span style={tabIconStyle}>📋</span>
                 {t('ticketsPage.tabMyTickets')}
-              </button>
+              </Button>
             </div>
           </div>
         </section>
 
         {/* Контент */}
-        <section style={contentSectionStyle} className="tickets-content">
+        <section className="tickets-content">
           <div style={containerStyle}>
             {activeTab === 'create' ? (
               <div style={formContainerStyle}>
@@ -111,16 +86,15 @@ export default function TicketsPage() {
                     placeholder={`🔍 ${t('ticketsPage.searchPlaceholder')}`}
                   />
                   {/* Кнопка обновления списка */}
-                  <button
+                  <Button
                     onClick={() => {
                       // Перезагрузка страницы для обновления списка
                       window.location.reload();
                     }}
-                    style={refreshButtonStyle}
-                    title="Обновить список заявок"
+                    variant="secondary"
                   >
                     🔄
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Список заявок */}
@@ -168,7 +142,6 @@ const containerStyle: CSSProperties = {
 
 const headerSectionStyle: CSSProperties = {
   backgroundColor: '#ffffff',
-  padding: '3rem 0',
   borderBottom: '1px solid #e2e8f0',
 };
 
@@ -204,35 +177,9 @@ const tabsContainerStyle: CSSProperties = {
   flexWrap: 'wrap',
 };
 
-const tabButtonStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem',
-  padding: '0.5rem 0.75rem',
-  fontSize: '0.95rem',
-  fontWeight: 500,
-  color: '#64748b',
-  backgroundColor: 'transparent',
-  border: 'none',
-  borderRadius: '0.375rem',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  outline: 'none',
-};
-
-const activeTabButtonStyle: CSSProperties = {
-  color: '#2563eb',
-  backgroundColor: '#dbeafe',
-  fontWeight: 600,
-};
 
 const tabIconStyle: CSSProperties = {
   fontSize: '1.25rem',
-};
-
-const contentSectionStyle: CSSProperties = {
-  padding: '3rem 0',
-  minHeight: '500px',
 };
 
 const formContainerStyle: CSSProperties = {
@@ -256,17 +203,7 @@ const searchContainerStyle: CSSProperties = {
   alignItems: 'flex-end',
 };
 
-const refreshButtonStyle: CSSProperties = {
-  padding: '0.625rem 0.75rem',
-  fontSize: '0.875rem',
-  borderRadius: '0.375rem',
-  border: '1px solid #e2e8f0',
-  backgroundColor: '#ffffff',
-  color: '#64748b',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  outline: 'none',
-};
+/* Refresh button styles removed - now using Button component */
 
 const infoBoxStyle: CSSProperties = {
   maxWidth: '600px',

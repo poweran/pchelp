@@ -18,11 +18,12 @@ const Loading = memo<LoadingProps>(function Loading({
     <div className="loading-container">
       <div
         className={`loading-spinner ${size}`}
-        style={{
-          borderColor: `${color}20`,
-          borderTopColor: color,
-        }}
-      ></div>
+        style={{ '--color-primary': color } as React.CSSProperties}
+      >
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+      </div>
       <span className="loading-text">{defaultText}</span>
     </div>
   );

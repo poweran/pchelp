@@ -19,8 +19,8 @@ export default function Footer({ className = '' }: FooterProps) {
 
         <div style={sectionStyle}>
           <h4 style={subHeadingStyle}>{t('footer.contacts')}</h4>
-          <p style={textStyle}>📞 +374 (95) 01-97-53</p>
-          <p style={textStyle}>📧 info@pchelp.linkpc.net</p>
+          <p style={textStyle}><a href="tel:+37495019753">📞 +374 (95) 01-97-53</a></p>
+          <p style={textStyle}><a href="mailto:info@pchelp.linkpc.net">📧 info@pchelp.linkpc.net</a></p>
         </div>
 
         <div style={sectionStyle}>

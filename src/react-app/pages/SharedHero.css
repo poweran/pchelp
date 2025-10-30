@@ -21,6 +21,7 @@
   position: relative;
   overflow: hidden;
   box-shadow: 0 16px 64px rgba(0, 0, 0, 0.4);
+  text-align: center;
 }
 
 .hero::before {
@@ -43,10 +44,8 @@
 .hero .subtitle {
   font-size: 1.1rem;
   color: #666;
-  margin: 0;
+  margin: 0 auto;
   max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
   margin-bottom: 2rem;
 }
 

@@ -20,6 +20,7 @@
 
 .tickets-header {
   animation: fadeInUp 0.8s ease-out;
+  text-align: center;
 }
 
 .tickets-tabs {
@@ -28,6 +29,8 @@
 
 .tickets-content {
   animation: fadeInUp 0.8s ease-out 0.4s both;
+  padding: 3rem 0;
+  min-height: 500px;
 }
 
 .tickets-contact {
