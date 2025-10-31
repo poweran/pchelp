@@ -785,9 +785,11 @@ const knowledgeBase: KnowledgeItem[] = [
   }
 ];
 
-// Функция генерации ID для заявок
+// Функция генерации ID для заявок (короткий и легко читаемый формат)
 function generateTicketId(): string {
-  return `ticket-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  // Используем timestamp в base36, последние 6 символов + префикс TCK-
+  // Это дает уникальный ID типа TCK-ABCDEF (6 символов после дефиса)
+  return `TCK-${Date.now().toString(36).substr(-6).toUpperCase()}`;
 }
 
 // Функция валидации email
@@ -916,9 +918,12 @@ app.post('/api/tickets', async (c) => {
       }, 400);
     }
 
+    // Генерация уникального ID для заявки (простая версия без проверки уникальности)
+    const ticketId = generateTicketId();
+
     // Создание новой заявки
     const newTicket: Ticket = {
-      id: generateTicketId(),
+      id: ticketId,
       clientName: body.clientName.trim(),
       phone: body.phone.trim(),
       email: body.email.trim(),
