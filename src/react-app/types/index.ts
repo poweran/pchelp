@@ -22,6 +22,7 @@ export type ServiceCategory = 'repair' | 'setup' | 'recovery' | 'consultation';
 // Типы для заявок
 export interface Ticket {
   id: string;
+  title: string;
   clientName: string;
   phone: string;
   email: string;

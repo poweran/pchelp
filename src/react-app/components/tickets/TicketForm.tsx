@@ -30,11 +30,16 @@ const initialFormData: TicketFormData = {
   priority: 'medium',
 };
 
-export default function TicketForm() {
+interface TicketFormProps {
+  onTicketCreated: (ticket: TicketFormData) => void;
+}
+
+export default function TicketForm({ onTicketCreated }: TicketFormProps) {
     const { t } = useTranslation();
     const [formData, setFormData] = useState<TicketFormData>(initialFormData);
     const [errors, setErrors] = useState<FormErrors>({});
     const { loading, error, success, submitTicket, resetSuccess, resetError } = useTickets();
+    const { fetchTickets } = useTickets();
 
     // Загрузка сохраненных данных пользователя при первом рендере
     useEffect(() => {
@@ -73,6 +78,19 @@ export default function TicketForm() {
         }
       }
     }, [success]);
+
+    // Периодическое обновление списка тикетов каждые 5 секунд
+    useEffect(() => {
+      const intervalId = setInterval(() => {
+        fetchTickets();
+      }, 5000);
+
+      return () => clearInterval(intervalId);
+    }, [fetchTickets]);
+
+    useEffect(() => {
+      fetchTickets(); // первоначальная загрузка тикетов
+    }, [fetchTickets]);
 
   // Валидация email
   const validateEmail = (email: string): boolean => {
@@ -126,12 +144,15 @@ export default function TicketForm() {
     resetError();
 
     if (!validateForm()) {
-      return;
+        return;
     }
 
     const result = await submitTicket(formData);
 
     if (result.success) {
+      // Notify parent component about the new ticket
+      onTicketCreated(formData);
+
       // Сохранение данных пользователя в localStorage для фильтрации тикетов и автозаполнения формы
       const userIdentifier = JSON.stringify({
         clientName: formData.clientName,

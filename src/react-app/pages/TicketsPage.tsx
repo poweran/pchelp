@@ -40,6 +40,9 @@ export default function TicketsPage() {
           ticket.email === userIdentifier.email &&
           ticket.phone === userIdentifier.phone
         );
+      } else {
+        // Если нет информации о пользователе в localStorage, не показывать никакие тикеты
+        filteredTickets = [];
       }
 
      // Дополнительная фильтрация по поисковому запросу
@@ -62,6 +65,13 @@ export default function TicketsPage() {
         setRefreshing(false);
       }
     };
+
+    const handleTicketCreated = () => {
+      // Обработчик создания тикета
+      loadTickets();
+      setActiveTab('my-tickets');
+    };
+
   return (
     <>
         {/* Заголовок страницы */}
@@ -102,7 +112,7 @@ export default function TicketsPage() {
           <div style={containerStyle}>
             {activeTab === 'create' ? (
               <div style={formContainerStyle}>
-                <TicketForm />
+                <TicketForm onTicketCreated={handleTicketCreated} />
 
                 {/* Дополнительная информация */}
                 <div style={infoBoxStyle}>

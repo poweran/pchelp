@@ -208,6 +208,10 @@
     "deleteError": "Failed to delete ticket: ",
     "emptyTitle": "No tickets",
     "emptyMessage": "Ticket list is empty. Create your first ticket to get started.",
+    "emptyTitleUser": "You have no tickets yet",
+    "emptyMessageUser": "Create your first service request by filling out the form above.",
+    "emptyTitleNewUser": "Welcome!",
+    "emptyMessageNewUser": "Create your first service request by filling out the form above.",
     "title": "Ticket list",
     "count": "Total",
     "loadingOverlay": "Updating..."

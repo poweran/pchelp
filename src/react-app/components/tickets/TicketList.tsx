@@ -14,7 +14,7 @@ interface TicketListProps {
 }
 
 export default function TicketList({ tickets, loading, error, loadTickets }: TicketListProps) {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
 
@@ -35,7 +35,7 @@ export default function TicketList({ tickets, loading, error, loadTickets }: Tic
   }
 
   // Состояние ошибки
-  if (error) {
+if (error) {
     return (
       <div style={containerStyle}>
         <div style={errorStyle}>
@@ -57,11 +57,11 @@ export default function TicketList({ tickets, loading, error, loadTickets }: Tic
     const userIdentifierString = localStorage.getItem('userIdentifier');
     const isNewUser = !userIdentifierString;
     const emptyTitle = isNewUser
-      ? t('ticketList.emptyTitleNewUser', 'Добро пожаловать!')
-      : t('ticketList.emptyTitleUser', 'У вас пока нет заявок');
+      ? t('ticketList.emptyTitleNewUser')
+      : t('ticketList.emptyTitleUser');
     const emptyMessage = isNewUser
-      ? t('ticketList.emptyMessageNewUser', 'Создайте свою первую заявку на обслуживание, заполнив форму выше.')
-      : t('ticketList.emptyMessageUser', 'Создайте свою первую заявку на обслуживание, заполнив форму выше.');
+      ? t('ticketList.emptyMessageNewUser')
+      : t('ticketList.emptyMessageUser');
 
     return (
       <div style={containerStyle}>
@@ -95,10 +95,6 @@ export default function TicketList({ tickets, loading, error, loadTickets }: Tic
                   ticket={ticket}
                   deleting={deletingId === ticket.id}
                   onDelete={async (id: string) => {
-                    const confirmed = window.confirm(
-                      t('ticketList.confirmDelete', 'Вы уверены, что хотите удалить эту заявку?')
-                    );
-                    if (!confirmed) return;
                     try {
                       setDeletingId(id);
                       const res = await del(`/tickets/${id}`);

@@ -1,6 +1,18 @@
 import { useState } from 'react';
 import type { Ticket, TicketFormData } from '../types';
-import { createTicket, fetchTickets, fetchTicketById } from '../utils/api';
+import { createTicket, fetchTicketById } from '../utils/api';
+
+const fetchTickets = async () => {
+  try {
+    const response = await fetch('/api/tickets'); // Adjust the API endpoint as necessary
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Failed to fetch tickets' };
+  }
+};
 
 interface UseTicketsState {
   tickets: Ticket[];
@@ -103,6 +115,7 @@ export function useTickets() {
     loadTickets,
     resetSuccess,
     resetError,
+    fetchTickets,
   };
 }
 
