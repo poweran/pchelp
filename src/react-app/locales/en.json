@@ -283,6 +283,7 @@
       "deleteError": "Could not delete the ticket.",
       "deleted": "Ticket deleted.",
       "empty": "There are no tickets yet.",
+      "autoRefresh": "Auto-refresh",
       "table": {
         "client": "Client",
         "contact": "Contacts",

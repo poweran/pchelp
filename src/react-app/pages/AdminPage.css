@@ -64,7 +64,26 @@
 
 .admin-section__actions {
   display: flex;
+  align-items: center;
   gap: 0.75rem;
+}
+
+.admin-auto-refresh {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #475569;
+  cursor: pointer;
+}
+
+.admin-auto-refresh input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.admin-auto-refresh__label {
+  user-select: none;
 }
 
 .admin-section__layout {

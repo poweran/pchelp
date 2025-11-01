@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface LoadingProps {
@@ -7,6 +7,10 @@ interface LoadingProps {
   text?: string;
 }
 
+type SpinnerStyle = CSSProperties & {
+  '--color-primary'?: string;
+};
+
 const Loading = memo<LoadingProps>(function Loading({
   size = 'medium',
   color = '#2563eb',
@@ -14,11 +18,15 @@ const Loading = memo<LoadingProps>(function Loading({
 }) {
   const { t } = useTranslation();
   const defaultText = text || t('common.loading');
+  const spinnerStyle: SpinnerStyle = {
+    '--color-primary': color,
+  };
+
   return (
     <div className="loading-container">
       <div
         className={`loading-spinner ${size}`}
-        style={{ '--color-primary': color } as React.CSSProperties}
+        style={spinnerStyle}
       >
         <div className="dot"></div>
         <div className="dot"></div>

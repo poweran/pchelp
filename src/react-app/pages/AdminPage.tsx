@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
@@ -123,10 +123,17 @@ const TicketsSection: React.FC = () => {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(() => {
+    const saved = localStorage.getItem('admin-tickets-auto-refresh');
+    return saved ? JSON.parse(saved) : false;
+  });
 
-  const loadTickets = async () => {
-    setLoading(true);
-    setError(null);
+  const handleAutoRefreshChange = (checked: boolean) => {
+    localStorage.setItem('admin-tickets-auto-refresh', JSON.stringify(checked));
+    setAutoRefresh(checked);
+  };
+
+  const loadTickets = useCallback(async () => {
     const response = await fetchTickets();
     if (response.error) {
       setError(response.error);
@@ -137,11 +144,23 @@ const TicketsSection: React.FC = () => {
       setTickets([]);
     }
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     loadTickets();
   }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (autoRefresh) {
+      interval = setInterval(() => {
+        loadTickets();
+      }, 10000); // Обновление каждые 10 секунд
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [autoRefresh, loadTickets]);
 
   const statusLabels = useMemo<Record<TicketStatus, string>>(() => ({
     new: t('ticketCard.statusNew'),
@@ -207,6 +226,14 @@ const TicketsSection: React.FC = () => {
       <div className="admin-section__header">
         <h2>{t('admin.tickets.title')}</h2>
         <div className="admin-section__actions">
+          <label className="admin-auto-refresh">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => handleAutoRefreshChange(e.target.checked)}
+            />
+            <span className="admin-auto-refresh__label">{t('admin.tickets.autoRefresh')}</span>
+          </label>
           <Button onClick={loadTickets} variant="secondary">
             {t('admin.actions.refresh')}
           </Button>
