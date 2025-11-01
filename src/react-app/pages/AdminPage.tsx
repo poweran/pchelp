@@ -12,10 +12,6 @@ import {
   createAdminService,
   updateAdminService,
   deleteAdminService,
-  fetchAdminPricing,
-  createAdminPriceItem,
-  updateAdminPriceItem,
-  deleteAdminPriceItem,
   fetchAdminKnowledge,
   createAdminKnowledge,
   updateAdminKnowledge,
@@ -27,8 +23,6 @@ import type {
   TicketPriority,
   AdminService,
   AdminServicePayload,
-  AdminPriceItem,
-  AdminPricePayload,
   AdminKnowledgeItem,
   AdminKnowledgePayload,
   LocalizedText,
@@ -36,12 +30,12 @@ import type {
   KnowledgeType,
   LanguageCode,
 } from '../types';
+import { SERVICE_CATEGORIES } from '../types';
 import './AdminPage.css';
 
-type AdminTab = 'tickets' | 'services' | 'pricing' | 'knowledge';
+type AdminTab = 'tickets' | 'services' | 'knowledge';
 
 const LANGUAGES: LanguageCode[] = ['ru', 'en', 'hy'];
-const SERVICE_CATEGORIES: ServiceCategory[] = ['repair', 'setup', 'recovery', 'consultation'];
 const TICKET_STATUSES: TicketStatus[] = ['new', 'in-progress', 'completed', 'cancelled'];
 const TICKET_PRIORITIES: TicketPriority[] = ['low', 'medium', 'high'];
 const KNOWLEDGE_TYPES: KnowledgeType[] = ['faq', 'article'];
@@ -72,16 +66,10 @@ const formatDateTime = (value: string): string => {
 interface ServiceFormState {
   title: LocalizedText;
   description: LocalizedText;
-  price: string;
   category: ServiceCategory;
-}
-
-interface PriceFormState {
-  service: LocalizedText;
   price: string;
   minPrice: string;
   maxPrice: string;
-  category: LocalizedText;
   unit: LocalizedText;
 }
 
@@ -95,16 +83,10 @@ interface KnowledgeFormState {
 const createEmptyServiceForm = (): ServiceFormState => ({
   title: createEmptyLocalized(),
   description: createEmptyLocalized(),
-  price: '',
   category: 'repair',
-});
-
-const createEmptyPriceForm = (): PriceFormState => ({
-  service: createEmptyLocalized(),
   price: '',
   minPrice: '',
   maxPrice: '',
-  category: createEmptyLocalized(),
   unit: createEmptyLocalized(),
 });
 
@@ -302,11 +284,21 @@ const TicketsSection: React.FC = () => {
                   <td>{formatDateTime(ticket.createdAt)}</td>
                   <td>
                     <Button
+                      onClick={() => alert(`${t('admin.tickets.viewDescription')}:\n\n${ticket.description}`)}
+                      variant="secondary"
+                      size="small"
+                      title={t('admin.tickets.viewDescription')}
+                    >
+                      📋
+                    </Button>
+                    <Button
                       onClick={() => handleDelete(ticket.id)}
                       variant="danger"
+                      size="small"
                       disabled={deletingId === ticket.id}
+                      title={deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
                     >
-                      {deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
+                      🗑️
                     </Button>
                   </td>
                 </tr>
@@ -360,8 +352,11 @@ const ServicesSection: React.FC = () => {
     setFormState({
       title: { ...service.title },
       description: { ...service.description },
-      price: String(service.price ?? ''),
       category: service.category,
+      price: service.price !== null && service.price !== undefined ? String(service.price) : '',
+      minPrice: service.minPrice !== null && service.minPrice !== undefined ? String(service.minPrice) : '',
+      maxPrice: service.maxPrice !== null && service.maxPrice !== undefined ? String(service.maxPrice) : '',
+      unit: service.unit ? { ...service.unit } : createEmptyLocalized(),
     });
     setFeedback(null);
     setError(null);
@@ -374,7 +369,7 @@ const ServicesSection: React.FC = () => {
     setError(null);
   };
 
-  const handleLocalizedChange = (field: 'title' | 'description', lang: LanguageCode, value: string) => {
+  const handleLocalizedChange = (field: 'title' | 'description' | 'unit', lang: LanguageCode, value: string) => {
     setFormState(prev => ({
       ...prev,
       [field]: {
@@ -390,8 +385,11 @@ const ServicesSection: React.FC = () => {
     setError(null);
 
     const priceValue = parseNumeric(formState.price);
-    if (priceValue === null) {
-      setError(t('admin.services.validation.price'));
+    const minPriceValue = parseNumeric(formState.minPrice);
+    const maxPriceValue = parseNumeric(formState.maxPrice);
+
+    if (priceValue === null && (minPriceValue === null || maxPriceValue === null)) {
+      setError(t('admin.services.validation.priceOrRange'));
       setSubmitting(false);
       return;
     }
@@ -399,8 +397,11 @@ const ServicesSection: React.FC = () => {
     const payload: AdminServicePayload = {
       title: formState.title,
       description: formState.description,
-      price: priceValue,
       category: formState.category,
+      price: priceValue,
+      minPrice: minPriceValue,
+      maxPrice: maxPriceValue,
+      unit: formState.unit,
     };
 
     const response = selectedId
@@ -512,6 +513,11 @@ const ServicesSection: React.FC = () => {
                   rows={4}
                   required={lang === 'ru'}
                 />
+                <Input
+                  label={t('admin.services.fields.unit')}
+                  value={formState.unit[lang]}
+                  onChange={(value) => handleLocalizedChange('unit', lang, value)}
+                />
               </div>
             ))}
           </div>
@@ -522,9 +528,22 @@ const ServicesSection: React.FC = () => {
               type="number"
               value={formState.price}
               onChange={(value) => setFormState(prev => ({ ...prev, price: value }))}
-              required
             />
+            <Input
+              label={t('admin.services.fields.minPrice')}
+              type="number"
+              value={formState.minPrice}
+              onChange={(value) => setFormState(prev => ({ ...prev, minPrice: value }))}
+            />
+            <Input
+              label={t('admin.services.fields.maxPrice')}
+              type="number"
+              value={formState.maxPrice}
+              onChange={(value) => setFormState(prev => ({ ...prev, maxPrice: value }))}
+            />
+          </div>
 
+          <div className="admin-form__row">
             <div className="admin-select-group">
               <label className="admin-select-group__label">{t('admin.services.fields.category')}</label>
               <select
@@ -542,254 +561,6 @@ const ServicesSection: React.FC = () => {
                 ))}
               </select>
             </div>
-          </div>
-
-          <div className="admin-form__actions">
-            <Button type="submit" variant="primary" disabled={submitting}>
-              {submitting ? t('admin.actions.saving') : t('admin.actions.save')}
-            </Button>
-            <Button type="button" variant="secondary" onClick={resetForm}>
-              {t('admin.actions.cancel')}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </section>
-  );
-};
-
-const PricingSection: React.FC = () => {
-  const { t } = useTranslation();
-  const [items, setItems] = useState<AdminPriceItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [formState, setFormState] = useState<PriceFormState>(() => createEmptyPriceForm());
-  const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const loadPricing = async () => {
-    setLoading(true);
-    setError(null);
-    const response = await fetchAdminPricing();
-    if (response.error) {
-      setError(response.error);
-      setItems([]);
-    } else if (Array.isArray(response.data)) {
-      setItems(response.data);
-    } else {
-      setItems([]);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadPricing();
-  }, []);
-
-  const languageLabels = useMemo<Record<LanguageCode, string>>(() => ({
-    ru: t('admin.locales.ru'),
-    en: t('admin.locales.en'),
-    hy: t('admin.locales.hy'),
-  }), [t]);
-
-  const handleSelect = (item: AdminPriceItem) => {
-    setSelectedId(item.id);
-    setFormState({
-      service: { ...item.service },
-      price: item.price !== null && item.price !== undefined ? String(item.price) : '',
-      minPrice: item.minPrice !== null && item.minPrice !== undefined ? String(item.minPrice) : '',
-      maxPrice: item.maxPrice !== null && item.maxPrice !== undefined ? String(item.maxPrice) : '',
-      category: { ...item.category },
-      unit: { ...item.unit },
-    });
-    setFeedback(null);
-    setError(null);
-  };
-
-  const resetForm = () => {
-    setSelectedId(null);
-    setFormState(createEmptyPriceForm());
-    setFeedback(null);
-    setError(null);
-  };
-
-  const handleLocalizedChange = (
-    field: 'service' | 'category' | 'unit',
-    lang: LanguageCode,
-    value: string
-  ) => {
-    setFormState(prev => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [lang]: value,
-      },
-    }));
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setSubmitting(true);
-    setError(null);
-
-    const priceValue = parseNumeric(formState.price);
-    const minPriceValue = parseNumeric(formState.minPrice);
-    const maxPriceValue = parseNumeric(formState.maxPrice);
-
-    if (priceValue === null && (minPriceValue === null || maxPriceValue === null)) {
-      setError(t('admin.pricing.validation.range'));
-      setSubmitting(false);
-      return;
-    }
-
-    const payload: AdminPricePayload = {
-      service: formState.service,
-      price: priceValue,
-      minPrice: minPriceValue,
-      maxPrice: maxPriceValue,
-      category: formState.category,
-      unit: formState.unit,
-    };
-
-    const response = selectedId
-      ? await updateAdminPriceItem(selectedId, payload)
-      : await createAdminPriceItem(payload);
-
-    if (response.error || !response.data) {
-      setError(response.error || t('admin.pricing.errorSave'));
-    } else {
-      if (selectedId) {
-        setItems(prev => prev.map(item => item.id === selectedId ? response.data! : item));
-      } else {
-        setItems(prev => [...prev, response.data!]);
-        setSelectedId(response.data!.id);
-      }
-      setFeedback(t('admin.pricing.saved'));
-    }
-
-    setSubmitting(false);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm(t('admin.pricing.confirmDelete'))) {
-      return;
-    }
-    setDeletingId(id);
-    setError(null);
-    const response = await deleteAdminPriceItem(id);
-    if (response.error) {
-      setError(response.error || t('admin.pricing.errorDelete'));
-    } else {
-      setItems(prev => prev.filter(item => item.id !== id));
-      if (selectedId === id) {
-        resetForm();
-      }
-      setFeedback(t('admin.pricing.deleted'));
-    }
-    setDeletingId(null);
-  };
-
-  if (loading) {
-    return <Loading text={t('admin.pricing.loading')} />;
-  }
-
-  return (
-    <section className="admin-section">
-      <div className="admin-section__header">
-        <h2>{t('admin.pricing.title')}</h2>
-        <Button onClick={resetForm} variant="secondary">
-          {t('admin.actions.createNew')}
-        </Button>
-      </div>
-
-      {error && <div className="admin-feedback admin-feedback--error">{error}</div>}
-      {feedback && <div className="admin-feedback admin-feedback--success">{feedback}</div>}
-
-      <div className="admin-section__layout">
-        <div className="admin-card">
-          <h3 className="admin-card__title">{t('admin.pricing.listTitle')}</h3>
-          {items.length === 0 ? (
-            <div className="admin-empty">{t('admin.pricing.empty')}</div>
-          ) : (
-            <ul className="admin-list">
-              {items.map(item => (
-                <li
-                  key={item.id}
-                  className={`admin-list__item ${selectedId === item.id ? 'admin-list__item--active' : ''}`}
-                >
-                  <button
-                    type="button"
-                    className="admin-list__button"
-                    onClick={() => handleSelect(item)}
-                  >
-                    <span className="admin-list__title">{item.service.ru}</span>
-                    <span className="admin-list__meta">{item.category.ru}</span>
-                  </button>
-                  <Button
-                    onClick={() => handleDelete(item.id)}
-                    variant="danger"
-                    disabled={deletingId === item.id}
-                  >
-                    {deletingId === item.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <form className="admin-card admin-form" onSubmit={handleSubmit}>
-          <h3 className="admin-card__title">
-            {selectedId ? t('admin.pricing.editTitle') : t('admin.pricing.newTitle')}
-          </h3>
-
-          <div className="admin-form__grid">
-            {LANGUAGES.map(lang => (
-              <div key={lang} className="admin-form__group">
-                <h4 className="admin-form__subtitle">{languageLabels[lang]}</h4>
-                <Input
-                  label={t('admin.pricing.fields.service')}
-                  value={formState.service[lang]}
-                  onChange={(value) => handleLocalizedChange('service', lang, value)}
-                  required={lang === 'ru'}
-                />
-                <Input
-                  label={t('admin.pricing.fields.category')}
-                  value={formState.category[lang]}
-                  onChange={(value) => handleLocalizedChange('category', lang, value)}
-                  required={lang === 'ru'}
-                />
-                <Input
-                  label={t('admin.pricing.fields.unit')}
-                  value={formState.unit[lang]}
-                  onChange={(value) => handleLocalizedChange('unit', lang, value)}
-                  required={lang === 'ru'}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="admin-form__row">
-            <Input
-              label={t('admin.pricing.fields.price')}
-              type="number"
-              value={formState.price}
-              onChange={(value) => setFormState(prev => ({ ...prev, price: value }))}
-            />
-            <Input
-              label={t('admin.pricing.fields.minPrice')}
-              type="number"
-              value={formState.minPrice}
-              onChange={(value) => setFormState(prev => ({ ...prev, minPrice: value }))}
-            />
-            <Input
-              label={t('admin.pricing.fields.maxPrice')}
-              type="number"
-              value={formState.maxPrice}
-              onChange={(value) => setFormState(prev => ({ ...prev, maxPrice: value }))}
-            />
           </div>
 
           <div className="admin-form__actions">
@@ -1053,7 +824,11 @@ const AuthForm: React.FC<{ onAuthenticated: () => void }> = ({ onAuthenticated }
     const adminPassword = process.env.NODE_ENV === 'development' ? 'admin123' : 'secureadminpass2024';
 
     if (password === adminPassword) {
+      // Устанавливаем авторизацию в localStorage
       localStorage.setItem('admin-auth', 'true');
+      // Устанавливаем токен для API запросов
+      const token = process.env.NODE_ENV === 'development' ? 'dev-admin-token-123' : 'admin-token-2024-secure';
+      localStorage.setItem('admin-token', token);
       onAuthenticated();
     } else {
       setError(t('admin.auth.invalidPassword'));
@@ -1100,7 +875,6 @@ const AdminContent: React.FC = () => {
   const tabs = useMemo(() => ([
     { key: 'tickets' as const, label: t('admin.tabs.tickets'), icon: '🎫' },
     { key: 'services' as const, label: t('admin.tabs.services'), icon: '🛠️' },
-    { key: 'pricing' as const, label: t('admin.tabs.pricing'), icon: '💰' },
     { key: 'knowledge' as const, label: t('admin.tabs.knowledge'), icon: '📚' },
   ]), [t]);
 
@@ -1135,7 +909,6 @@ const AdminContent: React.FC = () => {
       <div className="admin-page__content">
         {activeTab === 'tickets' && <TicketsSection />}
         {activeTab === 'services' && <ServicesSection />}
-        {activeTab === 'pricing' && <PricingSection />}
         {activeTab === 'knowledge' && <KnowledgeSection />}
       </div>
     </div>

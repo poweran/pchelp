@@ -27,8 +27,11 @@ interface Service {
     en: string;
     hy: string;
   };
-  price: number;
   category: ServiceCategory;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  unit?: LocalizedText | null;
 }
 
 interface PriceItem {
@@ -166,6 +169,45 @@ app.use('/*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Middleware для проверки авторизации на админских routes
+const adminAuthMiddleware = async (c: any, next: any) => {
+  // Проверяем, является ли запрос админским
+  if (!c.req.path.startsWith('/api/admin/')) {
+    return next();
+  }
+
+  // Получаем заголовок авторизации
+  const authHeader = c.req.header('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({
+      error: 'Отсутствует или некорректный токен авторизации',
+      details: 'Требуется Bearer токен для доступа к админским функциям'
+    }, 401);
+  }
+
+  const token = authHeader.slice(7); // Убираем 'Bearer '
+
+  // Простая проверка токена (в продакшене использовать более безопасные методы)
+  const validTokens = [
+    'admin-token-2024-secure', // Для продакшена
+    'dev-admin-token-123'      // Для разработки
+  ];
+
+  if (!validTokens.includes(token)) {
+    return c.json({
+      error: 'Недействительный токен авторизации',
+      details: 'Предоставленный токен не найден в списке допустимых'
+    }, 403);
+  }
+
+  // Если токен валидный, продолжаем выполнение
+  return next();
+};
+
+// Применяем middleware авторизации ко всем routes
+app.use('*', adminAuthMiddleware);
+
 // Моковые данные для услуг (используются для начального наполнения БД)
 const defaultServices: Service[] = [
   {
@@ -181,6 +223,13 @@ const defaultServices: Service[] = [
       hy: 'Պրոֆեսիոնալ նոութբուքների վերանորոգում ցանկացած բարդության. Ախտորոշում, բաղադրիչների փոխարինում, փոշու մաքրում:'
     },
     price: 1500,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'repair'
   },
   {
@@ -196,6 +245,13 @@ const defaultServices: Service[] = [
       hy: 'Աշխատասեղանի համակարգիչների վերանորոգում. Բաղադրիչների փոխարինում, արդիականացում, սառեցման համակարգի մաքրում:'
     },
     price: 18000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'repair'
   },
   {
@@ -211,6 +267,13 @@ const defaultServices: Service[] = [
       hy: 'Windows օպերացիոն համակարգի տեղադրում և կարգավորում. Դրայվերների տեղադրում, համակարգի օպտիմալացում:'
     },
     price: 12000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'setup'
   },
   {
@@ -226,6 +289,13 @@ const defaultServices: Service[] = [
       hy: 'Տան կամ գրասենյակային ցանցի կարգավորում. Ռոутերի կարգավորում, Wi-Fi, տեղական ցանց:'
     },
     price: 15000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'setup'
   },
   {
@@ -241,6 +311,13 @@ const defaultServices: Service[] = [
       hy: 'Կորած տվյալների վերականգնում կոշտ սկավառակներից, ֆլեշ-դրայվերներից, հիշողության քարտերից:'
     },
     price: 27000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'recovery'
   },
   {
@@ -256,6 +333,13 @@ const defaultServices: Service[] = [
       hy: 'Համակարգի համալիր մաքրում վիրուսներից և վնասակար ծրագրերից. Հականիշային ծրագրի տեղադրում:'
     },
     price: 10800,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'recovery'
   },
   {
@@ -271,6 +355,13 @@ const defaultServices: Service[] = [
       hy: 'Օգնություն համակարգիչ հավաքելու համար բաղադրիչների ընտրության մեջ ձեր առաջադրանքների և բյուջեի համար:'
     },
     price: 480,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'consultation'
   },
   {
@@ -286,6 +377,13 @@ const defaultServices: Service[] = [
       hy: 'Խորհրդատվություն համակարգչային տեխնիկայի և ծրագրային ապահովման հետ կապված ցանկացած հարցերով:'
     },
     price: 15000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'consultation'
   },
   {
@@ -301,6 +399,13 @@ const defaultServices: Service[] = [
       hy: 'Անհրաժեշտ ծրագրային ապահովման տեղադրում և ամբողջական կարգավորում, ներառյալ Office, հականիշային ծրագրեր, դրայվերներ:'
     },
     price: 12000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'setup'
   },
   {
@@ -316,6 +421,13 @@ const defaultServices: Service[] = [
       hy: 'Ռոутերի կարգավորում, VPN, անլար ցանցեր, ինտերնետ կապի խնդիրների վերացում:'
     },
     price: 12000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'setup'
   },
   {
@@ -331,6 +443,13 @@ const defaultServices: Service[] = [
       hy: 'Մայրական տախտակների ախտորոշում և վերանորոգում, միակցիչների փոխարինում, տպագիր միացումների վերականգնում:'
     },
     price: 24000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'repair'
   },
   {
@@ -346,6 +465,13 @@ const defaultServices: Service[] = [
       hy: 'Վիրուսային հարձակումից հետո համակարգի ամբողջական վերականգնում, rootkit-ների հեռացում, տվյալների վերականգնում:'
     },
     price: 15000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'recovery'
   },
   {
@@ -361,6 +487,13 @@ const defaultServices: Service[] = [
       hy: 'Windows, Linux, macOS տեղադրում և կարգավորում. Տվյալների փոխանցում, համակարգի օպտիմալացում:'
     },
     price: 10800,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'setup'
   },
   {
@@ -376,6 +509,13 @@ const defaultServices: Service[] = [
       hy: 'Օգնություն նոր համակարգչի համար բաղադրիչների ընտրության մեջ բյուջեի և պահանջների հաշվարկով:'
     },
     price: 6000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'consultation'
   },
   {
@@ -391,6 +531,13 @@ const defaultServices: Service[] = [
       hy: 'Մասնագետի այցելություն տուն կամ գրասենյակ համակարգչային տեխնիկայի ախտորոշման և վերանորոգման համար:'
     },
     price: 6000,
+    minPrice: null,
+    maxPrice: null,
+    unit: {
+      ru: 'за услугу',
+      en: 'per service',
+      hy: 'ծառայության համար'
+    },
     category: 'repair'
   }
 ];
@@ -826,8 +973,11 @@ interface KnowledgeRecord {
 interface SanitizedServicePayload {
   title: LocalizedText;
   description: LocalizedText;
-  price: number;
   category: ServiceCategory;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  unit: LocalizedText;
 }
 
 interface SanitizedPricingPayload {
@@ -875,11 +1025,19 @@ function ensureServiceCategory(value: any): ServiceCategory {
 }
 
 function mapServiceRow(row: any): ServiceRecord {
+  const minPrice = toNumberOrNull(row.min_price);
+  const maxPrice = toNumberOrNull(row.max_price);
+  const rawPrice = toNumberOrNull(row.price);
+  const unit = toLocalized(row, 'unit');
+  const hasUnit = unit.ru || unit.en || unit.hy;
   return {
     id: row.id as string,
     title: toLocalized(row, 'title'),
     description: toLocalized(row, 'description'),
-    price: row.price !== null && row.price !== undefined ? Number(row.price) : 0,
+    price: minPrice !== null || maxPrice !== null ? null : rawPrice,
+    minPrice,
+    maxPrice,
+    unit: hasUnit ? unit : undefined,
     category: ensureServiceCategory(row.category),
     createdAt: (row.created_at as string) ?? undefined,
     updatedAt: (row.updated_at as string) ?? undefined,
@@ -961,13 +1119,34 @@ function sanitizeServicePayload(data: any): { errors: string[]; payload?: Saniti
   const title = normaliseLocalizedInput(data?.title);
   const description = normaliseLocalizedInput(data?.description);
   const priceValue = toNumberOrNull(data?.price);
+  const minPriceValue = toNumberOrNull(data?.minPrice);
+  const maxPriceValue = toNumberOrNull(data?.maxPrice);
+  const unit = normaliseLocalizedInput(data?.unit);
   const categoryValue = ensureServiceCategory(data?.category);
 
   validateLocalizedField(title, 'title', errors);
   validateLocalizedField(description, 'description', errors);
 
-  if (priceValue === null || priceValue < 0) {
+  const isRangeComplete = minPriceValue !== null && maxPriceValue !== null;
+
+  if (priceValue === null && !isRangeComplete) {
+    errors.push('Необходимо указать цену или диапазон цен (minPrice и maxPrice)');
+  }
+
+  if (priceValue !== null && priceValue < 0) {
     errors.push('Цена услуги должна быть неотрицательным числом');
+  }
+
+  if (minPriceValue !== null && minPriceValue < 0) {
+    errors.push('Минимальная цена должна быть неотрицательным числом');
+  }
+
+  if (maxPriceValue !== null && maxPriceValue < 0) {
+    errors.push('Максимальная цена должна быть неотрицательным числом');
+  }
+
+  if (isRangeComplete && minPriceValue! > maxPriceValue!) {
+    errors.push('Минимальная цена не может превышать максимальную');
   }
 
   if (!SERVICE_CATEGORIES.includes(categoryValue)) {
@@ -983,7 +1162,10 @@ function sanitizeServicePayload(data: any): { errors: string[]; payload?: Saniti
     payload: {
       title,
       description,
-      price: priceValue ?? 0,
+      price: priceValue ?? (isRangeComplete ? null : minPriceValue ?? maxPriceValue ?? 0),
+      minPrice: minPriceValue,
+      maxPrice: maxPriceValue,
+      unit,
       category: categoryValue,
     }
   };
@@ -1088,11 +1270,32 @@ async function ensureServicesInitialized(env: Env) {
       description_en TEXT NOT NULL,
       description_hy TEXT NOT NULL,
       price REAL NOT NULL,
+      min_price REAL,
+      max_price REAL,
+      unit_ru TEXT,
+      unit_en TEXT,
+      unit_hy TEXT,
       category TEXT NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+
+  const optionalColumns = [
+    'ALTER TABLE services ADD COLUMN min_price REAL',
+    'ALTER TABLE services ADD COLUMN max_price REAL',
+    'ALTER TABLE services ADD COLUMN unit_ru TEXT',
+    'ALTER TABLE services ADD COLUMN unit_en TEXT',
+    'ALTER TABLE services ADD COLUMN unit_hy TEXT'
+  ];
+
+  for (const statement of optionalColumns) {
+    try {
+      await env.DB.prepare(statement).run();
+    } catch (error) {
+      // Игнорируем ошибки, если колонка уже существует
+    }
+  }
 
   const countResult = await env.DB.prepare('SELECT COUNT(*) as count FROM services').first<{ count: number }>();
   const count = countResult?.count ?? 0;
@@ -1101,8 +1304,9 @@ async function ensureServicesInitialized(env: Env) {
     const statements = defaultServices.map(service =>
       env.DB.prepare(
         `INSERT INTO services (
-          id, title_ru, title_en, title_hy, description_ru, description_en, description_hy, price, category
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          id, title_ru, title_en, title_hy, description_ru, description_en, description_hy,
+          price, min_price, max_price, unit_ru, unit_en, unit_hy, category
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
         service.id,
         service.title.ru,
@@ -1111,7 +1315,12 @@ async function ensureServicesInitialized(env: Env) {
         service.description.ru,
         service.description.en,
         service.description.hy,
-        service.price,
+        service.price ?? service.minPrice ?? service.maxPrice ?? 0,
+        service.minPrice,
+        service.maxPrice,
+        service.unit?.ru ?? '',
+        service.unit?.en ?? '',
+        service.unit?.hy ?? '',
         service.category
       )
     );
@@ -1744,8 +1953,10 @@ app.post('/api/admin/services', async (c) => {
       `INSERT INTO services (
         id, title_ru, title_en, title_hy,
         description_ru, description_en, description_hy,
-        price, category
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        price, min_price, max_price,
+        unit_ru, unit_en, unit_hy,
+        category
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       id,
       payload.title.ru,
@@ -1754,7 +1965,12 @@ app.post('/api/admin/services', async (c) => {
       payload.description.ru,
       payload.description.en,
       payload.description.hy,
-      payload.price,
+      (payload.price ?? payload.minPrice ?? payload.maxPrice ?? 0),
+      payload.minPrice,
+      payload.maxPrice,
+      payload.unit.ru,
+      payload.unit.en,
+      payload.unit.hy,
       payload.category
     ).run();
 
@@ -1795,7 +2011,9 @@ app.put('/api/admin/services/:id', async (c) => {
       `UPDATE services SET
         title_ru = ?, title_en = ?, title_hy = ?,
         description_ru = ?, description_en = ?, description_hy = ?,
-        price = ?, category = ?, updated_at = CURRENT_TIMESTAMP
+        price = ?, min_price = ?, max_price = ?,
+        unit_ru = ?, unit_en = ?, unit_hy = ?,
+        category = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?`
     ).bind(
       payload.title.ru,
@@ -1804,7 +2022,12 @@ app.put('/api/admin/services/:id', async (c) => {
       payload.description.ru,
       payload.description.en,
       payload.description.hy,
-      payload.price,
+      (payload.price ?? payload.minPrice ?? payload.maxPrice ?? 0),
+      payload.minPrice,
+      payload.maxPrice,
+      payload.unit.ru,
+      payload.unit.en,
+      payload.unit.hy,
       payload.category,
       id
     ).run();

@@ -81,7 +81,10 @@
     "service": "Service",
     "price": "Price",
     "unit": "Unit of measurement",
-    "empty": "No services in the selected category"
+    "empty": "No services in the selected category",
+    "retry": "Try again",
+    "defaultUnit": "per service",
+    "priceOnRequest": "Price on request"
   },
   "knowledge": {
     "title": "Knowledge Base",
@@ -145,7 +148,9 @@
     "setup": "Setup",
     "recovery": "Recovery",
     "consultation": "Consultation",
-    "currency": "֏"
+    "currency": "֏",
+    "from": "from",
+    "priceOnRequest": "Price on request"
   },
   "ticketsPage": {
     "title": "Tickets",
@@ -288,11 +293,13 @@
         "client": "Client",
         "contact": "Contacts",
         "serviceType": "Service type",
+        "description": "Problem description",
         "priority": "Priority",
         "status": "Status",
         "created": "Created at",
         "actions": "Actions"
-      }
+      },
+      "viewDescription": "View problem description"
     },
     "services": {
       "loading": "Loading services...",
@@ -305,10 +312,14 @@
         "title": "Title",
         "description": "Description",
         "price": "Price",
-        "category": "Category"
+        "category": "Category",
+        "minPrice": "Minimum price",
+        "maxPrice": "Maximum price",
+        "unit": "Unit"
       },
       "validation": {
-        "price": "Enter a valid price."
+        "price": "Enter a valid price.",
+        "priceOrRange": "Provide a fixed price or a range (min and max)."
       },
       "errorSave": "Could not save the service.",
       "saved": "Service saved.",

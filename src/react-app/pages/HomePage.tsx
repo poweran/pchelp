@@ -1,4 +1,4 @@
-import { useState, FormEvent, useCallback, memo } from 'react';
+import { useState, FormEvent, useCallback, memo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -15,6 +15,12 @@ interface QuickFormData {
   description: string;
 }
 
+interface UserIdentifier {
+  clientName: string;
+  email: string;
+  phone: string;
+}
+
 const HomePage = memo(function HomePage() {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<QuickFormData>({
@@ -25,6 +31,24 @@ const HomePage = memo(function HomePage() {
   });
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
   const { loading, error, success, submitTicket, resetError } = useTickets();
+
+  // Загрузка сохраненных данных пользователя при первом рендере
+  useEffect(() => {
+    const userIdentifierString = localStorage.getItem('userIdentifier');
+    if (userIdentifierString) {
+      try {
+        const userIdentifier: UserIdentifier = JSON.parse(userIdentifierString);
+        setFormData(prev => ({
+          ...prev,
+          name: userIdentifier.clientName || '',
+          email: userIdentifier.email || '',
+          phone: userIdentifier.phone || '',
+        }));
+      } catch (error) {
+        console.error('Error parsing userIdentifier from localStorage:', error);
+      }
+    }
+  }, []);
 
   const validateForm = useCallback((): boolean => {
     const errors: {[key: string]: string | undefined} = {};
@@ -74,6 +98,14 @@ const HomePage = memo(function HomePage() {
     const result = await submitTicket(ticketData);
 
     if (result.success) {
+      // Сохранение данных пользователя в localStorage после успешной отправки
+      const userIdentifier = JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      });
+      localStorage.setItem('userIdentifier', userIdentifier);
+
       setFormData({ name: '', phone: '', email: '', description: '' });
       setValidationErrors({});
     }

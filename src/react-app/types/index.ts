@@ -13,11 +13,16 @@ export interface Service {
   id: string;
   title: LocalizedText;
   description: LocalizedText;
-  price: number;
   category: ServiceCategory;
+  price?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  unit?: LocalizedText;
 }
 
 export type ServiceCategory = 'repair' | 'setup' | 'recovery' | 'consultation';
+
+export const SERVICE_CATEGORIES: ServiceCategory[] = ['repair', 'setup', 'recovery', 'consultation'];
 
 // Типы для заявок
 export interface Ticket {
@@ -48,25 +53,6 @@ export interface KnowledgeItem {
 export type KnowledgeType = 'faq' | 'article';
 
 // Типы для прайс-листа
-export interface PriceItem {
-  id: string;
-  service: string;
-  price: number;
-  minPrice?: number;
-  maxPrice?: number;
-  category: string;
-  unit: string;
-}
-
-// Расширенный тип для прайс-листа с переводами
-export interface PriceItemWithTranslations {
-  id: string;
-  service: LocalizedText;
-  price: number;
-  category: LocalizedText;
-  unit: LocalizedText;
-}
-
 // Типы для админ-панели
 export interface AdminService extends Service {
   createdAt?: string | null;
@@ -76,29 +62,11 @@ export interface AdminService extends Service {
 export interface AdminServicePayload {
   title: LocalizedText;
   description: LocalizedText;
-  price: number;
   category: ServiceCategory;
-}
-
-export interface AdminPriceItem {
-  id: string;
-  service: LocalizedText;
-  price: number | null;
-  minPrice: number | null;
-  maxPrice: number | null;
-  category: LocalizedText;
-  unit: LocalizedText;
-  createdAt?: string | null;
-  updatedAt?: string | null;
-}
-
-export interface AdminPricePayload {
-  service: LocalizedText;
-  price: number | null;
-  minPrice: number | null;
-  maxPrice: number | null;
-  category: LocalizedText;
-  unit: LocalizedText;
+  price?: number | null;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  unit?: LocalizedText;
 }
 
 export interface AdminKnowledgeItem {

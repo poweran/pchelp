@@ -17,6 +17,19 @@ export function ServiceCard({ service }: ServiceCardProps) {
   };
 
   const currentLang = i18n.language as keyof Service['title'];
+  const priceLabel = (() => {
+    const currency = t('servicesPage.currency');
+    if (typeof service.minPrice === 'number' && typeof service.maxPrice === 'number') {
+      return `${service.minPrice.toLocaleString('ru-RU')}–${service.maxPrice.toLocaleString('ru-RU')} ${currency}`;
+    }
+    if (typeof service.price === 'number') {
+      return `${service.price.toLocaleString('ru-RU')} ${currency}`;
+    }
+    if (typeof service.minPrice === 'number') {
+      return `${t('servicesPage.from')} ${service.minPrice.toLocaleString('ru-RU')} ${currency}`;
+    }
+    return t('servicesPage.priceOnRequest');
+  })();
   return (
     <div className="service-card">
       <div className="service-card__header">
@@ -27,9 +40,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
       <h3 className="service-card__title">{service.title[currentLang]}</h3>
       <p className="service-card__description">{service.description[currentLang]}</p>
       <div className="service-card__footer">
-        <span className="service-card__price">
-          {service.price.toLocaleString('ru-RU')} {t('servicesPage.currency')}
-        </span>
+        <span className="service-card__price">{priceLabel}</span>
       </div>
     </div>
   );

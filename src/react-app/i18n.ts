@@ -23,16 +23,17 @@ i18n
    .use(initReactI18next)
    .init({
      resources,
+     lng: 'hy',
      fallbackLng: 'hy',
 
-    interpolation: {
-      escapeValue: false, // React already does escaping
-    },
+     interpolation: {
+       escapeValue: false, // React already does escaping
+     },
 
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
-    },
-  });
+     detection: {
+       order: ['localStorage', 'navigator', 'htmlTag'],
+       caches: ['localStorage'],
+     },
+   });
 
 export default i18n;

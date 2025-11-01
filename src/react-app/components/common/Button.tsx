@@ -12,6 +12,7 @@ interface ButtonProps {
   iconOnly?: boolean;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
+  title?: string;
 }
 
 const Button = memo<ButtonProps>(function Button({
@@ -25,6 +26,7 @@ const Button = memo<ButtonProps>(function Button({
   iconOnly = false,
   type = 'button',
   className = '',
+  title,
 }) {
   const handleClick = useCallback(() => {
     if (onClick && !disabled && !loading) {
@@ -48,6 +50,7 @@ const Button = memo<ButtonProps>(function Button({
       disabled={disabled || loading}
       className={buttonClasses}
       aria-label={loading ? 'Загрузка...' : undefined}
+      title={title}
     >
       {children}
     </button>

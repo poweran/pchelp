@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
 import Button from '../components/common/Button';
@@ -6,6 +6,12 @@ import type { TicketFormData } from '../types';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from '../hooks/useTickets';
 import './ContactsPage.css';
+
+interface UserIdentifier {
+  clientName: string;
+  email: string;
+  phone: string;
+}
 
 const ContactsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +25,24 @@ const ContactsPage: React.FC = () => {
   });
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
   const { loading, error, success, submitTicket, resetError } = useTickets();
+
+  // Загрузка сохраненных данных пользователя при первом рендере
+  useEffect(() => {
+    const userIdentifierString = localStorage.getItem('userIdentifier');
+    if (userIdentifierString) {
+      try {
+        const userIdentifier: UserIdentifier = JSON.parse(userIdentifierString);
+        setFormData(prev => ({
+          ...prev,
+          clientName: userIdentifier.clientName || '',
+          email: userIdentifier.email || '',
+          phone: userIdentifier.phone || '',
+        }));
+      } catch (error) {
+        console.error('Error parsing userIdentifier from localStorage:', error);
+      }
+    }
+  }, []);
 
   const validateForm = () => {
     const errors: {[key: string]: string | undefined} = {};
@@ -68,6 +92,14 @@ const ContactsPage: React.FC = () => {
     const result = await submitTicket(formData);
 
     if (result.success) {
+      // Сохранение данных пользователя в localStorage после успешной отправки
+      const userIdentifier = JSON.stringify({
+        clientName: formData.clientName,
+        email: formData.email,
+        phone: formData.phone
+      });
+      localStorage.setItem('userIdentifier', userIdentifier);
+
       setFormData({
         clientName: '',
         phone: '',

@@ -1,89 +1,83 @@
 // Компонент для отображения прайс-листа с фильтрацией по категориям
 
-import { useState, useEffect } from 'react';
-import { fetchPricing } from '../../utils/api';
-import type { PriceItem } from '../../types';
+import { useState, useEffect, useMemo } from 'react';
+import type { Service, ServiceCategory } from '../../types';
+import { SERVICE_CATEGORIES } from '../../types';
 import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
+import { useServices } from '../../hooks/useServices';
 import './PriceTable.css';
 
 export function PriceTable() {
-  const { t } = useTranslation();
-  const [priceItems, setPriceItems] = useState<PriceItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<PriceItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [categories, setCategories] = useState<string[]>([]);
+  const { t, i18n } = useTranslation();
+  const { services, loading, error, loadServices } = useServices();
+  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | 'all'>('all');
 
-  // Загрузка прайс-листа при монтировании и изменении языка
   useEffect(() => {
-    loadPricing();
-  }, [i18n.language]);
+    loadServices();
+  }, [loadServices]);
 
-  // Применение фильтра при изменении данных, категории или языка
-  useEffect(() => {
-    applyFilter();
-  }, [priceItems, selectedCategory, i18n.language]);
+  const categories = useMemo(() => {
+    return SERVICE_CATEGORIES.filter(category =>
+      services.some(service => service.category === category)
+    );
+  }, [services]);
 
-  // Функция для загрузки прайс-листа
-  const loadPricing = async () => {
-    setLoading(true);
-    setError(null);
+  const categoryLabels: Record<ServiceCategory, string> = useMemo(() => ({
+    repair: t('servicesPage.repair'),
+    setup: t('servicesPage.setup'),
+    recovery: t('servicesPage.recovery'),
+    consultation: t('servicesPage.consultation'),
+  }), [t]);
 
-    try {
-      const response = await fetchPricing(i18n.language);
-
-      if (response.error) {
-        setError(response.error);
-        setPriceItems([]);
-      } else if (response.data) {
-        setPriceItems(response.data);
-
-        // Извлекаем уникальные категории
-        const uniqueCategories = Array.from(
-          new Set(response.data.map(item => item.category))
-        ).sort();
-        setCategories(uniqueCategories);
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Ошибка загрузки прайс-листа';
-      setError(message);
-      setPriceItems([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Функция для применения фильтра по категории
-  const applyFilter = () => {
+  const filteredServices = useMemo(() => {
     if (selectedCategory === 'all') {
-      setFilteredItems(priceItems);
-    } else {
-      setFilteredItems(
-        priceItems.filter(item => item.category === selectedCategory)
-      );
+      return services;
     }
-  };
+    return services.filter(service => service.category === selectedCategory);
+  }, [services, selectedCategory]);
 
-  // Группировка элементов по категориям
-  const groupedItems = filteredItems.reduce((groups, item) => {
-    const category = item.category;
-    if (!groups[category]) {
-      groups[category] = [];
+  const groupedServices = useMemo(() => {
+    return filteredServices.reduce((groups, service) => {
+      const category = service.category;
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(service);
+      return groups;
+    }, {} as Record<ServiceCategory, Service[]>);
+  }, [filteredServices]);
+
+  const currentLang = i18n.language as keyof Service['title'];
+
+  const formatPrice = (service: typeof services[number]) => {
+    const currency = t('servicesPage.currency');
+    if (typeof service.minPrice === 'number' && typeof service.maxPrice === 'number') {
+      return `${service.minPrice.toLocaleString('ru-RU')}–${service.maxPrice.toLocaleString('ru-RU')} ${currency}`;
     }
-    groups[category].push(item);
-    return groups;
-  }, {} as Record<string, PriceItem[]>);
+    if (typeof service.price === 'number') {
+      return `${service.price.toLocaleString('ru-RU')} ${currency}`;
+    }
+    if (typeof service.minPrice === 'number') {
+      return `${t('servicesPage.from')} ${service.minPrice.toLocaleString('ru-RU')} ${currency}`;
+    }
+    return t('priceTable.priceOnRequest');
+  };
 
   if (loading) {
     return <Loading text={t('priceTable.loading')} />;
   }
 
   if (error) {
-    return <div className="price-table__error">{t('priceTable.error', { error })}</div>;
+    return (
+      <div className="price-table__error">
+        <p>{t('priceTable.error', { error })}</p>
+        <Button onClick={loadServices} variant="secondary">
+          {t('priceTable.retry')}
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -104,15 +98,15 @@ export function PriceTable() {
             onClick={() => setSelectedCategory(category)}
             variant={selectedCategory === category ? 'primary' : 'secondary'}
           >
-            {category}
+            {categoryLabels[category]}
           </Button>
         ))}
       </div>
 
       {/* Таблица на десктопе, карточки на мобильных */}
-      {Object.entries(groupedItems).map(([category, items]) => (
+      {Object.entries(groupedServices).map(([category, items]) => (
         <div key={category} className="price-table__category">
-          <h3 className="price-table__category-title">{category}</h3>
+          <h3 className="price-table__category-title">{categoryLabels[category as ServiceCategory]}</h3>
           
           {/* Десктопная версия - таблица */}
           <table className="price-table__table">
@@ -126,14 +120,11 @@ export function PriceTable() {
             <tbody>
               {items.map(item => (
                 <tr key={item.id}>
-                  <td>{item.service}</td>
+                  <td>{item.title[currentLang]}</td>
                   <td className="price-table__price">
-                    {item.minPrice && item.maxPrice
-                      ? `${item.minPrice}-${item.maxPrice} ֏`
-                      : `${item.price} ֏`
-                    }
+                    {formatPrice(item)}
                   </td>
-                  <td>{item.unit}</td>
+                  <td>{item.unit?.[currentLang] ?? t('priceTable.defaultUnit')}</td>
                 </tr>
               ))}
             </tbody>
@@ -143,15 +134,12 @@ export function PriceTable() {
           <div className="price-table__cards">
             {items.map(item => (
               <div key={item.id} className="price-table__card">
-                <div className="price-table__card-service">{item.service}</div>
+                <div className="price-table__card-service">{item.title[currentLang]}</div>
                 <div className="price-table__card-details">
                   <span className="price-table__card-price">
-                    {item.minPrice && item.maxPrice
-                      ? `${item.minPrice}-${item.maxPrice} ֏`
-                      : `${item.price} ֏`
-                    }
+                    {formatPrice(item)}
                   </span>
-                  <span className="price-table__card-unit">{item.unit}</span>
+                  <span className="price-table__card-unit">{item.unit?.[currentLang] ?? t('priceTable.defaultUnit')}</span>
                 </div>
               </div>
             ))}
@@ -159,7 +147,7 @@ export function PriceTable() {
         </div>
       ))}
 
-      {filteredItems.length === 0 && (
+      {filteredServices.length === 0 && (
         <div className="price-table__empty">
           {t('priceTable.empty')}
         </div>

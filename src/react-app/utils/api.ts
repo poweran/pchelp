@@ -6,11 +6,8 @@ import type {
   Ticket,
   TicketFormData,
   KnowledgeItem,
-  PriceItem,
   AdminService,
   AdminServicePayload,
-  AdminPriceItem,
-  AdminPricePayload,
   AdminKnowledgeItem,
   AdminKnowledgePayload,
 } from '../types';
@@ -25,11 +22,25 @@ export async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
+
+    // Добавляем токен для админских запросов
+    const isAdminEndpoint = endpoint.startsWith('/admin/');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...options?.headers as Record<string, string>,
+    };
+
+    if (isAdminEndpoint) {
+      // Получаем токен из localStorage (установлен при авторизации)
+      const authToken = localStorage.getItem('admin-token');
+      if (!authToken) {
+        return { error: 'Отсутствует токен авторизации для админских функций' };
+      }
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
     const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers,
       ...options,
     });
 
@@ -145,12 +156,6 @@ export async function fetchKnowledgeById(id: string, lang?: string) {
   return get<KnowledgeItem>(url);
 }
 
-// API функции для работы с прайс-листом
-export async function fetchPricing(lang?: string) {
-  const url = lang ? `/pricing?lang=${lang}` : '/pricing';
-  return get<PriceItem[]>(url);
-}
-
 // Admin API - Services
 export async function fetchAdminServices() {
   return get<AdminService[]>('/admin/services');
@@ -166,23 +171,6 @@ export async function updateAdminService(id: string, data: AdminServicePayload) 
 
 export async function deleteAdminService(id: string) {
   return del<null>(`/admin/services/${id}`);
-}
-
-// Admin API - Pricing
-export async function fetchAdminPricing() {
-  return get<AdminPriceItem[]>('/admin/pricing');
-}
-
-export async function createAdminPriceItem(data: AdminPricePayload & { id?: string }) {
-  return post<AdminPriceItem>('/admin/pricing', data);
-}
-
-export async function updateAdminPriceItem(id: string, data: AdminPricePayload) {
-  return put<AdminPriceItem>(`/admin/pricing/${id}`, data);
-}
-
-export async function deleteAdminPriceItem(id: string) {
-  return del<null>(`/admin/pricing/${id}`);
 }
 
 // Admin API - Knowledge

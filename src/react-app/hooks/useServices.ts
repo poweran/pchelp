@@ -20,7 +20,7 @@ interface UseServiceState {
 export function useServices() {
   const [state, setState] = useState<UseServicesState>({
     services: [],
-    loading: false,
+    loading: true,
     error: null,
   });
 

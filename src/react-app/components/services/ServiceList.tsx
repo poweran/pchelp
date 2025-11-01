@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ServiceCategory } from '../../types';
+import { SERVICE_CATEGORIES } from '../../types';
 import { useServices } from '../../hooks/useServices';
 import { ServiceCard } from './ServiceCard';
 import Button from '../common/Button';
@@ -27,13 +28,11 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
 
   useEffect(() => {
     loadServices();
-  }, []);
+  }, [loadServices]);
 
   const filteredServices = selectedCategory
     ? services.filter(service => service.category === selectedCategory)
     : services;
-
-  const categories: ServiceCategory[] = ['repair', 'setup', 'recovery', 'consultation'];
 
   if (loading) {
     return <Loading text={t('servicesPage.loading')} />;
@@ -60,7 +59,7 @@ export function ServiceList({ filterCategory = null }: ServiceListProps) {
         >
           {t('servicesPage.allServices')}
         </Button>
-        {categories.map(category => (
+        {SERVICE_CATEGORIES.map(category => (
           <Button
             key={category}
             className={`${selectedCategory === category ? 'filter-button--active' : ''}`}
