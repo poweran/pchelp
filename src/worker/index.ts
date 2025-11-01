@@ -166,8 +166,8 @@ app.use('/*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Моковые данные для услуг
-const services: Service[] = [
+// Моковые данные для услуг (используются для начального наполнения БД)
+const defaultServices: Service[] = [
   {
     id: 'srv-1',
     title: {
@@ -396,7 +396,7 @@ const services: Service[] = [
 ];
 
 // Моковые данные для прайс-листа
-const pricing: PriceItem[] = [
+const defaultPricing: PriceItem[] = [
   {
     id: 'price-1',
     service: {
@@ -628,7 +628,7 @@ const pricing: PriceItem[] = [
 ];
 
 // Моковые данные для базы знаний
-const knowledgeBase: KnowledgeItem[] = [
+const defaultKnowledge: KnowledgeItem[] = [
   // FAQ
   {
     id: 'kb-faq-1',
@@ -785,11 +785,500 @@ const knowledgeBase: KnowledgeItem[] = [
   }
 ];
 
+const SUPPORTED_LANGUAGES = ['ru', 'en', 'hy'] as const;
+type LanguageCode = typeof SUPPORTED_LANGUAGES[number];
+
+type LocalizedText = {
+  ru: string;
+  en: string;
+  hy: string;
+};
+
+const SERVICE_CATEGORIES: ServiceCategory[] = ['repair', 'setup', 'recovery', 'consultation'];
+
+interface ServiceRecord extends Service {
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface PricingRecord {
+  id: string;
+  service: LocalizedText;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  category: LocalizedText;
+  unit: LocalizedText;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface KnowledgeRecord {
+  id: string;
+  title: LocalizedText;
+  content: LocalizedText;
+  category: LocalizedText;
+  type: KnowledgeType;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface SanitizedServicePayload {
+  title: LocalizedText;
+  description: LocalizedText;
+  price: number;
+  category: ServiceCategory;
+}
+
+interface SanitizedPricingPayload {
+  service: LocalizedText;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  category: LocalizedText;
+  unit: LocalizedText;
+}
+
+interface SanitizedKnowledgePayload {
+  title: LocalizedText;
+  content: LocalizedText;
+  category: LocalizedText;
+  type: KnowledgeType;
+}
+
+function toLocalized(row: any, prefix: string): LocalizedText {
+  return {
+    ru: (row?.[`${prefix}_ru`] ?? '') as string,
+    en: (row?.[`${prefix}_en`] ?? '') as string,
+    hy: (row?.[`${prefix}_hy`] ?? '') as string,
+  };
+}
+
+function normaliseLocalizedInput(value: any): LocalizedText {
+  const source = typeof value === 'object' && value !== null ? value : {};
+  const result: LocalizedText = { ru: '', en: '', hy: '' };
+  SUPPORTED_LANGUAGES.forEach(lang => {
+    const raw = source[lang];
+    result[lang] = typeof raw === 'string' ? raw.trim() : '';
+  });
+  return result;
+}
+
+function ensureServiceCategory(value: any): ServiceCategory {
+  if (typeof value === 'string') {
+    const trimmed = value.trim() as ServiceCategory;
+    if (SERVICE_CATEGORIES.includes(trimmed)) {
+      return trimmed;
+    }
+  }
+  return 'repair';
+}
+
+function mapServiceRow(row: any): ServiceRecord {
+  return {
+    id: row.id as string,
+    title: toLocalized(row, 'title'),
+    description: toLocalized(row, 'description'),
+    price: row.price !== null && row.price !== undefined ? Number(row.price) : 0,
+    category: ensureServiceCategory(row.category),
+    createdAt: (row.created_at as string) ?? undefined,
+    updatedAt: (row.updated_at as string) ?? undefined,
+  };
+}
+
+function toNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+    const num = Number(trimmed);
+    return Number.isFinite(num) ? num : null;
+  }
+  const num = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
+function normalizePriceValue(value: number | string | null | undefined): {
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+} {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? { price: value, minPrice: null, maxPrice: null } : { price: null, minPrice: null, maxPrice: null };
+  }
+
+  if (typeof value === 'string') {
+    const matches = value.match(/\d+/g)?.map(Number).filter(n => Number.isFinite(n)) ?? [];
+    if (matches.length === 1) {
+      return { price: matches[0], minPrice: null, maxPrice: null };
+    }
+    if (matches.length >= 2) {
+      return { price: null, minPrice: matches[0], maxPrice: matches[1] };
+    }
+  }
+
+  return { price: null, minPrice: null, maxPrice: null };
+}
+
+function mapPricingRow(row: any): PricingRecord {
+  return {
+    id: row.id as string,
+    service: toLocalized(row, 'service'),
+    price: toNumberOrNull(row.price),
+    minPrice: toNumberOrNull(row.min_price),
+    maxPrice: toNumberOrNull(row.max_price),
+    category: toLocalized(row, 'category'),
+    unit: toLocalized(row, 'unit'),
+    createdAt: (row.created_at as string) ?? undefined,
+    updatedAt: (row.updated_at as string) ?? undefined,
+  };
+}
+
+function mapKnowledgeRow(row: any): KnowledgeRecord {
+  return {
+    id: row.id as string,
+    title: toLocalized(row, 'title'),
+    content: toLocalized(row, 'content'),
+    category: toLocalized(row, 'category'),
+    type: (row.type as KnowledgeType) ?? 'faq',
+    createdAt: (row.created_at as string) ?? undefined,
+    updatedAt: (row.updated_at as string) ?? undefined,
+  };
+}
+
+function validateLocalizedField(value: LocalizedText, field: string, errors: string[]): void {
+  if (!value.ru) {
+    errors.push(`Поле ${field}.ru обязательно к заполнению`);
+  }
+}
+
+function sanitizeServicePayload(data: any): { errors: string[]; payload?: SanitizedServicePayload } {
+  const errors: string[] = [];
+  const title = normaliseLocalizedInput(data?.title);
+  const description = normaliseLocalizedInput(data?.description);
+  const priceValue = toNumberOrNull(data?.price);
+  const categoryValue = ensureServiceCategory(data?.category);
+
+  validateLocalizedField(title, 'title', errors);
+  validateLocalizedField(description, 'description', errors);
+
+  if (priceValue === null || priceValue < 0) {
+    errors.push('Цена услуги должна быть неотрицательным числом');
+  }
+
+  if (!SERVICE_CATEGORIES.includes(categoryValue)) {
+    errors.push(`Категория услуги должна быть одной из: ${SERVICE_CATEGORIES.join(', ')}`);
+  }
+
+  if (errors.length > 0) {
+    return { errors };
+  }
+
+  return {
+    errors,
+    payload: {
+      title,
+      description,
+      price: priceValue ?? 0,
+      category: categoryValue,
+    }
+  };
+}
+
+function sanitizePricingPayload(data: any): { errors: string[]; payload?: SanitizedPricingPayload } {
+  const errors: string[] = [];
+  const service = normaliseLocalizedInput(data?.service);
+  const category = normaliseLocalizedInput(data?.category);
+  const unit = normaliseLocalizedInput(data?.unit);
+
+  const priceValue = toNumberOrNull(data?.price);
+  const minPriceValue = toNumberOrNull(data?.minPrice);
+  const maxPriceValue = toNumberOrNull(data?.maxPrice);
+
+  validateLocalizedField(service, 'service', errors);
+  validateLocalizedField(category, 'category', errors);
+  validateLocalizedField(unit, 'unit', errors);
+
+  if ((priceValue === null) && (minPriceValue === null || maxPriceValue === null)) {
+    errors.push('Необходимо указать цену или диапазон цен (minPrice и maxPrice)');
+  }
+
+  if (priceValue !== null && priceValue < 0) {
+    errors.push('Цена не может быть отрицательной');
+  }
+
+  if (minPriceValue !== null && minPriceValue < 0) {
+    errors.push('Минимальная цена не может быть отрицательной');
+  }
+
+  if (maxPriceValue !== null && maxPriceValue < 0) {
+    errors.push('Максимальная цена не может быть отрицательной');
+  }
+
+  if (minPriceValue !== null && maxPriceValue !== null && minPriceValue > maxPriceValue) {
+    errors.push('Минимальная цена не может быть больше максимальной');
+  }
+
+  if (errors.length > 0) {
+    return { errors };
+  }
+
+  return {
+    errors,
+    payload: {
+      service,
+      price: priceValue,
+      minPrice: minPriceValue,
+      maxPrice: maxPriceValue,
+      category,
+      unit,
+    },
+  };
+}
+
+function sanitizeKnowledgePayload(data: any): { errors: string[]; payload?: SanitizedKnowledgePayload } {
+  const errors: string[] = [];
+  const title = normaliseLocalizedInput(data?.title);
+  const content = normaliseLocalizedInput(data?.content);
+  const category = normaliseLocalizedInput(data?.category);
+  const typeValue = typeof data?.type === 'string' ? data.type.trim() : '';
+
+  validateLocalizedField(title, 'title', errors);
+  validateLocalizedField(content, 'content', errors);
+  validateLocalizedField(category, 'category', errors);
+
+  if (!['faq', 'article'].includes(typeValue)) {
+    errors.push('Поле type должно быть либо faq, либо article');
+  }
+
+  if (errors.length > 0) {
+    return { errors };
+  }
+
+  return {
+    errors,
+    payload: {
+      title,
+      content,
+      category,
+      type: typeValue as KnowledgeType,
+    },
+  };
+}
+
+function sanitizeLanguage(lang?: string | null): LanguageCode {
+  if (lang && SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
+    return lang as LanguageCode;
+  }
+  return 'ru';
+}
+
+async function ensureServicesInitialized(env: Env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS services (
+      id TEXT PRIMARY KEY,
+      title_ru TEXT NOT NULL,
+      title_en TEXT NOT NULL,
+      title_hy TEXT NOT NULL,
+      description_ru TEXT NOT NULL,
+      description_en TEXT NOT NULL,
+      description_hy TEXT NOT NULL,
+      price REAL NOT NULL,
+      category TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  const countResult = await env.DB.prepare('SELECT COUNT(*) as count FROM services').first<{ count: number }>();
+  const count = countResult?.count ?? 0;
+
+  if (!count) {
+    const statements = defaultServices.map(service =>
+      env.DB.prepare(
+        `INSERT INTO services (
+          id, title_ru, title_en, title_hy, description_ru, description_en, description_hy, price, category
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        service.id,
+        service.title.ru,
+        service.title.en,
+        service.title.hy,
+        service.description.ru,
+        service.description.en,
+        service.description.hy,
+        service.price,
+        service.category
+      )
+    );
+
+    if (statements.length > 0) {
+      await env.DB.batch(statements);
+    }
+  }
+}
+
+async function ensurePricingInitialized(env: Env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS pricing (
+      id TEXT PRIMARY KEY,
+      service_ru TEXT NOT NULL,
+      service_en TEXT NOT NULL,
+      service_hy TEXT NOT NULL,
+      price REAL,
+      min_price REAL,
+      max_price REAL,
+      category_ru TEXT NOT NULL,
+      category_en TEXT NOT NULL,
+      category_hy TEXT NOT NULL,
+      unit_ru TEXT NOT NULL,
+      unit_en TEXT NOT NULL,
+      unit_hy TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  const countResult = await env.DB.prepare('SELECT COUNT(*) as count FROM pricing').first<{ count: number }>();
+  const count = countResult?.count ?? 0;
+
+  if (!count) {
+    const statements = defaultPricing.map(item => {
+      const normalized = normalizePriceValue(item.price);
+      return env.DB.prepare(
+        `INSERT INTO pricing (
+          id, service_ru, service_en, service_hy, price, min_price, max_price,
+          category_ru, category_en, category_hy, unit_ru, unit_en, unit_hy
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        item.id,
+        item.service.ru,
+        item.service.en,
+        item.service.hy,
+        normalized.price,
+        normalized.minPrice,
+        normalized.maxPrice,
+        item.category.ru,
+        item.category.en,
+        item.category.hy,
+        item.unit.ru,
+        item.unit.en,
+        item.unit.hy
+      );
+    });
+
+    if (statements.length > 0) {
+      await env.DB.batch(statements);
+    }
+  }
+}
+
+async function ensureKnowledgeInitialized(env: Env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS knowledge (
+      id TEXT PRIMARY KEY,
+      title_ru TEXT NOT NULL,
+      title_en TEXT NOT NULL,
+      title_hy TEXT NOT NULL,
+      content_ru TEXT NOT NULL,
+      content_en TEXT NOT NULL,
+      content_hy TEXT NOT NULL,
+      category_ru TEXT NOT NULL,
+      category_en TEXT NOT NULL,
+      category_hy TEXT NOT NULL,
+      type TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  const countResult = await env.DB.prepare('SELECT COUNT(*) as count FROM knowledge').first<{ count: number }>();
+  const count = countResult?.count ?? 0;
+
+  if (!count) {
+    const statements = defaultKnowledge.map(item =>
+      env.DB.prepare(
+        `INSERT INTO knowledge (
+          id, title_ru, title_en, title_hy, content_ru, content_en, content_hy,
+          category_ru, category_en, category_hy, type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        item.id,
+        item.title.ru,
+        item.title.en,
+        item.title.hy,
+        item.content.ru,
+        item.content.en,
+        item.content.hy,
+        item.category.ru,
+        item.category.en,
+        item.category.hy,
+        item.type
+      )
+    );
+
+    if (statements.length > 0) {
+      await env.DB.batch(statements);
+    }
+  }
+}
+
+async function ensureCatalogInitialized(env: Env) {
+  await ensureServicesInitialized(env);
+  await ensurePricingInitialized(env);
+  await ensureKnowledgeInitialized(env);
+}
+
+async function listServiceRecords(env: Env): Promise<ServiceRecord[]> {
+  const result = await env.DB.prepare('SELECT * FROM services ORDER BY created_at DESC').all();
+  return (result.results ?? []).map(mapServiceRow);
+}
+
+async function getServiceRecord(env: Env, id: string): Promise<ServiceRecord | null> {
+  const row = await env.DB.prepare('SELECT * FROM services WHERE id = ?').bind(id).first();
+  return row ? mapServiceRow(row) : null;
+}
+
+async function listPricingRecords(env: Env): Promise<PricingRecord[]> {
+  const result = await env.DB.prepare('SELECT * FROM pricing ORDER BY created_at DESC').all();
+  return (result.results ?? []).map(mapPricingRow);
+}
+
+async function getPricingRecord(env: Env, id: string): Promise<PricingRecord | null> {
+  const row = await env.DB.prepare('SELECT * FROM pricing WHERE id = ?').bind(id).first();
+  return row ? mapPricingRow(row) : null;
+}
+
+async function listKnowledgeRecords(env: Env): Promise<KnowledgeRecord[]> {
+  const result = await env.DB.prepare('SELECT * FROM knowledge ORDER BY created_at DESC').all();
+  return (result.results ?? []).map(mapKnowledgeRow);
+}
+
+async function getKnowledgeRecord(env: Env, id: string): Promise<KnowledgeRecord | null> {
+  const row = await env.DB.prepare('SELECT * FROM knowledge WHERE id = ?').bind(id).first();
+  return row ? mapKnowledgeRow(row) : null;
+}
+
 // Функция генерации ID для заявок (короткий и легко читаемый формат)
 function generateTicketId(): string {
   // Используем timestamp в base36, последние 6 символов + префикс TCK-
   // Это дает уникальный ID типа TCK-ABCDEF (6 символов после дефиса)
   return `TCK-${Date.now().toString(36).substr(-6).toUpperCase()}`;
+}
+
+function generateEntityId(prefix: string): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return `${prefix}-${crypto.randomUUID()}`;
+    }
+  } catch (error) {
+    // ignore
+  }
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 // Функция валидации email
@@ -841,67 +1330,113 @@ function validateTicketData(data: any): { valid: boolean; errors: string[] } {
 // API endpoints
 
 // GET /api/services - список всех услуг
-app.get('/api/services', (c) => {
-  // console.log('[Worker] Returning services:', services.length, 'items');
-  return c.json({
-    data: services,
-    message: 'Услуги загружены успешно'
-  });
+app.get('/api/services', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const records = await listServiceRecords(env);
+    const services = records.map(({ createdAt, updatedAt, ...service }) => service);
+
+    return c.json({
+      data: services,
+      message: 'Услуги загружены успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить услуги';
+    return c.json({
+      error: 'Ошибка при загрузке услуг',
+      details: message
+    }, 500);
+  }
 });
 
 // GET /api/services/:id - детали конкретной услуги
-app.get('/api/services/:id', (c) => {
-  const id = c.req.param('id');
-  const service = services.find(s => s.id === id);
-  
-  if (!service) {
+app.get('/api/services/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const service = await getServiceRecord(env, c.req.param('id'));
+
+    if (!service) {
+      return c.json({
+        error: 'Услуга не найдена'
+      }, 404);
+    }
+
+    const { createdAt, updatedAt, ...serviceData } = service;
+
     return c.json({
-      error: 'Услуга не найдена'
-    }, 404);
+      data: serviceData,
+      message: 'Услуга загружена успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить услугу';
+    return c.json({
+      error: 'Ошибка при загрузке услуги',
+      details: message
+    }, 500);
   }
-  
-  return c.json({
-    data: service,
-    message: 'Услуга загружена успешно'
-  });
 });
 
 // GET /api/pricing - весь прайс-лист с возможностью фильтрации по категории
-app.get('/api/pricing', (c) => {
-  const category = c.req.query('category');
-  const lang = c.req.query('lang') || 'ru';
+app.get('/api/pricing', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
 
-  let filteredPricing = pricing.map(item => {
-    const priceValue = typeof item.price === 'string' && item.price.includes('-')
-      ? (() => {
-          const [min, max] = item.price.split('-').map(s => parseInt(s.trim()));
-          return {
-            price: max,
-            minPrice: min,
-            maxPrice: max
-          };
-        })()
-      : { price: typeof item.price === 'number' ? item.price : parseInt(item.price) };
+    const lang = sanitizeLanguage(c.req.query('lang'));
+    const category = c.req.query('category');
 
-    return {
-      ...item,
-      ...priceValue,
-      service: item.service[lang as keyof typeof item.service] || item.service.ru,
-      category: item.category[lang as keyof typeof item.category] || item.category.ru,
-      unit: item.unit[lang as keyof typeof item.unit] || item.unit.ru
-    };
-  });
+    const records = await listPricingRecords(env);
 
-  if (category) {
-    filteredPricing = filteredPricing.filter(p => p.category === category);
+    const localizedPricing = records.map(item => {
+      const serviceName = item.service[lang] || item.service.ru;
+      const categoryName = item.category[lang] || item.category.ru;
+      const unitName = item.unit[lang] || item.unit.ru;
+
+      const responseItem: {
+        id: string;
+        service: string;
+        price: number;
+        category: string;
+        unit: string;
+        minPrice?: number;
+        maxPrice?: number;
+      } = {
+        id: item.id,
+        service: serviceName,
+        price: item.price ?? item.maxPrice ?? item.minPrice ?? 0,
+        category: categoryName,
+        unit: unitName,
+      };
+
+      if (item.minPrice !== null) {
+        responseItem.minPrice = item.minPrice;
+      }
+      if (item.maxPrice !== null) {
+        responseItem.maxPrice = item.maxPrice;
+      }
+
+      return responseItem;
+    });
+
+    const filteredPricing = category
+      ? localizedPricing.filter(p => p.category === category)
+      : localizedPricing;
+
+    return c.json({
+      data: filteredPricing,
+      message: category
+        ? `Прайс-лист для категории "${category}" загружен успешно`
+        : 'Прайс-лист загружен успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить прайс-лист';
+    return c.json({
+      error: 'Ошибка при загрузке прайс-листа',
+      details: message
+    }, 500);
   }
-
-  return c.json({
-    data: filteredPricing,
-    message: category
-      ? `Прайс-лист для категории "${category}" загружен успешно`
-      : 'Прайс-лист загружен успешно'
-  });
 });
 
 // POST /api/tickets - создание новой заявки
@@ -1168,61 +1703,538 @@ app.delete('/api/tickets/:id', async (c) => {
   }
 });
 
+// --- Admin endpoints ---
+
+// Services admin CRUD
+app.get('/api/admin/services', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const services = await listServiceRecords(env);
+
+    return c.json({
+      data: services,
+      message: 'Список услуг загружен успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить услуги';
+    return c.json({
+      error: 'Ошибка при загрузке услуг',
+      details: message
+    }, 500);
+  }
+});
+
+app.post('/api/admin/services', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const body = await c.req.json();
+
+    const { errors, payload } = sanitizeServicePayload(body);
+    if (!payload) {
+      return c.json({ error: 'Ошибка валидации', details: errors }, 400);
+    }
+
+    const id = typeof body?.id === 'string' && body.id.trim()
+      ? body.id.trim()
+      : generateEntityId('srv');
+
+    await env.DB.prepare(
+      `INSERT INTO services (
+        id, title_ru, title_en, title_hy,
+        description_ru, description_en, description_hy,
+        price, category
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      id,
+      payload.title.ru,
+      payload.title.en,
+      payload.title.hy,
+      payload.description.ru,
+      payload.description.en,
+      payload.description.hy,
+      payload.price,
+      payload.category
+    ).run();
+
+    const created = await getServiceRecord(env, id);
+
+    return c.json({
+      data: created,
+      message: 'Услуга успешно создана'
+    }, 201);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось создать услугу';
+    const status = message.includes('UNIQUE') ? 409 : 500;
+    return c.json({
+      error: 'Ошибка при создании услуги',
+      details: message
+    }, status);
+  }
+});
+
+app.put('/api/admin/services/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const id = c.req.param('id');
+    const existing = await getServiceRecord(env, id);
+
+    if (!existing) {
+      return c.json({ error: 'Услуга не найдена' }, 404);
+    }
+
+    const body = await c.req.json();
+    const { errors, payload } = sanitizeServicePayload(body);
+    if (!payload) {
+      return c.json({ error: 'Ошибка валидации', details: errors }, 400);
+    }
+
+    await env.DB.prepare(
+      `UPDATE services SET
+        title_ru = ?, title_en = ?, title_hy = ?,
+        description_ru = ?, description_en = ?, description_hy = ?,
+        price = ?, category = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?`
+    ).bind(
+      payload.title.ru,
+      payload.title.en,
+      payload.title.hy,
+      payload.description.ru,
+      payload.description.en,
+      payload.description.hy,
+      payload.price,
+      payload.category,
+      id
+    ).run();
+
+    const updated = await getServiceRecord(env, id);
+
+    return c.json({
+      data: updated,
+      message: 'Услуга успешно обновлена'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось обновить услугу';
+    return c.json({
+      error: 'Ошибка при обновлении услуги',
+      details: message
+    }, 500);
+  }
+});
+
+app.delete('/api/admin/services/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const id = c.req.param('id');
+
+    const existing = await getServiceRecord(env, id);
+    if (!existing) {
+      return c.json({ error: 'Услуга не найдена' }, 404);
+    }
+
+    await env.DB.prepare('DELETE FROM services WHERE id = ?').bind(id).run();
+
+    return c.json({
+      data: null,
+      message: 'Услуга успешно удалена'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось удалить услугу';
+    return c.json({
+      error: 'Ошибка при удалении услуги',
+      details: message
+    }, 500);
+  }
+});
+
+// Pricing admin CRUD
+app.get('/api/admin/pricing', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const items = await listPricingRecords(env);
+
+    return c.json({
+      data: items,
+      message: 'Прайс-лист загружен успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить прайс-лист';
+    return c.json({
+      error: 'Ошибка при загрузке прайс-листа',
+      details: message
+    }, 500);
+  }
+});
+
+app.post('/api/admin/pricing', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const body = await c.req.json();
+
+    const { errors, payload } = sanitizePricingPayload(body);
+    if (!payload) {
+      return c.json({ error: 'Ошибка валидации', details: errors }, 400);
+    }
+
+    const id = typeof body?.id === 'string' && body.id.trim()
+      ? body.id.trim()
+      : generateEntityId('price');
+
+    await env.DB.prepare(
+      `INSERT INTO pricing (
+        id, service_ru, service_en, service_hy,
+        price, min_price, max_price,
+        category_ru, category_en, category_hy,
+        unit_ru, unit_en, unit_hy
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      id,
+      payload.service.ru,
+      payload.service.en,
+      payload.service.hy,
+      payload.price,
+      payload.minPrice,
+      payload.maxPrice,
+      payload.category.ru,
+      payload.category.en,
+      payload.category.hy,
+      payload.unit.ru,
+      payload.unit.en,
+      payload.unit.hy
+    ).run();
+
+    const created = await getPricingRecord(env, id);
+
+    return c.json({
+      data: created,
+      message: 'Позиция прайс-листа успешно создана'
+    }, 201);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось создать позицию прайс-листа';
+    const status = message.includes('UNIQUE') ? 409 : 500;
+    return c.json({
+      error: 'Ошибка при создании позиции прайс-листа',
+      details: message
+    }, status);
+  }
+});
+
+app.put('/api/admin/pricing/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const id = c.req.param('id');
+    const existing = await getPricingRecord(env, id);
+
+    if (!existing) {
+      return c.json({ error: 'Позиция прайс-листа не найдена' }, 404);
+    }
+
+    const body = await c.req.json();
+    const { errors, payload } = sanitizePricingPayload(body);
+    if (!payload) {
+      return c.json({ error: 'Ошибка валидации', details: errors }, 400);
+    }
+
+    await env.DB.prepare(
+      `UPDATE pricing SET
+        service_ru = ?, service_en = ?, service_hy = ?,
+        price = ?, min_price = ?, max_price = ?,
+        category_ru = ?, category_en = ?, category_hy = ?,
+        unit_ru = ?, unit_en = ?, unit_hy = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?`
+    ).bind(
+      payload.service.ru,
+      payload.service.en,
+      payload.service.hy,
+      payload.price,
+      payload.minPrice,
+      payload.maxPrice,
+      payload.category.ru,
+      payload.category.en,
+      payload.category.hy,
+      payload.unit.ru,
+      payload.unit.en,
+      payload.unit.hy,
+      id
+    ).run();
+
+    const updated = await getPricingRecord(env, id);
+
+    return c.json({
+      data: updated,
+      message: 'Позиция прайс-листа успешно обновлена'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось обновить позицию прайс-листа';
+    return c.json({
+      error: 'Ошибка при обновлении позиции прайс-листа',
+      details: message
+    }, 500);
+  }
+});
+
+app.delete('/api/admin/pricing/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const id = c.req.param('id');
+
+    const existing = await getPricingRecord(env, id);
+    if (!existing) {
+      return c.json({ error: 'Позиция прайс-листа не найдена' }, 404);
+    }
+
+    await env.DB.prepare('DELETE FROM pricing WHERE id = ?').bind(id).run();
+
+    return c.json({
+      data: null,
+      message: 'Позиция прайс-листа успешно удалена'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось удалить позицию прайс-листа';
+    return c.json({
+      error: 'Ошибка при удалении позиции прайс-листа',
+      details: message
+    }, 500);
+  }
+});
+
+// Knowledge admin CRUD
+app.get('/api/admin/knowledge', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const items = await listKnowledgeRecords(env);
+
+    return c.json({
+      data: items,
+      message: 'База знаний загружена успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить базу знаний';
+    return c.json({
+      error: 'Ошибка при загрузке базы знаний',
+      details: message
+    }, 500);
+  }
+});
+
+app.post('/api/admin/knowledge', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const body = await c.req.json();
+
+    const { errors, payload } = sanitizeKnowledgePayload(body);
+    if (!payload) {
+      return c.json({ error: 'Ошибка валидации', details: errors }, 400);
+    }
+
+    const id = typeof body?.id === 'string' && body.id.trim()
+      ? body.id.trim()
+      : generateEntityId('kb');
+
+    await env.DB.prepare(
+      `INSERT INTO knowledge (
+        id, title_ru, title_en, title_hy,
+        content_ru, content_en, content_hy,
+        category_ru, category_en, category_hy,
+        type
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      id,
+      payload.title.ru,
+      payload.title.en,
+      payload.title.hy,
+      payload.content.ru,
+      payload.content.en,
+      payload.content.hy,
+      payload.category.ru,
+      payload.category.en,
+      payload.category.hy,
+      payload.type
+    ).run();
+
+    const created = await getKnowledgeRecord(env, id);
+
+    return c.json({
+      data: created,
+      message: 'Запись базы знаний успешно создана'
+    }, 201);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось создать запись базы знаний';
+    const status = message.includes('UNIQUE') ? 409 : 500;
+    return c.json({
+      error: 'Ошибка при создании записи базы знаний',
+      details: message
+    }, status);
+  }
+});
+
+app.put('/api/admin/knowledge/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const id = c.req.param('id');
+    const existing = await getKnowledgeRecord(env, id);
+
+    if (!existing) {
+      return c.json({ error: 'Запись не найдена' }, 404);
+    }
+
+    const body = await c.req.json();
+    const { errors, payload } = sanitizeKnowledgePayload(body);
+    if (!payload) {
+      return c.json({ error: 'Ошибка валидации', details: errors }, 400);
+    }
+
+    await env.DB.prepare(
+      `UPDATE knowledge SET
+        title_ru = ?, title_en = ?, title_hy = ?,
+        content_ru = ?, content_en = ?, content_hy = ?,
+        category_ru = ?, category_en = ?, category_hy = ?,
+        type = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?`
+    ).bind(
+      payload.title.ru,
+      payload.title.en,
+      payload.title.hy,
+      payload.content.ru,
+      payload.content.en,
+      payload.content.hy,
+      payload.category.ru,
+      payload.category.en,
+      payload.category.hy,
+      payload.type,
+      id
+    ).run();
+
+    const updated = await getKnowledgeRecord(env, id);
+
+    return c.json({
+      data: updated,
+      message: 'Запись базы знаний успешно обновлена'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось обновить запись базы знаний';
+    return c.json({
+      error: 'Ошибка при обновлении записи базы знаний',
+      details: message
+    }, 500);
+  }
+});
+
+app.delete('/api/admin/knowledge/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
+    const id = c.req.param('id');
+
+    const existing = await getKnowledgeRecord(env, id);
+    if (!existing) {
+      return c.json({ error: 'Запись не найдена' }, 404);
+    }
+
+    await env.DB.prepare('DELETE FROM knowledge WHERE id = ?').bind(id).run();
+
+    return c.json({
+      data: null,
+      message: 'Запись базы знаний успешно удалена'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось удалить запись базы знаний';
+    return c.json({
+      error: 'Ошибка при удалении записи базы знаний',
+      details: message
+    }, 500);
+  }
+});
+
 // GET /api/knowledge - список всех записей базы знаний с фильтрацией
-app.get('/api/knowledge', (c) => {
-  const type = c.req.query('type') as KnowledgeType | undefined;
-  const category = c.req.query('category');
-  const lang = c.req.query('lang') || 'ru';
+app.get('/api/knowledge', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
 
-  let filteredKnowledge = knowledgeBase.map(item => ({
-    ...item,
-    title: item.title[lang as keyof typeof item.title] || item.title.ru,
-    content: item.content[lang as keyof typeof item.content] || item.content.ru,
-    category: item.category[lang as keyof typeof item.category] || item.category.ru
-  }));
+    const lang = sanitizeLanguage(c.req.query('lang'));
+    const typeParam = c.req.query('type');
+    const categoryParam = c.req.query('category');
 
-  // Фильтрация по типу
-  if (type && (type === 'faq' || type === 'article')) {
-    filteredKnowledge = filteredKnowledge.filter(k => k.type === type);
+    let records = await listKnowledgeRecords(env);
+
+    if (typeParam && (typeParam === 'faq' || typeParam === 'article')) {
+      records = records.filter(item => item.type === typeParam);
+    }
+
+    let localized = records.map(item => ({
+      id: item.id,
+      title: item.title[lang] || item.title.ru,
+      content: item.content[lang] || item.content.ru,
+      category: item.category[lang] || item.category.ru,
+      type: item.type
+    }));
+
+    if (categoryParam) {
+      localized = localized.filter(item => item.category === categoryParam);
+    }
+
+    return c.json({
+      data: localized,
+      message: typeParam
+        ? `База знаний (${typeParam}) загружена успешно`
+        : 'База знаний загружена успешно',
+      total: localized.length
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить базу знаний';
+    return c.json({
+      error: 'Ошибка при загрузке базы знаний',
+      details: message
+    }, 500);
   }
-
-  // Фильтрация по категории
-  if (category) {
-    filteredKnowledge = filteredKnowledge.filter(k => k.category[lang as keyof typeof k.category] === category);
-  }
-
-  return c.json({
-    data: filteredKnowledge,
-    message: type
-      ? `База знаний (${type}) загружена успешно`
-      : 'База знаний загружена успешно',
-    total: filteredKnowledge.length
-  });
 });
 
 // GET /api/knowledge/:id - конкретная запись базы знаний
-app.get('/api/knowledge/:id', (c) => {
-  const id = c.req.param('id');
-  const lang = c.req.query('lang') || 'ru';
-  const item = knowledgeBase.find(k => k.id === id);
+app.get('/api/knowledge/:id', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureCatalogInitialized(env);
 
-  if (!item) {
+    const id = c.req.param('id');
+    const lang = sanitizeLanguage(c.req.query('lang'));
+    const item = await getKnowledgeRecord(env, id);
+
+    if (!item) {
+      return c.json({
+        error: 'Запись не найдена'
+      }, 404);
+    }
+
+    const translatedItem = {
+      id: item.id,
+      title: item.title[lang] || item.title.ru,
+      content: item.content[lang] || item.content.ru,
+      category: item.category[lang] || item.category.ru,
+      type: item.type
+    };
+
     return c.json({
-      error: 'Запись не найдена'
-    }, 404);
+      data: translatedItem,
+      message: 'Запись загружена успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить запись';
+    return c.json({
+      error: 'Ошибка при загрузке записи',
+      details: message
+    }, 500);
   }
-
-  const translatedItem = {
-    ...item,
-    title: item.title[lang as keyof typeof item.title] || item.title.ru,
-    content: item.content[lang as keyof typeof item.content] || item.content.ru,
-    category: item.category[lang as keyof typeof item.category] || item.category.ru
-  };
-
-  return c.json({
-    data: translatedItem,
-    message: 'Запись загружена успешно'
-  });
 });
 
 // Старый endpoint для совместимости

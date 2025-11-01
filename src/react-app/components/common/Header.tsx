@@ -77,6 +77,11 @@ export default function Header({ className = '' }: HeaderProps) {
                 {t('header.contacts')}
               </Link>
             </li>
+            <li>
+              <Link to="/admin" className={styles.headerNavLink} activeClassName={styles.active}>
+                {t('header.admin')}
+              </Link>
+            </li>
           </ul>
 
           <div className={styles.headerActions}>
@@ -155,10 +160,19 @@ export default function Header({ className = '' }: HeaderProps) {
                 {t('header.contacts')}
               </Link>
             </li>
+            <li>
+              <Link
+                to="/admin"
+                className={styles.headerMobileNavLink}
+                activeClassName={styles.active}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('header.admin')}
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
     </header>
   );
 }
-

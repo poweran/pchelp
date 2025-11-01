@@ -12,7 +12,8 @@
     "pricing": "Pricing",
     "knowledge": "Knowledge Base",
     "tickets": "Tickets",
-    "contacts": "Contacts"
+    "contacts": "Contacts",
+    "admin": "Admin"
   },
   "footer": {
     "copyright": "All rights reserved.",
@@ -248,6 +249,118 @@
     "articleCard": {
       "readMore": "Read full",
       "collapse": "Collapse"
+    }
+  },
+  "admin": {
+    "title": "Administration",
+    "subtitle": "Manage tickets, services, pricing and the knowledge base.",
+    "tabs": {
+      "tickets": "Tickets",
+      "services": "Services",
+      "pricing": "Pricing",
+      "knowledge": "Knowledge"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "createNew": "Create new",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "saving": "Saving..."
+    },
+    "locales": {
+      "ru": "Russian",
+      "en": "English",
+      "hy": "Armenian"
+    },
+    "tickets": {
+      "title": "Client tickets",
+      "loading": "Loading tickets...",
+      "updateError": "Could not update the ticket.",
+      "updated": "Ticket updated.",
+      "confirmDelete": "Delete this ticket?",
+      "deleteError": "Could not delete the ticket.",
+      "deleted": "Ticket deleted.",
+      "empty": "There are no tickets yet.",
+      "table": {
+        "client": "Client",
+        "contact": "Contacts",
+        "serviceType": "Service type",
+        "priority": "Priority",
+        "status": "Status",
+        "created": "Created at",
+        "actions": "Actions"
+      }
+    },
+    "services": {
+      "loading": "Loading services...",
+      "title": "Services",
+      "listTitle": "Existing services",
+      "empty": "No services yet.",
+      "editTitle": "Edit service",
+      "newTitle": "Create service",
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "price": "Price",
+        "category": "Category"
+      },
+      "validation": {
+        "price": "Enter a valid price."
+      },
+      "errorSave": "Could not save the service.",
+      "saved": "Service saved.",
+      "confirmDelete": "Delete this service?",
+      "errorDelete": "Could not delete the service.",
+      "deleted": "Service deleted."
+    },
+    "pricing": {
+      "loading": "Loading pricing...",
+      "title": "Pricing",
+      "listTitle": "Price items",
+      "empty": "No price items yet.",
+      "editTitle": "Edit price item",
+      "newTitle": "Create price item",
+      "fields": {
+        "service": "Service",
+        "category": "Category",
+        "unit": "Unit",
+        "price": "Price",
+        "minPrice": "Min price",
+        "maxPrice": "Max price"
+      },
+      "validation": {
+        "range": "Provide a fixed price or both minimum and maximum."
+      },
+      "errorSave": "Could not save the price item.",
+      "saved": "Price item saved.",
+      "confirmDelete": "Delete this price item?",
+      "errorDelete": "Could not delete the price item.",
+      "deleted": "Price item deleted."
+    },
+    "knowledge": {
+      "loading": "Loading knowledge base...",
+      "title": "Knowledge base",
+      "listTitle": "Articles and FAQ",
+      "empty": "No entries yet.",
+      "editTitle": "Edit entry",
+      "newTitle": "Create entry",
+      "fields": {
+        "title": "Title",
+        "content": "Content",
+        "category": "Category",
+        "type": "Type"
+      },
+      "type": {
+        "faq": "FAQ",
+        "article": "Article"
+      },
+      "errorSave": "Could not save the entry.",
+      "saved": "Entry saved.",
+      "confirmDelete": "Delete this entry?",
+      "errorDelete": "Could not delete the entry.",
+      "deleted": "Entry deleted."
     }
   }
 }

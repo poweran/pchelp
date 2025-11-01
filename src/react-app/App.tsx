@@ -13,6 +13,7 @@ const TicketsPage = lazy(() => import('./pages/TicketsPage'));
 const KnowledgePage = lazy(() => import('./pages/KnowledgePage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const ContactsPage = lazy(() => import('./pages/ContactsPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 function App() {
   // Конфигурация маршрутов с Suspense для lazy loading
@@ -45,6 +46,11 @@ function App() {
     '/contacts': () => (
       <Suspense fallback={<Loading />}>
         <ContactsPage />
+      </Suspense>
+    ),
+    '/admin': () => (
+      <Suspense fallback={<Loading />}>
+        <AdminPage />
       </Suspense>
     ),
   };

@@ -1,18 +1,18 @@
 // Типы для портала компьютерной помощи
 
+export type LanguageCode = 'ru' | 'en' | 'hy';
+
+export interface LocalizedText {
+  ru: string;
+  en: string;
+  hy: string;
+}
+
 // Типы для услуг
 export interface Service {
   id: string;
-  title: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
-  description: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
+  title: LocalizedText;
+  description: LocalizedText;
   price: number;
   category: ServiceCategory;
 }
@@ -61,22 +61,61 @@ export interface PriceItem {
 // Расширенный тип для прайс-листа с переводами
 export interface PriceItemWithTranslations {
   id: string;
-  service: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
+  service: LocalizedText;
   price: number;
-  category: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
-  unit: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
+  category: LocalizedText;
+  unit: LocalizedText;
+}
+
+// Типы для админ-панели
+export interface AdminService extends Service {
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface AdminServicePayload {
+  title: LocalizedText;
+  description: LocalizedText;
+  price: number;
+  category: ServiceCategory;
+}
+
+export interface AdminPriceItem {
+  id: string;
+  service: LocalizedText;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  category: LocalizedText;
+  unit: LocalizedText;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface AdminPricePayload {
+  service: LocalizedText;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  category: LocalizedText;
+  unit: LocalizedText;
+}
+
+export interface AdminKnowledgeItem {
+  id: string;
+  title: LocalizedText;
+  content: LocalizedText;
+  category: LocalizedText;
+  type: KnowledgeType;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface AdminKnowledgePayload {
+  title: LocalizedText;
+  content: LocalizedText;
+  category: LocalizedText;
+  type: KnowledgeType;
 }
 
 // Типы для API ответов
