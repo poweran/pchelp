@@ -1038,9 +1038,64 @@ const KnowledgeSection: React.FC = () => {
   );
 };
 
-const AdminPage: React.FC = () => {
+const AuthForm: React.FC<{ onAuthenticated: () => void }> = ({ onAuthenticated }) => {
+  const { t } = useTranslation();
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    // Simple password check (in production, use proper authentication)
+    const adminPassword = process.env.NODE_ENV === 'development' ? 'admin123' : 'secureadminpass2024';
+
+    if (password === adminPassword) {
+      localStorage.setItem('admin-auth', 'true');
+      onAuthenticated();
+    } else {
+      setError(t('admin.auth.invalidPassword'));
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="admin-auth">
+      <div className="admin-auth__container">
+        <h1>{t('admin.auth.title')}</h1>
+        <p>{t('admin.auth.subtitle')}</p>
+
+        <form onSubmit={handleSubmit} className="admin-auth__form">
+          <Input
+            type="password"
+            label={t('admin.auth.password')}
+            value={password}
+            onChange={setPassword}
+            placeholder={t('admin.auth.passwordPlaceholder')}
+            required
+          />
+
+          {error && <div className="admin-feedback admin-feedback--error">{error}</div>}
+
+          <Button type="submit" variant="primary" disabled={loading}>
+            {loading ? t('admin.auth.loading') : t('admin.auth.login')}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const AdminContent: React.FC = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<AdminTab>('tickets');
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin-auth');
+    window.location.reload(); // Force reload to reset all state
+  };
 
   const tabs = useMemo(() => ([
     { key: 'tickets' as const, label: t('admin.tabs.tickets'), icon: '🎫' },
@@ -1052,8 +1107,15 @@ const AdminPage: React.FC = () => {
   return (
     <div className="admin-page">
       <header className="admin-page__header">
-        <h1>{t('admin.title')}</h1>
-        <p className="admin-page__subtitle">{t('admin.subtitle')}</p>
+        <div className="admin-page__header-content">
+          <div>
+            <h1>{t('admin.title')}</h1>
+            <p className="admin-page__subtitle">{t('admin.subtitle')}</p>
+          </div>
+          <Button onClick={handleLogout} variant="secondary">
+            {t('admin.auth.logout')}
+          </Button>
+        </div>
       </header>
 
       <div className="admin-page__tabs">
@@ -1078,6 +1140,22 @@ const AdminPage: React.FC = () => {
       </div>
     </div>
   );
+};
+
+const AdminPage: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('admin-auth') === 'true';
+  });
+
+  const handleAuthenticated = () => {
+    setIsAuthenticated(true);
+  };
+
+  if (!isAuthenticated) {
+    return <AuthForm onAuthenticated={handleAuthenticated} />;
+  }
+
+  return <AdminContent />;
 };
 
 export default AdminPage;

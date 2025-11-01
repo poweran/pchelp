@@ -362,6 +362,16 @@
       "confirmDelete": "Delete this entry?",
       "errorDelete": "Could not delete the entry.",
       "deleted": "Entry deleted."
+    },
+    "auth": {
+      "title": "Admin Panel",
+      "subtitle": "Enter password to access the administration panel",
+      "password": "Password",
+      "passwordPlaceholder": "Enter admin password",
+      "login": "Login",
+      "loading": "Checking...",
+      "invalidPassword": "Invalid password",
+      "logout": "Logout"
     }
   }
 }
