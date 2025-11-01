@@ -241,9 +241,9 @@
     "subtitle": "Answers to frequently asked questions and helpful articles",
     "loading": "Loading knowledge base...",
     "error": "Loading error: {error}",
-    "tabFaq": "❓ FAQ",
-    "tabArticles": "📄 Articles",
-    "searchPlaceholder": "🔍 Search by titles...",
+    "tabFaq": "FAQ",
+    "tabArticles": "Articles",
+    "searchPlaceholder": "Search by titles...",
     "emptyState": "Nothing found for query \"{query}\"",
     "articleCard": {
       "readMore": "Read full",

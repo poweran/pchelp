@@ -91,17 +91,17 @@ const KnowledgePage: React.FC = () => {
       <div className="knowledge-controls">
         <div className="tabs">
           <Button
-            className={`tab ${activeTab === 'faq' ? 'active' : ''}`}
             onClick={() => handleTabChange('faq')}
-            variant="secondary"
+            variant={activeTab === 'faq' ? 'primary' : 'secondary'}
           >
+            <span style={{fontSize: '1.25rem'}}>❓</span>
             {t('knowledgePage.tabFaq')}
           </Button>
           <Button
-            className={`tab ${activeTab === 'articles' ? 'active' : ''}`}
             onClick={() => handleTabChange('articles')}
-            variant="secondary"
+            variant={activeTab === 'articles' ? 'primary' : 'secondary'}
           >
+            <span style={{fontSize: '1.25rem'}}>📄</span>
             {t('knowledgePage.tabArticles')}
           </Button>
         </div>
@@ -109,7 +109,7 @@ const KnowledgePage: React.FC = () => {
         <div className="search-box">
            <Input
              type="text"
-             placeholder={t('knowledgePage.searchPlaceholder')}
+             placeholder={`🔍 ${t('knowledgePage.searchPlaceholder')}`}
              value={searchQuery}
              onChange={handleSearchChange}
            />
