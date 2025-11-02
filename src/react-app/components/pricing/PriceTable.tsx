@@ -1,6 +1,6 @@
 // Компонент для отображения прайс-листа с фильтрацией по категориям
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, CSSProperties } from 'react';
 import type { Service, ServiceCategory } from '../../types';
 import { SERVICE_CATEGORIES } from '../../types';
 import { useTranslation } from 'react-i18next';
@@ -69,13 +69,45 @@ export function PriceTable() {
     return <Loading text={t('priceTable.loading')} />;
   }
 
+  // Стили
+  const errorStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '1rem',
+    padding: '1.5rem',
+    backgroundColor: '#fee2e2',
+    border: '1px solid #ef4444',
+    borderRadius: '0.5rem',
+  };
+
+  const errorIconStyle: CSSProperties = {
+    fontSize: '2rem',
+  };
+
+  const errorTitleStyle: CSSProperties = {
+    fontSize: '1.125rem',
+    fontWeight: 600,
+    color: '#991b1b',
+    margin: '0 0 0.5rem 0',
+  };
+
+  const errorMessageStyle: CSSProperties = {
+    fontSize: '0.875rem',
+    color: '#7f1d1d',
+    margin: '0 0 1rem 0',
+  };
+
   if (error) {
     return (
-      <div className="price-table__error">
-        <p>{t('priceTable.error', { error })}</p>
-        <Button onClick={loadServices} variant="secondary">
-          {t('priceTable.retry')}
-        </Button>
+      <div style={errorStyle}>
+        <span style={errorIconStyle}>⚠️</span>
+        <div>
+          <h3 style={errorTitleStyle}>{t('priceTable.errorTitle')}</h3>
+          <p style={errorMessageStyle}>{error}</p>
+          <Button onClick={loadServices} variant="danger">
+            {t('priceTable.retryButton')}
+          </Button>
+        </div>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useKnowledge } from '../hooks/useKnowledge';
 import { FAQItem } from '../components/knowledge/FAQItem';
@@ -73,10 +73,44 @@ const KnowledgePage: React.FC = () => {
     );
   }
 
+  // Стили
+  const errorStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '1rem',
+    padding: '1.5rem',
+    backgroundColor: '#fee2e2',
+    border: '1px solid #ef4444',
+    borderRadius: '0.5rem',
+  };
+
+  const errorIconStyle: CSSProperties = {
+    fontSize: '2rem',
+  };
+
+  const errorTitleStyle: CSSProperties = {
+    fontSize: '1.125rem',
+    fontWeight: 600,
+    color: '#991b1b',
+    margin: '0 0 0.5rem 0',
+  };
+
+  const errorMessageStyle: CSSProperties = {
+    fontSize: '0.875rem',
+    color: '#7f1d1d',
+    margin: '0 0 1rem 0',
+  };
+
   if (error) {
     return (
       <div className="knowledge-page">
-        <div className="error">{t('knowledgePage.error', { error })}</div>
+        <div style={errorStyle}>
+          <span style={errorIconStyle}>⚠️</span>
+          <div>
+            <h3 style={errorTitleStyle}>{t('knowledgePage.errorTitle')}</h3>
+            <p style={errorMessageStyle}>{error}</p>
+          </div>
+        </div>
       </div>
     );
   }
