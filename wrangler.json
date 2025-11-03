@@ -25,5 +25,8 @@
 			"database_name": "pchelp-db",
 			"database_id": "5eb1835a-c40f-4055-a150-97795e379d50"
 		}
-	]
+	],
+	"placement": {
+		"mode": "smart"
+	}
 }
