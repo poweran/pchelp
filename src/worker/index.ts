@@ -16,23 +16,24 @@ type TicketStatus = 'new' | 'in-progress' | 'completed' | 'cancelled';
 type KnowledgeType = 'faq' | 'article';
 
 interface Service {
-  id: string;
-  title: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
-  description: {
-    ru: string;
-    en: string;
-    hy: string;
-  };
-  category: ServiceCategory;
-  price: number | null;
-  minPrice: number | null;
-  maxPrice: number | null;
-  unit?: LocalizedText | null;
-}
+   id: string;
+   title: {
+     ru: string;
+     en: string;
+     hy: string;
+   };
+   description: {
+     ru: string;
+     en: string;
+     hy: string;
+   };
+   category: ServiceCategory;
+   price: number | null;
+   minPrice: number | null;
+   maxPrice: number | null;
+   unit?: LocalizedText | null;
+   videoUrl?: string;
+ }
 
 interface PriceItem {
   id: string;
@@ -978,6 +979,7 @@ interface SanitizedServicePayload {
   minPrice: number | null;
   maxPrice: number | null;
   unit: LocalizedText;
+  videoUrl?: string;
 }
 
 interface SanitizedPricingPayload {
@@ -1039,6 +1041,7 @@ function mapServiceRow(row: any): ServiceRecord {
     maxPrice,
     unit: hasUnit ? unit : undefined,
     category: ensureServiceCategory(row.category),
+    videoUrl: (row.video_url as string) ?? undefined,
     createdAt: (row.created_at as string) ?? undefined,
     updatedAt: (row.updated_at as string) ?? undefined,
   };
@@ -1167,6 +1170,7 @@ function sanitizeServicePayload(data: any): { errors: string[]; payload?: Saniti
       maxPrice: maxPriceValue,
       unit,
       category: categoryValue,
+      videoUrl: typeof data.videoUrl === 'string' ? data.videoUrl.trim() : undefined,
     }
   };
 }
@@ -1276,6 +1280,7 @@ async function ensureServicesInitialized(env: Env) {
       unit_en TEXT,
       unit_hy TEXT,
       category TEXT NOT NULL,
+      video_url TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
@@ -1286,7 +1291,8 @@ async function ensureServicesInitialized(env: Env) {
     'ALTER TABLE services ADD COLUMN max_price REAL',
     'ALTER TABLE services ADD COLUMN unit_ru TEXT',
     'ALTER TABLE services ADD COLUMN unit_en TEXT',
-    'ALTER TABLE services ADD COLUMN unit_hy TEXT'
+    'ALTER TABLE services ADD COLUMN unit_hy TEXT',
+    'ALTER TABLE services ADD COLUMN video_url TEXT'
   ];
 
   for (const statement of optionalColumns) {
@@ -1305,8 +1311,8 @@ async function ensureServicesInitialized(env: Env) {
       env.DB.prepare(
         `INSERT INTO services (
           id, title_ru, title_en, title_hy, description_ru, description_en, description_hy,
-          price, min_price, max_price, unit_ru, unit_en, unit_hy, category
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          price, min_price, max_price, unit_ru, unit_en, unit_hy, category, video_url
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
         service.id,
         service.title.ru,
@@ -1321,7 +1327,8 @@ async function ensureServicesInitialized(env: Env) {
         service.unit?.ru ?? '',
         service.unit?.en ?? '',
         service.unit?.hy ?? '',
-        service.category
+        service.category,
+        service.videoUrl ?? null
       )
     );
 
@@ -1955,8 +1962,8 @@ app.post('/api/admin/services', async (c) => {
         description_ru, description_en, description_hy,
         price, min_price, max_price,
         unit_ru, unit_en, unit_hy,
-        category
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        category, video_url
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       id,
       payload.title.ru,
@@ -1971,7 +1978,8 @@ app.post('/api/admin/services', async (c) => {
       payload.unit.ru,
       payload.unit.en,
       payload.unit.hy,
-      payload.category
+      payload.category,
+      payload.videoUrl ?? null
     ).run();
 
     const created = await getServiceRecord(env, id);
@@ -2013,7 +2021,7 @@ app.put('/api/admin/services/:id', async (c) => {
         description_ru = ?, description_en = ?, description_hy = ?,
         price = ?, min_price = ?, max_price = ?,
         unit_ru = ?, unit_en = ?, unit_hy = ?,
-        category = ?, updated_at = CURRENT_TIMESTAMP
+        category = ?, video_url = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?`
     ).bind(
       payload.title.ru,
@@ -2029,6 +2037,7 @@ app.put('/api/admin/services/:id', async (c) => {
       payload.unit.en,
       payload.unit.hy,
       payload.category,
+      payload.videoUrl ?? null,
       id
     ).run();
 

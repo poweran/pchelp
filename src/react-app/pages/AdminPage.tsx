@@ -64,14 +64,15 @@ const formatDateTime = (value: string): string => {
 };
 
 interface ServiceFormState {
-  title: LocalizedText;
-  description: LocalizedText;
-  category: ServiceCategory;
-  price: string;
-  minPrice: string;
-  maxPrice: string;
-  unit: LocalizedText;
-}
+   title: LocalizedText;
+   description: LocalizedText;
+   category: ServiceCategory;
+   price: string;
+   minPrice: string;
+   maxPrice: string;
+   unit: LocalizedText;
+   videoUrl: string;
+ }
 
 interface KnowledgeFormState {
   title: LocalizedText;
@@ -81,14 +82,15 @@ interface KnowledgeFormState {
 }
 
 const createEmptyServiceForm = (): ServiceFormState => ({
-  title: createEmptyLocalized(),
-  description: createEmptyLocalized(),
-  category: 'repair',
-  price: '',
-  minPrice: '',
-  maxPrice: '',
-  unit: createEmptyLocalized(),
-});
+   title: createEmptyLocalized(),
+   description: createEmptyLocalized(),
+   category: 'repair',
+   price: '',
+   minPrice: '',
+   maxPrice: '',
+   unit: createEmptyLocalized(),
+   videoUrl: '',
+ });
 
 const createEmptyKnowledgeForm = (): KnowledgeFormState => ({
   title: createEmptyLocalized(),
@@ -357,6 +359,7 @@ const ServicesSection: React.FC = () => {
       minPrice: service.minPrice !== null && service.minPrice !== undefined ? String(service.minPrice) : '',
       maxPrice: service.maxPrice !== null && service.maxPrice !== undefined ? String(service.maxPrice) : '',
       unit: service.unit ? { ...service.unit } : createEmptyLocalized(),
+      videoUrl: service.videoUrl ?? '',
     });
     setFeedback(null);
     setError(null);
@@ -402,6 +405,7 @@ const ServicesSection: React.FC = () => {
       minPrice: minPriceValue,
       maxPrice: maxPriceValue,
       unit: formState.unit,
+      videoUrl: formState.videoUrl.trim() || undefined,
     };
 
     const response = selectedId
@@ -561,6 +565,16 @@ const ServicesSection: React.FC = () => {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="admin-form__row">
+            <Input
+              label="Video File"
+              type="text"
+              value={formState.videoUrl}
+              onChange={(value) => setFormState(prev => ({ ...prev, videoUrl: value }))}
+              placeholder="task_01k95v9v01f7hv9frbs4d9x8yf_task_01k95v9v01f7hv9frbs4d9x8yf_genid_7959ccc2-1108-42b7-8d89-fcd9df20021f_25_11_03_21_52_958581_videos_00000_794519525_source.mp4"
+            />
           </div>
 
           <div className="admin-form__actions">

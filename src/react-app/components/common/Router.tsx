@@ -40,8 +40,9 @@ export function Router({ routes, notFoundComponent }: RouterProps): ReactElement
     };
   }, []);
 
-  // Находим компонент для текущего пути
-  const routeComponent = routes[currentPath];
+  // Находим компонент для текущего пути (игнорируя query параметры)
+  const pathname = currentPath.split('?')[0];
+  const routeComponent = routes[pathname];
 
   // Если маршрут найден, рендерим соответствующий компонент
   if (routeComponent) {

@@ -18,12 +18,14 @@ const resources = {
   },
 };
 
+const savedLang = localStorage.getItem('i18nextLng') || 'hy';
+
 i18n
    .use(LanguageDetector)
    .use(initReactI18next)
    .init({
      resources,
-     lng: 'hy',
+     lng: savedLang,
      fallbackLng: 'hy',
 
      interpolation: {

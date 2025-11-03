@@ -1,30 +1,32 @@
 import { CSSProperties, ChangeEvent, memo, useCallback } from 'react';
 
 interface TextareaProps {
-  label?: string;
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-  className?: string;
-  name?: string;
-  rows?: number;
-}
+   label?: string;
+   value: string;
+   onChange: (value: string) => void;
+   error?: string;
+   placeholder?: string;
+   required?: boolean;
+   disabled?: boolean;
+   className?: string;
+   name?: string;
+   rows?: number;
+   autoFocus?: boolean;
+ }
 
 const Textarea = memo<TextareaProps>(function Textarea({
-  label,
-  value,
-  onChange,
-  error,
-  placeholder,
-  required = false,
-  disabled = false,
-  className = '',
-  name,
-  rows = 4,
-}) {
+   label,
+   value,
+   onChange,
+   error,
+   placeholder,
+   required = false,
+   disabled = false,
+   className = '',
+   name,
+   rows = 4,
+   autoFocus = false,
+ }) {
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
   }, [onChange]);
@@ -45,6 +47,7 @@ const Textarea = memo<TextareaProps>(function Textarea({
         disabled={disabled}
         name={name}
         rows={rows}
+        autoFocus={autoFocus}
         style={{
           ...textareaStyle,
           ...(error ? errorTextareaStyle : {}),

@@ -57,6 +57,16 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
           console.error('Error parsing userIdentifier from localStorage:', error);
         }
       }
+
+      // Чтение категории из query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category');
+      if (category) {
+        setFormData(prev => ({
+          ...prev,
+          serviceType: category,
+        }));
+      }
     }, []);
 
     // Загрузка сохраненных данных после успешной отправки формы
@@ -318,6 +328,7 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
         required
         disabled={loading}
         rows={5}
+        autoFocus
       />
 
       {/* Кнопка отправки */}
