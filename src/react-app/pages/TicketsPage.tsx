@@ -269,6 +269,7 @@ const infoBoxStyle: CSSProperties = {
   border: '1px solid #3b82f6',
   borderRadius: '0.5rem',
   marginTop: '2rem',
+  textAlign: 'left',
 };
 
 const infoTitleStyle: CSSProperties = {
