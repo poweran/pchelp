@@ -1,3 +1,36 @@
+.footer-effects {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.footer-effects.is-ready {
+  opacity: 1;
+}
+
+.footer-canvas,
+.footer-plane {
+  position: absolute;
+  inset: 0;
+}
+
+.footer-plane img {
+  display: none;
+}
+
+.glass-footer > .footer-content {
+  position: relative;
+  z-index: 3;
+}
+
+.glass-footer > .footer-effects {
+  z-index: 2;
+}
+
 .glass-footer::before {
   content: '';
   position: absolute;
@@ -31,11 +64,6 @@
   animation: footerRainSlide 24s linear infinite;
   pointer-events: none;
   z-index: 1;
-}
-
-.glass-footer > * {
-  position: relative;
-  z-index: 2;
 }
 
 @keyframes footerFogShift {
