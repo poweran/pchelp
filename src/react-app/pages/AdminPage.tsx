@@ -293,7 +293,7 @@ const TicketsSection: React.FC = () => {
                       size="small"
                       title={t('admin.tickets.viewDescription')}
                     >
-                      📋
+                      ⓘ
                     </Button>
                     <Button
                       onClick={() => handleDelete(ticket.id)}
@@ -302,7 +302,7 @@ const TicketsSection: React.FC = () => {
                       disabled={deletingId === ticket.id}
                       title={deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
                     >
-                      🗑️
+                      ✖
                     </Button>
                   </td>
                 </tr>
@@ -631,7 +631,8 @@ const ServicesSection: React.FC = () => {
 };
 
 const KnowledgeSection: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language as LanguageCode;
   const [items, setItems] = useState<AdminKnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -782,7 +783,7 @@ const KnowledgeSection: React.FC = () => {
                     className="admin-list__button"
                     onClick={() => handleSelect(item)}
                   >
-                    <span className="admin-list__title">{item.title.ru}</span>
+                    <span className="admin-list__title">{item.title[currentLang] || item.title.ru}</span>
                     <span className="admin-list__meta">{t(`admin.knowledge.type.${item.type}`)}</span>
                   </button>
                   <Button

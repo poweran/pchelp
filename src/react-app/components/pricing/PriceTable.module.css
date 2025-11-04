@@ -13,7 +13,8 @@
 
 .priceTable:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
+  transform: scale(1.05);
+  filter: brightness(1.2) contrast(1.1) saturate(1.3);
 }
 
 .priceTablePopular {
@@ -41,6 +42,7 @@
 
 .priceTablePopular:hover {
   box-shadow: 0 0 0 2px rgb(37 99 235 / 0.2), var(--shadow-lg);
+  filter: brightness(1.2) contrast(1.1) saturate(1.3);
 }
 
 .priceTableHeader {

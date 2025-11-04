@@ -38,7 +38,8 @@ const Card = memo<CardProps>(function Card({
       }}
       onMouseLeave={(e) => {
         if (isClickable) {
-          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.filter = 'none';
           e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)';
         }
       }}
@@ -74,6 +75,7 @@ const clickableCardStyle: CSSProperties = {
 };
 
 const hoverCardStyle: CSSProperties = {
-  transform: 'translateY(-2px)',
+  transform: 'scale(1.05)',
+  filter: 'brightness(1.2) contrast(1.1) saturate(1.3)',
   boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
 };

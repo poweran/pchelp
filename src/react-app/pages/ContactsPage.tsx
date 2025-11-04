@@ -48,23 +48,23 @@ const ContactsPage: React.FC = () => {
     const errors: {[key: string]: string | undefined} = {};
 
     if (!formData.clientName.trim()) {
-      errors.clientName = 'Имя обязательно для заполнения';
+      errors.clientName = t('ticketForm.errorNameRequired');
     }
 
     if (!formData.phone.trim()) {
-      errors.phone = 'Телефон обязателен для заполнения';
+      errors.phone = t('ticketForm.errorPhoneRequired');
     }
 
     if (!formData.email.trim()) {
-      errors.email = 'Email обязателен для заполнения';
+      errors.email = t('ticketForm.errorEmailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Некорректный формат email';
+      errors.email = t('ticketForm.errorEmailInvalid');
     }
 
     if (!formData.description.trim()) {
-      errors.description = 'Сообщение обязательно';
+      errors.description = t('ticketForm.errorDescriptionRequired');
     } else if (formData.description.trim().length < 10) {
-      errors.description = 'Сообщение должно содержать минимум 10 символов';
+      errors.description = t('ticketForm.errorDescriptionLength');
     }
 
     setValidationErrors(errors);
@@ -136,6 +136,9 @@ const ContactsPage: React.FC = () => {
               <h3>{t('contactsPage.phoneNumber')}</h3>
               <p>
                 <a href="tel:+37495019753">+374 (95) 01-97-53</a> — {t('contactsPage.phoneMain')}
+              </p>
+              <p>
+                <a href="tel:+37433333241">+374 (33) 33-32-41</a> — {t('contactsPage.phoneAdditional')}
               </p>
             </div>
           </div>

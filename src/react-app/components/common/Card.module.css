@@ -10,7 +10,8 @@
 
 .card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: scale(1.05);
+  filter: brightness(1.2) contrast(1.1) saturate(1.3);
 }
 
 .cardHeader {
@@ -76,8 +77,9 @@
 }
 
 .cardInteractive:active {
-  transform: translateY(0);
+  transform: scale(0.98);
   box-shadow: var(--shadow-sm);
+  filter: none;
 }
 
 /* Sizes */
