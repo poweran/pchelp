@@ -1,5 +1,6 @@
 import { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import './FooterGlass.css';
 
 interface FooterProps {
   className?: string;
@@ -10,7 +11,7 @@ export default function Footer({ className = '' }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={`footer ${className}`} style={footerStyle}>
+    <footer className={`footer glass-footer ${className}`} style={footerStyle}>
       <div style={containerStyle}>
         <div style={sectionStyle}>
           <h3 style={headingStyle}>PCHelp</h3>
@@ -40,10 +41,17 @@ export default function Footer({ className = '' }: FooterProps) {
 }
 
 const footerStyle: CSSProperties = {
-  backgroundColor: 'var(--color-background)',
+  background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.65) 0%, rgba(30, 64, 175, 0.35) 40%, rgba(8, 145, 178, 0.35) 100%)',
   color: 'var(--color-text)',
   padding: '3rem 0 1rem',
   marginTop: 'auto',
+  position: 'relative',
+  overflow: 'hidden',
+  backdropFilter: 'blur(22px) saturate(170%)',
+  WebkitBackdropFilter: 'blur(22px) saturate(170%)',
+  borderTop: '1px solid rgba(148, 197, 255, 0.35)',
+  boxShadow: '0 -30px 80px rgba(15, 23, 42, 0.35)',
+  isolation: 'isolate',
 };
 
 const containerStyle: CSSProperties = {

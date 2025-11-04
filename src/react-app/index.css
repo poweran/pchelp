@@ -99,7 +99,7 @@ body::before {
     linear-gradient(180deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 30px 30px;
   pointer-events: none;
-  z-index: -1;
+  z-index: -2;
   opacity: 0.3;
 }
 

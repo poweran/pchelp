@@ -4,6 +4,7 @@ import Footer from "./components/common/Footer";
 import { Router } from "./components/common/Router";
 import Loading from "./components/common/Loading";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
+import ParticleBackground from "./components/common/ParticleBackground";
 import "./App.css";
 
 // Lazy loading страниц
@@ -58,6 +59,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <ParticleBackground />
         <Header />
 
         <main style={{ flex: 1, maxWidth: '1280px', margin: '0 auto', width: '100%' }}>

@@ -182,7 +182,7 @@
     "placeholderEmail": "example@email.com",
     "labelServiceType": "Service type*",
     "selectDefault": "Select service",
-    "optionRepair": "Computer repair",
+    "optionRepair": "Repair",
     "optionSetup": "Software setup",
     "optionRecovery": "Data recovery",
     "optionConsultation": "Consultation",
@@ -235,7 +235,7 @@
     "labelService": "Service:",
     "labelDescription": "Description:",
     "services": {
-      "repair": "Computer repair",
+      "repair": "Repair",
       "setup": "Software setup",
       "recovery": "Data recovery",
       "consultation": "Consultation",

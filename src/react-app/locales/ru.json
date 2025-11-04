@@ -183,7 +183,7 @@
     "placeholderEmail": "example@email.com",
     "labelServiceType": "Тип услуги*",
     "selectDefault": "Выберите услугу",
-    "optionRepair": "Ремонт компьютера",
+    "optionRepair": "Ремонт",
     "optionSetup": "Настройка ПО",
     "optionRecovery": "Восстановление данных",
     "optionConsultation": "Консультация",
@@ -236,7 +236,7 @@
     "labelService": "Услуга:",
     "labelDescription": "Описание:",
     "services": {
-      "repair": "Ремонт компьютера",
+      "repair": "Ремонт",
       "setup": "Настройка ПО",
       "recovery": "Восстановление данных",
       "consultation": "Консультация",

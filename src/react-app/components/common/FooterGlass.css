@@ -1,0 +1,68 @@
+.glass-footer::before {
+  content: '';
+  position: absolute;
+  inset: -60% -25%;
+  background:
+    radial-gradient(ellipse at 20% 25%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.18) 45%, rgba(255, 255, 255, 0) 80%),
+    radial-gradient(ellipse at 80% 20%, rgba(148, 197, 255, 0.42) 0%, rgba(148, 197, 255, 0.12) 45%, rgba(148, 197, 255, 0) 80%),
+    radial-gradient(ellipse at 45% 75%, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.16) 55%, rgba(255, 255, 255, 0) 85%);
+  opacity: 0.55;
+  animation: footerFogShift 32s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glass-footer::after {
+  content: '';
+  position: absolute;
+  inset: -48% -20%;
+  background-image:
+    radial-gradient(55px 150px at 15% 12%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.07) 60%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(60px 170px at 82% 18%, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.06) 62%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(70px 190px at 48% 68%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 65%, rgba(255, 255, 255, 0) 100%),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0px, rgba(255, 255, 255, 0.12) 22px, rgba(255, 255, 255, 0.04) 30px, rgba(255, 255, 255, 0.04) 52px);
+  background-size:
+    240px 460px,
+    260px 520px,
+    280px 540px,
+    100% 320px;
+  mix-blend-mode: screen;
+  opacity: 0.48;
+  animation: footerRainSlide 24s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-footer > * {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes footerFogShift {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, 2%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-1%, 1.5%, 0) scale(1.04);
+  }
+}
+
+@keyframes footerRainSlide {
+  0% {
+    background-position:
+      10% -15%,
+      80% -22%,
+      45% -12%,
+      0 0;
+  }
+  100% {
+    background-position:
+      10% 130%,
+      80% 120%,
+      45% 135%,
+      0 320px;
+  }
+}
