@@ -315,11 +315,16 @@
         "category": "Category",
         "minPrice": "Minimum price",
         "maxPrice": "Maximum price",
-        "unit": "Unit"
+        "unit": "Unit",
+        "isRangePrice": "Price range",
+        "videoFile": "Video File"
       },
       "validation": {
         "price": "Enter a valid price.",
-        "priceOrRange": "Provide a fixed price or a range (min and max)."
+        "priceOrRange": "Provide a fixed price or a range (min and max).",
+        "minMaxRequired": "Specify minimum and maximum prices.",
+        "minGreaterThanMax": "Minimum price cannot be greater than maximum.",
+        "priceRequired": "Fixed price is required."
       },
       "errorSave": "Could not save the service.",
       "saved": "Service saved.",

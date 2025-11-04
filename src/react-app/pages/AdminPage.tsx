@@ -67,6 +67,7 @@ interface ServiceFormState {
    title: LocalizedText;
    description: LocalizedText;
    category: ServiceCategory;
+   isRangePrice: boolean;
    price: string;
    minPrice: string;
    maxPrice: string;
@@ -85,6 +86,7 @@ const createEmptyServiceForm = (): ServiceFormState => ({
    title: createEmptyLocalized(),
    description: createEmptyLocalized(),
    category: 'repair',
+   isRangePrice: false,
    price: '',
    minPrice: '',
    maxPrice: '',
@@ -314,7 +316,8 @@ const TicketsSection: React.FC = () => {
 };
 
 const ServicesSection: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language as LanguageCode;
   const [services, setServices] = useState<AdminService[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -355,6 +358,7 @@ const ServicesSection: React.FC = () => {
       title: { ...service.title },
       description: { ...service.description },
       category: service.category,
+      isRangePrice: service.minPrice !== null && service.maxPrice !== null,
       price: service.price !== null && service.price !== undefined ? String(service.price) : '',
       minPrice: service.minPrice !== null && service.minPrice !== undefined ? String(service.minPrice) : '',
       maxPrice: service.maxPrice !== null && service.maxPrice !== undefined ? String(service.maxPrice) : '',
@@ -391,19 +395,32 @@ const ServicesSection: React.FC = () => {
     const minPriceValue = parseNumeric(formState.minPrice);
     const maxPriceValue = parseNumeric(formState.maxPrice);
 
-    if (priceValue === null && (minPriceValue === null || maxPriceValue === null)) {
-      setError(t('admin.services.validation.priceOrRange'));
-      setSubmitting(false);
-      return;
+    if (formState.isRangePrice) {
+      if (minPriceValue === null || maxPriceValue === null) {
+        setError(t('admin.services.validation.minMaxRequired'));
+        setSubmitting(false);
+        return;
+      }
+      if (minPriceValue > maxPriceValue) {
+        setError(t('admin.services.validation.minGreaterThanMax'));
+        setSubmitting(false);
+        return;
+      }
+    } else {
+      if (priceValue === null) {
+        setError(t('admin.services.validation.priceRequired'));
+        setSubmitting(false);
+        return;
+      }
     }
 
     const payload: AdminServicePayload = {
       title: formState.title,
       description: formState.description,
       category: formState.category,
-      price: priceValue,
-      minPrice: minPriceValue,
-      maxPrice: maxPriceValue,
+      price: formState.isRangePrice ? null : priceValue,
+      minPrice: formState.isRangePrice ? minPriceValue : null,
+      maxPrice: formState.isRangePrice ? maxPriceValue : null,
       unit: formState.unit,
       videoUrl: formState.videoUrl.trim() || undefined,
     };
@@ -479,7 +496,7 @@ const ServicesSection: React.FC = () => {
                     className="admin-list__button"
                     onClick={() => handleSelect(service)}
                   >
-                    <span className="admin-list__title">{service.title.ru}</span>
+                    <span className="admin-list__title">{service.title[currentLang] || service.title.ru}</span>
                     <span className="admin-list__meta">{service.category}</span>
                   </button>
                   <Button
@@ -527,24 +544,46 @@ const ServicesSection: React.FC = () => {
           </div>
 
           <div className="admin-form__row">
-            <Input
-              label={t('admin.services.fields.price')}
-              type="number"
-              value={formState.price}
-              onChange={(value) => setFormState(prev => ({ ...prev, price: value }))}
-            />
-            <Input
-              label={t('admin.services.fields.minPrice')}
-              type="number"
-              value={formState.minPrice}
-              onChange={(value) => setFormState(prev => ({ ...prev, minPrice: value }))}
-            />
-            <Input
-              label={t('admin.services.fields.maxPrice')}
-              type="number"
-              value={formState.maxPrice}
-              onChange={(value) => setFormState(prev => ({ ...prev, maxPrice: value }))}
-            />
+            <div className="admin-form__price-toggle">
+              <label className="admin-checkbox">
+                <input
+                  type="checkbox"
+                  checked={formState.isRangePrice}
+                  onChange={(e) => setFormState(prev => ({
+                    ...prev,
+                    isRangePrice: e.target.checked,
+                    price: e.target.checked ? '' : prev.price,
+                    minPrice: e.target.checked ? prev.minPrice : '',
+                    maxPrice: e.target.checked ? prev.maxPrice : '',
+                  }))}
+                />
+                <span className="admin-checkbox__label">{t('admin.services.fields.isRangePrice')}</span>
+              </label>
+            </div>
+
+            {!formState.isRangePrice ? (
+              <Input
+                label={t('admin.services.fields.price')}
+                type="number"
+                value={formState.price}
+                onChange={(value) => setFormState(prev => ({ ...prev, price: value }))}
+              />
+            ) : (
+              <div className="admin-form__price-range">
+                <Input
+                  label={t('admin.services.fields.minPrice')}
+                  type="number"
+                  value={formState.minPrice}
+                  onChange={(value) => setFormState(prev => ({ ...prev, minPrice: value }))}
+                />
+                <Input
+                  label={t('admin.services.fields.maxPrice')}
+                  type="number"
+                  value={formState.maxPrice}
+                  onChange={(value) => setFormState(prev => ({ ...prev, maxPrice: value }))}
+                />
+              </div>
+            )}
           </div>
 
           <div className="admin-form__row">
@@ -569,7 +608,7 @@ const ServicesSection: React.FC = () => {
 
           <div className="admin-form__row">
             <Input
-              label="Video File"
+              label={t('admin.services.fields.videoFile')}
               type="text"
               value={formState.videoUrl}
               onChange={(value) => setFormState(prev => ({ ...prev, videoUrl: value }))}

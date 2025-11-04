@@ -290,6 +290,40 @@
   gap: 1rem;
 }
 
+.admin-form__price-toggle {
+  grid-column: 1 / -1;
+}
+
+.admin-form__price-range {
+  display: flex;
+  gap: 1rem;
+  grid-column: 1 / -1;
+}
+
+.admin-form__price-range > * {
+  flex: 1;
+}
+
+.admin-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.admin-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.admin-checkbox__label {
+  user-select: none;
+}
+
 .admin-form__actions {
   display: flex;
   gap: 0.75rem;
