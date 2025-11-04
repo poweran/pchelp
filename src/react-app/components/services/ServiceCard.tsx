@@ -58,7 +58,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         <video
           ref={videoRef}
           className="service-card__video"
-          src={`/src/react-app/assets/video/${service.videoUrl}`}
+          src={`/assets/video/${service.videoUrl}`}
           muted
           loop
           playsInline
