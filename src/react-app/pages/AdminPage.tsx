@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
@@ -834,13 +835,24 @@ const KnowledgeSection: React.FC = () => {
                   onChange={(value) => handleLocalizedChange('title', lang, value)}
                   required={lang === 'ru'}
                 />
-                <Textarea
-                  label={t('admin.knowledge.fields.content')}
-                  value={formState.content[lang]}
-                  onChange={(value) => handleLocalizedChange('content', lang, value)}
-                  rows={5}
-                  required={lang === 'ru'}
-                />
+                <div className="admin-form__field">
+                  <label className="admin-form__label">{t('admin.knowledge.fields.content')} <span className="admin-form__markdown-hint">(Markdown)</span></label>
+                  <Textarea
+                    value={formState.content[lang]}
+                    onChange={(value) => handleLocalizedChange('content', lang, value)}
+                    rows={8}
+                    required={lang === 'ru'}
+                    placeholder={`# Заголовок\n\n**Жирный текст**\n\n*Курсив*\n\n- Список\n- Элементов`}
+                  />
+                  {formState.content[lang] && (
+                    <div className="admin-form__preview">
+                      <h4 className="admin-form__preview-title">Предпросмотр:</h4>
+                      <div className="admin-form__preview-content">
+                        <ReactMarkdown>{formState.content[lang]}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <Input
                   label={t('admin.knowledge.fields.category')}
                   value={formState.category[lang]}

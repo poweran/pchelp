@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
 import type { KnowledgeItem } from '../../types';
 import './ArticleCard.css';
 
@@ -33,9 +34,13 @@ export function ArticleCard({ article }: ArticleCardProps) {
       </div>
       
       <div className="article-card__body">
-        <p className="article-card__content">
-          {isExpanded ? article.content : preview}
-        </p>
+        <div className="article-card__content">
+          {isExpanded ? (
+            <ReactMarkdown>{article.content}</ReactMarkdown>
+          ) : (
+            <ReactMarkdown>{preview}</ReactMarkdown>
+          )}
+        </div>
       </div>
       
       <div className="article-card__footer">

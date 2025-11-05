@@ -1,6 +1,7 @@
 // Компонент для отображения FAQ элемента с accordion-стилем
 
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import type { KnowledgeItem } from '../../types';
 import './FAQItem.css';
 
@@ -30,7 +31,7 @@ export function FAQItem({ item }: FAQItemProps) {
       
       <div className={`faq-item__content ${isOpen ? 'faq-item__content--open' : ''}`}>
         <div className="faq-item__content-inner">
-          <p>{item.content}</p>
+          <ReactMarkdown>{item.content}</ReactMarkdown>
         </div>
       </div>
     </div>

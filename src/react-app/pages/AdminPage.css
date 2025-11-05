@@ -324,6 +324,91 @@
   user-select: none;
 }
 
+.admin-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-form__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.admin-form__markdown-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.admin-form__preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.admin-form__preview-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-form__preview-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #1e293b;
+  text-align: left;
+}
+
+.admin-form__preview-content h1,
+.admin-form__preview-content h2,
+.admin-form__preview-content h3,
+.admin-form__preview-content h4,
+.admin-form__preview-content h5,
+.admin-form__preview-content h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+}
+
+.admin-form__preview-content p {
+  margin-bottom: 0.75rem;
+}
+
+.admin-form__preview-content ul,
+.admin-form__preview-content ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.admin-form__preview-content code {
+  background: #e2e8f0;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+.admin-form__preview-content pre {
+  background: #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+
+.admin-form__preview-content blockquote {
+  border-left: 4px solid #cbd5f5;
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: #475569;
+}
+
 .admin-form__actions {
   display: flex;
   gap: 0.75rem;

@@ -76,12 +76,78 @@
   padding: 0 20px 16px 20px;
 }
 
-.faq-item__content-inner p {
+.faq-item__content-inner {
   margin: 0;
   color: #4b5563;
   font-size: 15px;
   line-height: 1.6;
   text-align: left;
+}
+
+.faq-item__content-inner h1,
+.faq-item__content-inner h2,
+.faq-item__content-inner h3,
+.faq-item__content-inner h4,
+.faq-item__content-inner h5,
+.faq-item__content-inner h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.faq-item__content-inner h1 { font-size: 1.5em; }
+.faq-item__content-inner h2 { font-size: 1.3em; }
+.faq-item__content-inner h3 { font-size: 1.2em; }
+.faq-item__content-inner h4 { font-size: 1.1em; }
+.faq-item__content-inner h5 { font-size: 1em; }
+.faq-item__content-inner h6 { font-size: 0.9em; }
+
+.faq-item__content-inner p {
+  margin-bottom: 0.75rem;
+}
+
+.faq-item__content-inner ul,
+.faq-item__content-inner ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.faq-item__content-inner li {
+  margin-bottom: 0.25rem;
+}
+
+.faq-item__content-inner code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+  font-family: 'Courier New', monospace;
+}
+
+.faq-item__content-inner pre {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+
+.faq-item__content-inner blockquote {
+  border-left: 4px solid #cbd5f5;
+  padding-left: 1rem;
+  margin: 0.75rem 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.faq-item__content-inner a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.faq-item__content-inner a:hover {
+  text-decoration: underline;
 }
 
 /* Адаптивность */
