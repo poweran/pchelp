@@ -5,6 +5,7 @@ import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
 import { useTickets } from '../hooks/useTickets';
+import { navigate } from '../utils/router';
 import type { TicketFormData } from '../types';
 import './HomePage.css';
 
@@ -49,6 +50,18 @@ const HomePage = memo(function HomePage() {
       }
     }
   }, []);
+
+  // Сохранение данных в localStorage при изменении формы
+  useEffect(() => {
+    if (formData.name || formData.email || formData.phone) {
+      const userIdentifier = JSON.stringify({
+        clientName: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      });
+      localStorage.setItem('userIdentifier', userIdentifier);
+    }
+  }, [formData.name, formData.email, formData.phone]);
 
   const validateForm = useCallback((): boolean => {
     const errors: {[key: string]: string | undefined} = {};
@@ -100,7 +113,7 @@ const HomePage = memo(function HomePage() {
     if (result.success) {
       // Сохранение данных пользователя в localStorage после успешной отправки
       const userIdentifier = JSON.stringify({
-        name: formData.name,
+        clientName: formData.name,
         email: formData.email,
         phone: formData.phone
       });
@@ -122,7 +135,7 @@ const HomePage = memo(function HomePage() {
             {t('homePage.heroSubtitle')}
           </p>
           <div className="hero-actions">
-            <Button onClick={() => window.location.href = '/services'} aria-label={t('homePage.servicesButton')}>
+            <Button onClick={() => navigate('/services')} aria-label={t('homePage.servicesButton')}>
               {t('homePage.servicesButton')}
             </Button>
             <Button
@@ -159,7 +172,7 @@ const HomePage = memo(function HomePage() {
               </div>
             </Card>
 
-            <Card role="listitem" onClick={() => window.location.href = '/services'}>
+            <Card role="listitem" onClick={() => navigate('/services')}>
               <div className="feature-card" title="Нажмите, чтобы узнать о наших услугах">
                 <div className="feature-icon">
                   <span aria-hidden="true">🎓</span>
@@ -171,7 +184,7 @@ const HomePage = memo(function HomePage() {
               </div>
             </Card>
 
-            <Card role="listitem" onClick={() => window.location.href = '/pricing'}>
+            <Card role="listitem" onClick={() => navigate('/pricing')}>
               <div className="feature-card" title="Нажмите, чтобы узнать о ценах">
                 <div className="feature-icon">
                   <span aria-hidden="true">💰</span>
@@ -183,7 +196,7 @@ const HomePage = memo(function HomePage() {
               </div>
             </Card>
 
-            <Card role="listitem" onClick={() => window.location.href = '/knowledge'}>
+            <Card role="listitem" onClick={() => navigate('/knowledge')}>
               <div className="feature-card" title="Нажмите, чтобы узнать больше о гарантиях">
                 <div className="feature-icon">
                   <span aria-hidden="true">✅</span>
@@ -316,15 +329,15 @@ const HomePage = memo(function HomePage() {
                   </div>
                 </div>
  
-                <div className="contact-item" role="listitem" onClick={() => window.location.href = '/contacts'}>
+                <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
                   <span className="contact-icon" aria-hidden="true">📍</span>
                   <div>
                     <h3 className="contact-title">{t('homePage.address')}</h3>
                     <p className="contact-text">{t('homePage.fullAddress')}</p>
                   </div>
                 </div>
- 
-                <div className="contact-item" role="listitem" onClick={() => window.location.href = '/contacts'}>
+
+                <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
                   <span className="contact-icon" aria-hidden="true">🕐</span>
                   <div>
                     <h3 className="contact-title">{t('homePage.workingHours')}</h3>

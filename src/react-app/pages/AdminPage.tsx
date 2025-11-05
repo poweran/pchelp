@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
+import Modal from '../components/common/Modal';
 import Loading from '../components/common/Loading';
 import {
   fetchTickets,
@@ -113,6 +114,9 @@ const TicketsSection: React.FC = () => {
     const saved = localStorage.getItem('admin-tickets-auto-refresh');
     return saved ? JSON.parse(saved) : false;
   });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<string>('');
+  const [modalTitle, setModalTitle] = useState<string>('');
 
   const handleAutoRefreshChange = (checked: boolean) => {
     localStorage.setItem('admin-tickets-auto-refresh', JSON.stringify(checked));
@@ -185,6 +189,12 @@ const TicketsSection: React.FC = () => {
       setFeedback(t('admin.tickets.updated'));
     }
     setProcessingId(null);
+  };
+
+  const handleViewDescription = (ticket: Ticket) => {
+    setModalTitle(`${t('admin.tickets.viewDescription')} - ${ticket.clientName}`);
+    setModalContent(ticket.description);
+    setModalOpen(true);
   };
 
   const handleDelete = async (ticketId: string) => {
@@ -288,7 +298,7 @@ const TicketsSection: React.FC = () => {
                   <td>{formatDateTime(ticket.createdAt)}</td>
                   <td>
                     <Button
-                      onClick={() => alert(`${t('admin.tickets.viewDescription')}:\n\n${ticket.description}`)}
+                      onClick={() => handleViewDescription(ticket)}
                       variant="secondary"
                       size="small"
                       title={t('admin.tickets.viewDescription')}
@@ -311,6 +321,16 @@ const TicketsSection: React.FC = () => {
           </table>
         </div>
       )}
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+      >
+        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+          {modalContent}
+        </pre>
+      </Modal>
     </section>
   );
 };

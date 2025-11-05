@@ -68,7 +68,7 @@
   box-shadow: 0 10px 40px rgba(37, 99, 235, 0.15);
   backdrop-filter: blur(20px);
   min-width: 160px;
-  z-index: 1000;
+  z-index: 1002;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px) scale(0.95);

@@ -29,8 +29,8 @@ export function Link({
 
   useEffect(() => {
     // Подписываемся на изменения маршрута
-    const unsubscribe = addRouteChangeListener((path: string) => {
-      setCurrentPath(path);
+    const unsubscribe = addRouteChangeListener(() => {
+      setCurrentPath(getCurrentPath());
     });
 
     // Очистка при размонтировании
