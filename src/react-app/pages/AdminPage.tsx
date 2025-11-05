@@ -842,11 +842,11 @@ const KnowledgeSection: React.FC = () => {
                     onChange={(value) => handleLocalizedChange('content', lang, value)}
                     rows={8}
                     required={lang === 'ru'}
-                    placeholder={`# Заголовок\n\n**Жирный текст**\n\n*Курсив*\n\n- Список\n- Элементов`}
+                    placeholder={t('admin.knowledge.fields.contentPlaceholder')}
                   />
                   {formState.content[lang] && (
                     <div className="admin-form__preview">
-                      <h4 className="admin-form__preview-title">Предпросмотр:</h4>
+                      <h4 className="admin-form__preview-title">{t('admin.knowledge.fields.contentPreview')}:</h4>
                       <div className="admin-form__preview-content">
                         <ReactMarkdown>{formState.content[lang]}</ReactMarkdown>
                       </div>

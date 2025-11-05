@@ -368,7 +368,9 @@
         "title": "Title",
         "content": "Content",
         "category": "Category",
-        "type": "Type"
+        "type": "Type",
+        "contentPlaceholder": "# Heading\n\n**Bold text**\n\n*Italic*\n\n- List\n- Items",
+        "contentPreview": "Preview"
       },
       "type": {
         "faq": "FAQ",

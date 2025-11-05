@@ -293,7 +293,7 @@
       "table": {
         "client": "Հաճախորդ",
         "contact": "Կոնտակտներ",
-        "serviceType": "Ԯառայության տեսակ",
+        "serviceType": "Ծառայության տեսակ",
         "description": "Խնդրի նկարագրություն",
         "priority": "Առաջնահերթություն",
         "status": "Կարգավիճակ",
@@ -368,7 +368,9 @@
         "title": "Վերնագիր",
         "content": "Տեքստ",
         "category": "Կատեգորիա",
-        "type": "Տեսակ"
+        "type": "Տեսակ",
+        "contentPlaceholder": "# Վերնագիր\n\n**Կոշտ տեքստ**\n\n*Շեղատառ*\n\n- Ցուցակ\n- Էլեմենտներ",
+        "contentPreview": "Նախադիտում"
       },
       "type": {
         "faq": "FAQ",
