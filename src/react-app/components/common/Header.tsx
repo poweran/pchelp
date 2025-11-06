@@ -68,6 +68,11 @@ export default function Header({ className = '' }: HeaderProps) {
               </Link>
             </li>
             <li>
+              <Link to="/performance" className={styles.headerNavLink} activeClassName={styles.active}>
+                {t('header.statistics')}
+              </Link>
+            </li>
+            <li>
               <Link to="/pricing" className={styles.headerNavLink} activeClassName={styles.active}>
                 {t('header.pricing')}
               </Link>
@@ -133,6 +138,16 @@ export default function Header({ className = '' }: HeaderProps) {
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t('header.knowledge')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/performance"
+                className={styles.headerMobileNavLink}
+                activeClassName={styles.active}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('header.statistics')}
               </Link>
             </li>
             <li>

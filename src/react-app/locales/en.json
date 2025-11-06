@@ -11,6 +11,7 @@
     "services": "Services",
     "pricing": "Pricing",
     "knowledge": "Knowledge Base",
+    "statistics": "Performance",
     "tickets": "Tickets",
     "contacts": "Contacts",
     "admin": "Admin"
@@ -242,6 +243,170 @@
       "consultation": "Consultation",
       "installation": "Equipment installation",
       "virus-removal": "Virus removal"
+    }
+  },
+  "statisticsPage": {
+    "title": "System performance",
+    "description": "Real-time insight into how your device and our visual effects behave inside the browser.",
+    "updatedAutomatically": "Numbers refresh automatically while this page stays open.",
+    "shared": {
+      "waiting": "Collecting data...",
+      "refresh": "Measure again",
+      "refreshing": "Measuring...",
+      "boolean": {
+        "yes": "Yes",
+        "no": "No",
+        "enabled": "On",
+        "disabled": "Off"
+      }
+    },
+    "performance": {
+      "title": "Rendering performance",
+      "lastUpdated": "Updated at {time}",
+      "waiting": "Waiting for animation data...",
+      "captions": {
+        "state": "Current animation playback state",
+        "fps": "Average over the last ~0.5 seconds",
+        "frameTime": "Target is 16.7 ms for a smooth 60 FPS",
+        "cpu": "Estimated CPU time used per frame",
+        "gpu": "Estimated GPU effort per frame"
+      },
+      "metrics": {
+        "state": "Animation",
+        "fps": "Frame rate",
+        "frameTime": "Frame time",
+        "cpu": "CPU load",
+        "gpu": "GPU load"
+      },
+      "state": {
+        "running": "Running",
+        "paused": "Paused"
+      },
+      "toggle": {
+        "pause": "Pause animation",
+        "play": "Resume animation"
+      }
+    },
+    "system": {
+      "title": "System overview",
+      "subtitle": "Browser-reported basics about your current environment.",
+      "metrics": {
+        "platform": "Platform",
+        "browser": "Browser",
+        "language": "Primary language",
+        "languages": "Preferred languages",
+        "timezone": "Time zone"
+      },
+      "captions": {
+        "platform": "Provided by the Navigator API",
+        "browser": "What your browser shares with websites",
+        "language": "Locale currently active in the UI",
+        "languages": "Ordered by your preference",
+        "timezone": "Resolved via the Intl API"
+      }
+    },
+    "hardware": {
+      "title": "Hardware hints",
+      "subtitle": "Approximate hardware capabilities reported by the browser.",
+      "metrics": {
+        "cpu": "CPU threads",
+        "memory": "Device memory",
+        "gpuVendor": "GPU vendor",
+        "gpuRenderer": "GPU renderer"
+      },
+      "values": {
+        "cpu": "{count} threads"
+      },
+      "captions": {
+        "cpu": "Logical cores available to JavaScript",
+        "memory": "Approximate RAM reported in gigabytes",
+        "gpuVendor": "Source reported by WebGL",
+        "gpuRenderer": "Renderer string from WebGL"
+      }
+    },
+    "screen": {
+      "title": "Display",
+      "subtitle": "Screen dimensions and density hints.",
+      "metrics": {
+        "resolution": "Full resolution",
+        "workspace": "Available workspace",
+        "pixelRatio": "Pixel ratio",
+        "colorDepth": "Color depth"
+      },
+      "values": {
+        "colorDepth": "{depth}-bit"
+      },
+      "captions": {
+        "resolution": "Total physical pixels reported by the screen",
+        "workspace": "Usable area excluding OS bars",
+        "pixelRatio": "Ratio between CSS and device pixels",
+        "colorDepth": "Bit depth reported by the display"
+      }
+    },
+    "memory": {
+      "title": "Runtime memory",
+      "updated": "Measured at {time}",
+      "metrics": {
+        "used": "Used heap",
+        "free": "Free heap",
+        "limit": "Heap limit"
+      },
+      "captions": {
+        "used": "Allocated JavaScript heap currently in use",
+        "free": "Space remaining before hitting the limit",
+        "limit": "Maximum heap size allowed for this tab"
+      }
+    },
+    "storage": {
+      "title": "Storage",
+      "updated": "Estimated at {time}",
+      "unsupported": "Your browser does not expose storage estimates.",
+      "metrics": {
+        "usage": "Used storage",
+        "free": "Free storage",
+        "quota": "Quota",
+        "persisted": "Persistent"
+      },
+      "captions": {
+        "usage": "Approximate usage for this origin",
+        "free": "Estimated free space still available",
+        "quota": "Total storage the browser may grant",
+        "persisted": "Whether data is protected from eviction"
+      }
+    },
+    "network": {
+      "title": "Network",
+      "updated": "Measured at {time}",
+      "unsupported": "Connection details are not available.",
+      "metrics": {
+        "type": "Effective type",
+        "downlink": "Downlink",
+        "rtt": "RTT",
+        "saveData": "Data saver"
+      },
+      "captions": {
+        "type": "Heuristic of your connection quality",
+        "downlink": "Megabits per second reported by the browser",
+        "rtt": "Typical round-trip latency",
+        "saveData": "User preference for reduced data usage"
+      }
+    },
+    "battery": {
+      "title": "Battery",
+      "updated": "Measured at {time}",
+      "unsupported": "Battery status API is not supported.",
+      "metrics": {
+        "level": "Charge level",
+        "charging": "Charging",
+        "chargingTime": "To full",
+        "dischargingTime": "To empty"
+      },
+      "captions": {
+        "level": "Reported charge percentage",
+        "charging": "Whether the device is plugged in",
+        "chargingTime": "Estimated time remaining to reach full charge",
+        "dischargingTime": "Estimated time until battery runs out"
+      }
     }
   },
   "knowledgePage": {

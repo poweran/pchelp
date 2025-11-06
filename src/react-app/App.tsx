@@ -14,6 +14,7 @@ const TicketsPage = lazy(() => import('./pages/TicketsPage'));
 const KnowledgePage = lazy(() => import('./pages/KnowledgePage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const ContactsPage = lazy(() => import('./pages/ContactsPage'));
+const StatisticsPage = lazy(() => import('./pages/StatisticsPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 function App() {
@@ -37,6 +38,11 @@ function App() {
     '/knowledge': () => (
       <Suspense fallback={<Loading />}>
         <KnowledgePage />
+      </Suspense>
+    ),
+    '/performance': () => (
+      <Suspense fallback={<Loading />}>
+        <StatisticsPage />
       </Suspense>
     ),
     '/pricing': () => (
