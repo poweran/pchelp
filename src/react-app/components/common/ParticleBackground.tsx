@@ -11,6 +11,8 @@ interface Particle {
 }
 
 const SPACING = 8;
+const PARTICLE_SIZE = 1.6;
+const ANGLE_CACHE_SCALE = 320;
 const MARGIN = 0;
 const FORCE_RADIUS = 160;
 const DRAG = 0.92;
@@ -91,6 +93,12 @@ const ParticleBackground = () => {
       return;
     }
 
+    const hostname = window.location.hostname;
+    const isLocalhost =
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '::1';
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
@@ -118,6 +126,9 @@ const ParticleBackground = () => {
     let autoVX = 0;
     let autoVY = 0;
     let nextAutoTargetTime = 0;
+    let fpsOverlay: HTMLDivElement | null = null;
+    let fpsFrameCount = 0;
+    let fpsLastUpdate = 0;
 
     const headingNoise = createSmoothNoise(3200, 5200);
     const radiusNoise = createSmoothNoise(2800, 5600);
@@ -130,6 +141,7 @@ const ParticleBackground = () => {
     const shapePhaseNoise = createSmoothNoise(1800, 4200);
     const shapeOutlineNoise = createSmoothNoise(2600, 5200);
     const shapeLobeNoise = createSmoothNoise(3000, 6000);
+    const contourFactorCache = new Map<number, number>();
 
     const setCanvasSize = () => {
       width = window.innerWidth;
@@ -177,6 +189,7 @@ const ParticleBackground = () => {
       const maxX = Math.max(safeMargin, width - safeMargin);
       const maxY = Math.max(safeMargin, height - safeMargin);
       const shouldAutoMove = now - lastMouseMove > 3500;
+      contourFactorCache.clear();
 
       if (shouldAutoMove) {
         const distanceToTarget = Math.hypot(autoTargetX - autoX, autoTargetY - autoY);
@@ -272,17 +285,23 @@ const ParticleBackground = () => {
         const distanceSquared = scaledX * scaledX + scaledY * scaledY || 0.0001;
 
         const angleFromHeading = Math.atan2(scaledY, scaledX);
-        const contourWave = Math.sin(angleFromHeading * lobeCount + shapePhase) * lobeAmplitude;
-        const contourSecondary =
-          Math.sin(angleFromHeading * secondaryLobeCount - shapePhase * phaseOffset) * secondaryAmplitude;
-        const contourFactor = clamp(1 + contourWave + contourSecondary, 0.42, 2.1);
+        const angleKey = Math.round((angleFromHeading + Math.PI) * ANGLE_CACHE_SCALE);
+        let contourFactor = contourFactorCache.get(angleKey);
+        if (contourFactor === undefined) {
+          const contourWave = Math.sin(angleFromHeading * lobeCount + shapePhase) * lobeAmplitude;
+          const contourSecondary =
+            Math.sin(angleFromHeading * secondaryLobeCount - shapePhase * phaseOffset) * secondaryAmplitude;
+          contourFactor = clamp(1 + contourWave + contourSecondary, 0.42, 2.1);
+          contourFactorCache.set(angleKey, contourFactor);
+        }
         const effectiveThickness = thickness * contourFactor * contourFactor;
 
         if (distanceSquared < effectiveThickness) {
           const force = -effectiveThickness / distanceSquared;
-          const angle = Math.atan2(dy, dx);
-          particle.vx += force * Math.cos(angle);
-          particle.vy += force * Math.sin(angle);
+          const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+          const forceScale = force / distance;
+          particle.vx += forceScale * dx;
+          particle.vy += forceScale * dy;
         }
 
         particle.vx *= DRAG;
@@ -296,14 +315,38 @@ const ParticleBackground = () => {
     const renderParticles = () => {
       context.clearRect(0, 0, width, height);
       context.fillStyle = 'rgba(37, 99, 235, 0.45)';
+      context.beginPath();
       for (const particle of particles) {
-        context.fillRect(particle.x, particle.y, 1.6, 1.6);
+        context.rect(particle.x, particle.y, PARTICLE_SIZE, PARTICLE_SIZE);
       }
+      context.fill();
     };
 
+    if (isLocalhost) {
+      fpsOverlay = document.createElement('div');
+      fpsOverlay.className = styles.fpsOverlay;
+      fpsOverlay.textContent = 'FPS: --';
+      container.appendChild(fpsOverlay);
+    }
+
     const step = () => {
+      const now = performance.now();
       updateParticles();
       renderParticles();
+
+      if (isLocalhost && fpsOverlay) {
+        fpsFrameCount += 1;
+        if (fpsLastUpdate === 0) {
+          fpsLastUpdate = now;
+        } else if (now - fpsLastUpdate >= 500) {
+          const elapsed = now - fpsLastUpdate;
+          const fps = (fpsFrameCount * 1000) / elapsed;
+          fpsOverlay.textContent = `FPS: ${Math.round(fps)}`;
+          fpsFrameCount = 0;
+          fpsLastUpdate = now;
+        }
+      }
+
       animationFrameId = window.requestAnimationFrame(step);
     };
 
@@ -320,6 +363,9 @@ const ParticleBackground = () => {
       window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      if (fpsOverlay) {
+        container.removeChild(fpsOverlay);
+      }
       container.removeChild(canvas);
     };
   }, []);
