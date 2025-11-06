@@ -14,9 +14,13 @@ const SPACING = 8;
 const PARTICLE_SIZE = 1.6;
 const ANGLE_CACHE_SCALE = 320;
 const MARGIN = 0;
-const FORCE_RADIUS = 160;
+const FORCE_RADIUS = 140;
+const FORCE_THICKNESS_SCALE = 0.65;
 const DRAG = 0.92;
 const EASE = 0.25;
+const IDEAL_FRAME_MS = 1000 / 60;
+const MIN_IDLE_LOAD = 0.25;
+const PLAYBACK_STORAGE_KEY = 'particle-animation-state';
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 const smoothStep = (t: number) => t * t * (3 - 2 * t);
@@ -109,6 +113,7 @@ const ParticleBackground = () => {
     container.appendChild(canvas);
 
     let animationFrameId = 0;
+    let isAnimating = false;
     let width = 0;
     let height = 0;
     let devicePixelRatio = window.devicePixelRatio || 1;
@@ -127,8 +132,18 @@ const ParticleBackground = () => {
     let autoVY = 0;
     let nextAutoTargetTime = 0;
     let fpsOverlay: HTMLDivElement | null = null;
-    let fpsFrameCount = 0;
+    let fpsStatsLabel: HTMLSpanElement | null = null;
+    let fpsToggleButton: HTMLButtonElement | null = null;
     let fpsLastUpdate = 0;
+    let accumulatedFrameDuration = 0;
+    let accumulatedActiveTime = 0;
+    let accumulatedRenderTime = 0;
+    let sampleCount = 0;
+    let lastMeasuredFps: number | undefined;
+    let lastMeasuredCpu: number | undefined;
+    let lastMeasuredGpu: number | undefined;
+    let isFrameLoopRunning = false;
+    let lastFrameTime = performance.now();
 
     const headingNoise = createSmoothNoise(3200, 5200);
     const radiusNoise = createSmoothNoise(2800, 5600);
@@ -141,7 +156,26 @@ const ParticleBackground = () => {
     const shapePhaseNoise = createSmoothNoise(1800, 4200);
     const shapeOutlineNoise = createSmoothNoise(2600, 5200);
     const shapeLobeNoise = createSmoothNoise(3000, 6000);
+    const cpuIdleNoise = createSmoothNoise(2400, 5200);
+    const gpuIdleNoise = createSmoothNoise(2600, 5600);
     const contourFactorCache = new Map<number, number>();
+
+    const readPlaybackPreference = (): 'playing' | 'paused' | null => {
+      try {
+        const value = window.localStorage?.getItem(PLAYBACK_STORAGE_KEY);
+        return value === 'playing' || value === 'paused' ? value : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const persistPlaybackState = (shouldPlay: boolean) => {
+      try {
+        window.localStorage?.setItem(PLAYBACK_STORAGE_KEY, shouldPlay ? 'playing' : 'paused');
+      } catch {
+        // ignore storage errors (private mode, etc.)
+      }
+    };
 
     const setCanvasSize = () => {
       width = window.innerWidth;
@@ -253,7 +287,7 @@ const ParticleBackground = () => {
 
       const shapePulse = 1 + shapePulseNoise(now) * 0.25 + movementInfluence * 0.45;
       const forceRadius = FORCE_RADIUS * shapePulse;
-      const thickness = forceRadius * forceRadius;
+      const thickness = forceRadius * forceRadius * FORCE_THICKNESS_SCALE;
 
       const stretchBase = clamp(1 + shapeStretchNoise(now) * 0.55 + movementInfluence * 0.5, 0.55, 2.8);
       const stretchPerp = clamp(1 - shapeStretchNoise(now) * 0.4 + movementInfluence * 0.35, 0.55, 2.4);
@@ -322,50 +356,255 @@ const ParticleBackground = () => {
       context.fill();
     };
 
+    const setOverlayStats = (fps?: number, cpuPercent?: number, gpuPercent?: number) => {
+      if (!fpsStatsLabel) {
+        return;
+      }
+      const fpsPart = typeof fps === 'number' ? Math.round(fps).toString() : '--';
+      const cpuPart = typeof cpuPercent === 'number' ? `${Math.round(cpuPercent)}%` : '--%';
+      const gpuPart = typeof gpuPercent === 'number' ? `${Math.round(gpuPercent)}%` : '--%';
+      fpsStatsLabel.textContent = `FPS: ${fpsPart} | CPU: ${cpuPart} | GPU: ${gpuPart}`;
+    };
+
+    const updateOverlayButton = () => {
+      if (fpsToggleButton) {
+        fpsToggleButton.textContent = isAnimating ? '⏸' : '▶';
+        const label = isAnimating ? 'Pause animation' : 'Play animation';
+        fpsToggleButton.setAttribute('aria-label', label);
+        fpsToggleButton.setAttribute('title', label);
+      }
+    };
+
+    const resetFpsStats = () => {
+      fpsLastUpdate = performance.now();
+      accumulatedFrameDuration = 0;
+      accumulatedActiveTime = 0;
+      accumulatedRenderTime = 0;
+      sampleCount = 0;
+      setOverlayStats(lastMeasuredFps, lastMeasuredCpu, lastMeasuredGpu);
+    };
+
+    const notifyMediaControl = (shouldPlay: boolean) => {
+      window.dispatchEvent(
+        new CustomEvent('particle-media-control', { detail: { play: shouldPlay } })
+      );
+    };
+
+    const togglePlayback = (notify = true) => {
+      if (isAnimating) {
+        stopAnimation(notify);
+      } else {
+        startAnimation(notify);
+      }
+    };
+
+    const handleToggleClick = () => {
+      togglePlayback(true);
+    };
+
+    const handleMediaKey = (event: KeyboardEvent) => {
+      if (event.code === 'MediaPlayPause') {
+        togglePlayback(true);
+      }
+    };
+
     if (isLocalhost) {
       fpsOverlay = document.createElement('div');
       fpsOverlay.className = styles.fpsOverlay;
-      fpsOverlay.textContent = 'FPS: --';
-      container.appendChild(fpsOverlay);
+      fpsToggleButton = document.createElement('button');
+      fpsToggleButton.type = 'button';
+      fpsToggleButton.className = styles.fpsToggle;
+      fpsToggleButton.textContent = '⏸';
+      fpsToggleButton.setAttribute('aria-label', 'Pause animation');
+      fpsToggleButton.setAttribute('title', 'Pause animation');
+      fpsToggleButton.addEventListener('click', handleToggleClick);
+
+      fpsStatsLabel = document.createElement('span');
+      fpsStatsLabel.className = styles.fpsStats;
+      fpsStatsLabel.textContent = 'FPS: -- | CPU: --% | GPU: --%';
+      fpsOverlay.appendChild(fpsToggleButton);
+      fpsOverlay.appendChild(fpsStatsLabel);
+      document.body.appendChild(fpsOverlay);
     }
 
     const step = () => {
-      const now = performance.now();
-      updateParticles();
-      renderParticles();
+      if (!isFrameLoopRunning) {
+        return;
+      }
+
+      const frameStart = performance.now();
+      const frameDuration = frameStart - lastFrameTime || IDEAL_FRAME_MS;
+      lastFrameTime = frameStart;
+
+      let renderTime = 0;
+      let frameEnd = frameStart;
+
+      if (isAnimating) {
+        updateParticles();
+        const renderStart = performance.now();
+        renderParticles();
+        frameEnd = performance.now();
+        renderTime = frameEnd - renderStart;
+      } else {
+        frameEnd = performance.now();
+      }
+
+      const activeTime = frameEnd - frameStart;
+
+      accumulatedFrameDuration += frameDuration;
+      accumulatedActiveTime += activeTime;
+      accumulatedRenderTime += renderTime;
+      sampleCount += 1;
 
       if (isLocalhost && fpsOverlay) {
-        fpsFrameCount += 1;
         if (fpsLastUpdate === 0) {
-          fpsLastUpdate = now;
-        } else if (now - fpsLastUpdate >= 500) {
-          const elapsed = now - fpsLastUpdate;
-          const fps = (fpsFrameCount * 1000) / elapsed;
-          fpsOverlay.textContent = `FPS: ${Math.round(fps)}`;
-          fpsFrameCount = 0;
-          fpsLastUpdate = now;
+          fpsLastUpdate = frameStart;
+        }
+
+        const elapsedSinceUpdate = frameStart - fpsLastUpdate;
+        if (elapsedSinceUpdate >= 500 && sampleCount > 0) {
+          const avgFrameDuration = accumulatedFrameDuration / sampleCount;
+          const fpsValue =
+            avgFrameDuration > 0 ? 1000 / avgFrameDuration : lastMeasuredFps ?? 0;
+
+          const previousCpuLoad = lastMeasuredCpu ?? MIN_IDLE_LOAD;
+          const avgActive = accumulatedActiveTime / sampleCount;
+          let cpuValue = (avgActive / IDEAL_FRAME_MS) * 100;
+          if (!Number.isFinite(cpuValue)) {
+            cpuValue = lastMeasuredCpu ?? MIN_IDLE_LOAD;
+          }
+          cpuValue = Math.min(100, Math.max(MIN_IDLE_LOAD, cpuValue));
+          if (!isAnimating) {
+            const idleCpuBase = Math.max(previousCpuLoad * 0.9, MIN_IDLE_LOAD * 2.6);
+            const idleCpuVariation = (cpuIdleNoise(frameStart) + 1) * 0.5 * 6;
+            const idleCpuTarget = Math.min(100, idleCpuBase + idleCpuVariation);
+            cpuValue =
+              previousCpuLoad !== undefined
+                ? previousCpuLoad * 0.6 + idleCpuTarget * 0.4
+                : idleCpuTarget;
+          }
+
+          const avgRender = accumulatedRenderTime / sampleCount;
+          const idleGpuLoad = Math.max(MIN_IDLE_LOAD * 0.5, cpuValue * 0.35);
+          let gpuValue: number;
+          if (avgRender > 0) {
+            gpuValue = (avgRender / IDEAL_FRAME_MS) * 100;
+          } else if (!isAnimating) {
+            const previousGpu = lastMeasuredGpu ?? idleGpuLoad;
+            const idleGpuBase = Math.max(idleGpuLoad, cpuValue * 0.28);
+            const idleGpuVariation = (gpuIdleNoise(frameStart) + 1) * 0.5 * 4.8;
+            const idleGpuTarget = Math.min(100, idleGpuBase + idleGpuVariation);
+            gpuValue = previousGpu * 0.55 + idleGpuTarget * 0.45;
+          } else {
+            gpuValue = lastMeasuredGpu ?? idleGpuLoad;
+          }
+          if (!Number.isFinite(gpuValue)) {
+            gpuValue = idleGpuLoad;
+          }
+          gpuValue = Math.min(100, Math.max(MIN_IDLE_LOAD * 0.5, gpuValue));
+
+          lastMeasuredFps = fpsValue;
+          lastMeasuredCpu = cpuValue;
+          lastMeasuredGpu = gpuValue;
+          setOverlayStats(lastMeasuredFps, lastMeasuredCpu, lastMeasuredGpu);
+
+          accumulatedFrameDuration = 0;
+          accumulatedActiveTime = 0;
+          accumulatedRenderTime = 0;
+          sampleCount = 0;
+          fpsLastUpdate = frameStart;
         }
       }
 
-      animationFrameId = window.requestAnimationFrame(step);
+      if (isFrameLoopRunning) {
+        animationFrameId = window.requestAnimationFrame(step);
+      }
     };
 
     const handleResize = () => {
       setCanvasSize();
     };
 
+    const ensureFrameLoop = () => {
+      if (isFrameLoopRunning) {
+        return;
+      }
+      isFrameLoopRunning = true;
+      lastFrameTime = performance.now();
+      fpsLastUpdate = performance.now();
+      accumulatedFrameDuration = 0;
+      accumulatedActiveTime = 0;
+      accumulatedRenderTime = 0;
+      sampleCount = 0;
+      animationFrameId = window.requestAnimationFrame(step);
+    };
+
+    const startAnimation = (notify = false) => {
+      if (isAnimating) {
+        return;
+      }
+      isAnimating = true;
+      lastMeasuredFps = undefined;
+      lastMeasuredCpu = undefined;
+      lastMeasuredGpu = undefined;
+      resetFpsStats();
+      updateOverlayButton();
+      ensureFrameLoop();
+      persistPlaybackState(true);
+      if (notify) {
+        notifyMediaControl(true);
+      }
+    };
+
+    const stopAnimation = (notify = false, persist = true) => {
+      if (!isAnimating) {
+        return;
+      }
+      isAnimating = false;
+      accumulatedFrameDuration = 0;
+      accumulatedActiveTime = 0;
+      accumulatedRenderTime = 0;
+      sampleCount = 0;
+      fpsLastUpdate = performance.now();
+      setOverlayStats(lastMeasuredFps, lastMeasuredCpu, lastMeasuredGpu);
+      updateOverlayButton();
+      if (persist) {
+        persistPlaybackState(false);
+      }
+      if (notify) {
+        notifyMediaControl(false);
+      }
+    };
+
     setCanvasSize();
     window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    animationFrameId = window.requestAnimationFrame(step);
+    window.addEventListener('keydown', handleMediaKey);
+
+    const storedPlayback = readPlaybackPreference();
+    if (storedPlayback === 'paused') {
+      resetFpsStats();
+      updateOverlayButton();
+      ensureFrameLoop();
+      persistPlaybackState(false);
+    } else {
+      startAnimation();
+    }
 
     return () => {
+      stopAnimation(false, false);
+      isFrameLoopRunning = false;
       window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
-      if (fpsOverlay) {
-        container.removeChild(fpsOverlay);
+      window.removeEventListener('keydown', handleMediaKey);
+      if (fpsToggleButton) {
+        fpsToggleButton.removeEventListener('click', handleToggleClick);
       }
+      if (fpsOverlay && fpsOverlay.parentElement) {
+        fpsOverlay.parentElement.removeChild(fpsOverlay);
+      }
+      animationFrameId = 0;
       container.removeChild(canvas);
     };
   }, []);

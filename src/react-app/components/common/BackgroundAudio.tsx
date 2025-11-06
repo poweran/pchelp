@@ -17,6 +17,8 @@ export function BackgroundAudio(): ReactElement {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loopTimeoutRef = useRef<number | null>(null);
   const interactionHandlerRef = useRef<(() => void) | null>(null);
+  const isManuallyPausedRef = useRef<boolean>(false);
+  const attemptPlayRef = useRef<(() => void) | null>(null);
   const [isWaitingForNextTrack, setIsWaitingForNextTrack] = useState<boolean>(false);
   const [playlist, setPlaylist] = useState<string[]>(() => {
     if (typeof window === 'undefined') {
@@ -57,6 +59,9 @@ export function BackgroundAudio(): ReactElement {
     };
 
     const attemptPlay = () => {
+      if (isManuallyPausedRef.current) {
+        return;
+      }
       const playPromise = audio.play();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise.catch(() => {
@@ -75,9 +80,10 @@ export function BackgroundAudio(): ReactElement {
         });
       }
     };
+    attemptPlayRef.current = attemptPlay;
 
     const handleCanPlay = () => {
-      if (isWaitingForNextTrack) {
+      if (isWaitingForNextTrack || isManuallyPausedRef.current) {
         return;
       }
       audio.removeEventListener('canplay', handleCanPlay);
@@ -105,7 +111,7 @@ export function BackgroundAudio(): ReactElement {
     audio.volume = DEFAULT_VOLUME;
     audio.addEventListener('ended', handleEnded);
 
-    if (isWaitingForNextTrack) {
+    if (isWaitingForNextTrack || isManuallyPausedRef.current) {
       audio.pause();
     } else {
       audio.pause();
@@ -131,6 +137,63 @@ export function BackgroundAudio(): ReactElement {
         window.clearTimeout(loopTimeoutRef.current);
         loopTimeoutRef.current = null;
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = () => audioRef.current;
+
+    const requestPlay = () => {
+      const el = audio();
+      if (!el) {
+        return;
+      }
+      isManuallyPausedRef.current = false;
+      if (attemptPlayRef.current) {
+        attemptPlayRef.current();
+      } else {
+        el.play().catch(() => undefined);
+      }
+    };
+
+    const requestPause = () => {
+      const el = audio();
+      if (!el) {
+        return;
+      }
+      isManuallyPausedRef.current = true;
+      el.pause();
+    };
+
+    const handleMediaKey = (event: KeyboardEvent) => {
+      if (event.code !== 'MediaPlayPause') {
+        return;
+      }
+      const el = audio();
+      if (!el) {
+        return;
+      }
+      if (el.paused || isManuallyPausedRef.current) {
+        requestPlay();
+      } else {
+        requestPause();
+      }
+    };
+
+    const handleParticleControl = (event: Event) => {
+      const custom = event as CustomEvent<{ play?: boolean }>;
+      if (custom.detail?.play) {
+        requestPlay();
+      } else {
+        requestPause();
+      }
+    };
+
+    window.addEventListener('keydown', handleMediaKey);
+    window.addEventListener('particle-media-control', handleParticleControl as EventListener);
+    return () => {
+      window.removeEventListener('keydown', handleMediaKey);
+      window.removeEventListener('particle-media-control', handleParticleControl as EventListener);
     };
   }, []);
 

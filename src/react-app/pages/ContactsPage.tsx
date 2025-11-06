@@ -188,7 +188,7 @@ const ContactsPage: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="contact-form">
             <div className="form-group">
-              <label htmlFor="clientName">{t('contactsPage.nameLabel')}</label>
+              <label htmlFor="clientName">{t('contactsPage.nameLabel')} *</label>
               <Input
                 type="text"
                 placeholder={t('contactsPage.namePlaceholder')}
@@ -200,7 +200,7 @@ const ContactsPage: React.FC = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">Телефон *</label>
+              <label htmlFor="phone">{t('contactsPage.phoneLabel')} *</label>
               <Input
                 type="tel"
                 placeholder="+374 (99) 12-34-56"
