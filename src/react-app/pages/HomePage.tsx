@@ -162,9 +162,6 @@ const HomePage = memo(function HomePage() {
               element?.scrollIntoView({ behavior: 'smooth' });
             }}>
               <div className="feature-card" title="Нажмите, чтобы перейти к форме">
-                <div className="feature-icon">
-                  <span aria-hidden="true">⚡</span>
-                </div>
                 <h3 className="feature-title">{t('homePage.quickResponse')}</h3>
                 <p className="feature-description">
                   {t('homePage.quickResponseDesc')}
@@ -174,9 +171,6 @@ const HomePage = memo(function HomePage() {
 
             <Card role="listitem" onClick={() => navigate('/services')}>
               <div className="feature-card" title="Нажмите, чтобы узнать о наших услугах">
-                <div className="feature-icon">
-                  <span aria-hidden="true">🎓</span>
-                </div>
                 <h3 className="feature-title">{t('homePage.professionalism')}</h3>
                 <p className="feature-description">
                   {t('homePage.professionalismDesc')}
@@ -186,9 +180,6 @@ const HomePage = memo(function HomePage() {
 
             <Card role="listitem" onClick={() => navigate('/pricing')}>
               <div className="feature-card" title="Нажмите, чтобы узнать о ценах">
-                <div className="feature-icon">
-                  <span aria-hidden="true">💰</span>
-                </div>
                 <h3 className="feature-title">{t('homePage.fairPrices')}</h3>
                 <p className="feature-description">
                   {t('homePage.fairPricesDesc')}
@@ -198,9 +189,6 @@ const HomePage = memo(function HomePage() {
 
             <Card role="listitem" onClick={() => navigate('/knowledge')}>
               <div className="feature-card" title="Нажмите, чтобы узнать больше о гарантиях">
-                <div className="feature-icon">
-                  <span aria-hidden="true">✅</span>
-                </div>
                 <h3 className="feature-title">{t('homePage.qualityGuarantee')}</h3>
                 <p className="feature-description">
                   {t('homePage.qualityGuaranteeDesc')}

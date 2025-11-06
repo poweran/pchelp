@@ -85,7 +85,7 @@ export default function TicketsPage() {
         </section>
 
         {/* Tabs навигация */}
-        <section style={tabsSectionStyle} className="tickets-tabs">
+        <section className="tickets-tabs">
           <div style={containerStyle}>
             <div style={tabsContainerStyle}>
               <Button
@@ -216,14 +216,6 @@ const pageSubtitleStyle: CSSProperties = {
   maxWidth: '600px',
   margin: '0 auto',
   lineHeight: '1.6',
-};
-
-const tabsSectionStyle: CSSProperties = {
-  backgroundColor: '#ffffff',
-  borderBottom: '1px solid #e2e8f0',
-  position: 'sticky',
-  top: '73px',
-  zIndex: 100,
 };
 
 const tabsContainerStyle: CSSProperties = {
