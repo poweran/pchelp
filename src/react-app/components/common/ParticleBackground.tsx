@@ -384,27 +384,21 @@ const ParticleBackground = () => {
       setOverlayStats(lastMeasuredFps, lastMeasuredCpu, lastMeasuredGpu);
     };
 
-    const notifyMediaControl = (shouldPlay: boolean) => {
-      window.dispatchEvent(
-        new CustomEvent('particle-media-control', { detail: { play: shouldPlay } })
-      );
-    };
-
-    const togglePlayback = (notify = true) => {
+    const togglePlayback = () => {
       if (isAnimating) {
-        stopAnimation(notify);
+        stopAnimation();
       } else {
-        startAnimation(notify);
+        startAnimation();
       }
     };
 
     const handleToggleClick = () => {
-      togglePlayback(true);
+      togglePlayback();
     };
 
     const handleMediaKey = (event: KeyboardEvent) => {
       if (event.code === 'MediaPlayPause') {
-        togglePlayback(true);
+        togglePlayback();
       }
     };
 
@@ -539,7 +533,7 @@ const ParticleBackground = () => {
       animationFrameId = window.requestAnimationFrame(step);
     };
 
-    const startAnimation = (notify = false) => {
+    const startAnimation = () => {
       if (isAnimating) {
         return;
       }
@@ -551,12 +545,9 @@ const ParticleBackground = () => {
       updateOverlayButton();
       ensureFrameLoop();
       persistPlaybackState(true);
-      if (notify) {
-        notifyMediaControl(true);
-      }
     };
 
-    const stopAnimation = (notify = false, persist = true) => {
+    const stopAnimation = (persist = true) => {
       if (!isAnimating) {
         return;
       }
@@ -570,9 +561,6 @@ const ParticleBackground = () => {
       updateOverlayButton();
       if (persist) {
         persistPlaybackState(false);
-      }
-      if (notify) {
-        notifyMediaControl(false);
       }
     };
 
@@ -592,7 +580,7 @@ const ParticleBackground = () => {
     }
 
     return () => {
-      stopAnimation(false, false);
+      stopAnimation(false);
       isFrameLoopRunning = false;
       window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
