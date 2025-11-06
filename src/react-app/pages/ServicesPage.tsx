@@ -1,6 +1,7 @@
 import { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ServiceList } from '../components/services/ServiceList';
+import { navigate } from '../utils/router';
 import './ServicesPage.css';
 
 export default function ServicesPage() {
@@ -35,7 +36,7 @@ export default function ServicesPage() {
             </p>
             <div style={ctaButtonsStyle}>
               <button
-                onClick={() => window.location.href = '/tickets'}
+                onClick={() => navigate('/tickets')}
                 style={ctaButtonStyle}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#1d4ed8';
