@@ -11,7 +11,7 @@
     "services": "Services",
     "pricing": "Pricing",
     "knowledge": "Knowledge Base",
-    "statistics": "Performance",
+    "performance": "Performance",
     "tickets": "Tickets",
     "contacts": "Contacts",
     "admin": "Admin"
@@ -245,7 +245,7 @@
       "virus-removal": "Virus removal"
     }
   },
-  "statisticsPage": {
+  "performancePage": {
     "title": "System performance",
     "description": "Real-time insight into how your device and our visual effects behave inside the browser.",
     "updatedAutomatically": "Numbers refresh automatically while this page stays open.",

@@ -69,7 +69,7 @@ export default function Header({ className = '' }: HeaderProps) {
             </li>
             <li>
               <Link to="/performance" className={styles.headerNavLink} activeClassName={styles.active}>
-                {t('header.statistics')}
+                {t('header.performance')}
               </Link>
             </li>
             <li>
@@ -147,7 +147,7 @@ export default function Header({ className = '' }: HeaderProps) {
                 activeClassName={styles.active}
                 onClick={() => setIsMenuOpen(false)}
               >
-                {t('header.statistics')}
+                {t('header.performance')}
               </Link>
             </li>
             <li>

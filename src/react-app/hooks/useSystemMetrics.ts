@@ -1,5 +1,43 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+interface NavigatorBrandInfo {
+  brand: string;
+  version: string;
+}
+
+interface NavigatorUADataLike {
+  brands: NavigatorBrandInfo[];
+  platform?: string;
+}
+
+type ConnectionChangeListener = () => void;
+
+interface NetworkInformationLike {
+  effectiveType?: string;
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+  addEventListener?: (type: 'change', listener: ConnectionChangeListener) => void;
+  removeEventListener?: (type: 'change', listener: ConnectionChangeListener) => void;
+}
+
+type BatteryEventName = 'chargingchange' | 'levelchange' | 'chargingtimechange' | 'dischargingtimechange';
+
+interface BatteryManagerLike {
+  charging?: boolean;
+  level?: number;
+  chargingTime?: number;
+  dischargingTime?: number;
+  addEventListener?: (type: BatteryEventName, listener: EventListener) => void;
+  removeEventListener?: (type: BatteryEventName, listener: EventListener) => void;
+}
+
+interface PerformanceMemoryLike {
+  jsHeapSizeLimit: number;
+  totalJSHeapSize: number;
+  usedJSHeapSize: number;
+}
+
 interface SystemInfo {
   platform: string | null;
   userAgent: string | null;
@@ -67,17 +105,17 @@ type RefreshHandlers = {
 };
 
 type NavigatorWithExtras = Navigator & {
-  userAgentData?: NavigatorUAData;
+  userAgentData?: NavigatorUADataLike;
   deviceMemory?: number;
   storage?: StorageManager & {
     persisted?: () => Promise<boolean>;
   };
-  connection?: NetworkInformation;
-  getBattery?: () => Promise<BatteryManager>;
+  connection?: NetworkInformationLike;
+  getBattery?: () => Promise<BatteryManagerLike>;
 };
 
 interface PerformanceWithMemory extends Performance {
-  memory?: PerformanceMemory;
+  memory?: PerformanceMemoryLike;
 }
 
 function getNavigatorWithExtras(): NavigatorWithExtras | null {
@@ -170,14 +208,17 @@ function collectGpuInfo(): Pick<HardwareInfo, 'gpuVendor' | 'gpuRenderer'> {
   try {
     const canvas = document.createElement('canvas');
     const gl =
-      canvas.getContext('webgl') ||
-      canvas.getContext('experimental-webgl');
+      (canvas.getContext('webgl') as WebGLRenderingContext | null) ||
+      (canvas.getContext('experimental-webgl') as WebGLRenderingContext | null);
 
     if (!gl) {
       return { gpuVendor: null, gpuRenderer: null };
     }
 
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info') as {
+      UNMASKED_VENDOR_WEBGL: number;
+      UNMASKED_RENDERER_WEBGL: number;
+    } | null;
     if (!debugInfo) {
       return { gpuVendor: null, gpuRenderer: null };
     }
@@ -216,10 +257,10 @@ function collectSystemSnapshot(): Omit<SystemMetrics, 'memory' | 'storage' | 'co
 
   const { gpuVendor, gpuRenderer } = collectGpuInfo();
 
-  const brands = nav.userAgentData?.brands ?? null;
+  const brands = nav.userAgentData?.brands as NavigatorBrandInfo[] | undefined;
   const userAgent =
     brands && brands.length > 0
-      ? brands.map(({ brand, version }) => `${brand} ${version}`).join(', ')
+      ? brands.map(entry => `${entry.brand} ${entry.version}`).join(', ')
       : nav.userAgent ?? null;
 
   return {
@@ -296,7 +337,7 @@ export function useSystemMetrics(): { metrics: SystemMetrics; refresh: RefreshHa
     };
   });
 
-  const batteryManagerRef = useRef<BatteryManager | null>(null);
+  const batteryManagerRef = useRef<BatteryManagerLike | null>(null);
   const batteryHandlerRef = useRef<EventListener | null>(null);
 
   const refreshSystem = useCallback(() => {
@@ -373,7 +414,7 @@ export function useSystemMetrics(): { metrics: SystemMetrics; refresh: RefreshHa
     }
   }, []);
 
-  const updateBatteryFromManager = useCallback((manager: BatteryManager | null) => {
+  const updateBatteryFromManager = useCallback((manager: BatteryManagerLike | null) => {
     if (!manager) {
       setMetrics(prev => ({
         ...prev,
@@ -446,7 +487,9 @@ export function useSystemMetrics(): { metrics: SystemMetrics; refresh: RefreshHa
 
     if (connection) {
       refreshNetwork();
-      connection.addEventListener('change', handleConnectionChange);
+      if (typeof connection.addEventListener === 'function') {
+        connection.addEventListener('change', handleConnectionChange);
+      }
     }
 
     refreshStorage();
@@ -457,9 +500,17 @@ export function useSystemMetrics(): { metrics: SystemMetrics; refresh: RefreshHa
         .then(manager => {
           batteryManagerRef.current = manager;
           updateBatteryFromManager(manager);
-          const handler: EventListener = () => updateBatteryFromManager(manager);
-          batteryHandlerRef.current = handler;
-          BATTERY_EVENTS.forEach(event => manager.addEventListener(event, handler));
+          if (typeof manager.addEventListener === 'function') {
+            const handler: EventListener = () => updateBatteryFromManager(manager);
+            batteryHandlerRef.current = handler;
+            const addListener = manager.addEventListener.bind(manager) as (
+              type: BatteryEventName,
+              listener: EventListener
+            ) => void;
+            BATTERY_EVENTS.forEach(event => addListener(event, handler));
+          } else {
+            batteryHandlerRef.current = null;
+          }
         })
         .catch(() => {
           updateBatteryFromManager(null);
@@ -470,13 +521,17 @@ export function useSystemMetrics(): { metrics: SystemMetrics; refresh: RefreshHa
 
     return () => {
       window.clearInterval(memoryInterval);
-      if (connection) {
+      if (connection && typeof connection.removeEventListener === 'function') {
         connection.removeEventListener('change', handleConnectionChange);
       }
       const batteryManager = batteryManagerRef.current;
       const batteryHandler = batteryHandlerRef.current;
-      if (batteryManager && batteryHandler) {
-        BATTERY_EVENTS.forEach(event => batteryManager.removeEventListener(event, batteryHandler));
+      if (batteryManager && batteryHandler && typeof batteryManager.removeEventListener === 'function') {
+        const removeListener = batteryManager.removeEventListener.bind(batteryManager) as (
+          type: BatteryEventName,
+          listener: EventListener
+        ) => void;
+        BATTERY_EVENTS.forEach(event => removeListener(event, batteryHandler));
       }
     };
   }, [refreshSystem, refreshMemory, refreshNetwork, refreshStorage, updateBatteryFromManager]);

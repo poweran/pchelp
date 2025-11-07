@@ -1,11 +1,41 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import './StatisticsPage.css';
+import './PerformancePage.css';
 import { useParticleMetrics } from '../hooks/useParticleMetrics';
 import { useSystemMetrics } from '../hooks/useSystemMetrics';
 import { SET_PARTICLE_ANIMATION_EVENT } from '../components/common/ParticleBackground';
 
+type IntlListFormatter = {
+  format: (values: readonly string[]) => string;
+};
+
+type IntlListFormatCtor = new (
+  locales: string | string[],
+  options?: {
+    style?: 'long' | 'short' | 'narrow';
+    type?: 'conjunction' | 'disjunction' | 'unit';
+  }
+) => IntlListFormatter;
+
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'] as const;
+const LONG_VALUE_THRESHOLD = 36;
+const EXTRA_LONG_VALUE_THRESHOLD = 72;
+
+function getMetricValueClassName(value: unknown): string {
+  if (typeof value !== 'string') {
+    return 'metric-value';
+  }
+
+  if (value.length >= EXTRA_LONG_VALUE_THRESHOLD) {
+    return 'metric-value metric-value--xlong';
+  }
+
+  if (value.length >= LONG_VALUE_THRESHOLD) {
+    return 'metric-value metric-value--long';
+  }
+
+  return 'metric-value';
+}
 
 function formatBytes(
   value: number | null,
@@ -60,7 +90,7 @@ function formatPercentage(
   return `${integerFormatter.format(Math.round(value * 100))}%`;
 }
 
-export default function StatisticsPage() {
+export default function PerformancePage() {
   const { t, i18n } = useTranslation();
   const particleMetrics = useParticleMetrics();
   const { metrics: systemMetrics, refresh } = useSystemMetrics();
@@ -136,13 +166,17 @@ export default function StatisticsPage() {
 
   const listFormatter = useMemo(() => {
     try {
-      return new Intl.ListFormat(i18n.language, {
-        style: 'long',
-        type: 'conjunction',
-      });
+      const ListFormatCtor = (Intl as any).ListFormat as IntlListFormatCtor | undefined;
+      if (typeof ListFormatCtor === 'function') {
+        return new ListFormatCtor(i18n.language, {
+          style: 'long',
+          type: 'conjunction',
+        });
+      }
     } catch {
-      return null;
+      // ListFormat not supported or failed to instantiate
     }
+    return null;
   }, [i18n.language]);
 
   const languagesValue =
@@ -182,349 +216,349 @@ export default function StatisticsPage() {
   const performanceCards = [
     {
       key: 'state',
-      label: t('statisticsPage.performance.metrics.state'),
+      label: t('performancePage.performance.metrics.state'),
       value: t(
         particleMetrics.isAnimating
-          ? 'statisticsPage.performance.state.running'
-          : 'statisticsPage.performance.state.paused'
+          ? 'performancePage.performance.state.running'
+          : 'performancePage.performance.state.paused'
       ),
-      caption: t('statisticsPage.performance.captions.state'),
+      caption: t('performancePage.performance.captions.state'),
     },
     {
       key: 'fps',
-      label: t('statisticsPage.performance.metrics.fps'),
+      label: t('performancePage.performance.metrics.fps'),
       value: fpsValue,
-      caption: t('statisticsPage.performance.captions.fps'),
+      caption: t('performancePage.performance.captions.fps'),
     },
     {
       key: 'frameTime',
-      label: t('statisticsPage.performance.metrics.frameTime'),
+      label: t('performancePage.performance.metrics.frameTime'),
       value: frameTimeValue,
-      caption: t('statisticsPage.performance.captions.frameTime'),
+      caption: t('performancePage.performance.captions.frameTime'),
     },
     {
       key: 'cpu',
-      label: t('statisticsPage.performance.metrics.cpu'),
+      label: t('performancePage.performance.metrics.cpu'),
       value: cpuValue,
-      caption: t('statisticsPage.performance.captions.cpu'),
+      caption: t('performancePage.performance.captions.cpu'),
     },
     {
       key: 'gpu',
-      label: t('statisticsPage.performance.metrics.gpu'),
+      label: t('performancePage.performance.metrics.gpu'),
       value: gpuValue,
-      caption: t('statisticsPage.performance.captions.gpu'),
+      caption: t('performancePage.performance.captions.gpu'),
     },
   ];
 
   const systemCards = [
     {
       key: 'platform',
-      label: t('statisticsPage.system.metrics.platform'),
+      label: t('performancePage.system.metrics.platform'),
       value: systemMetrics.system.platform ?? '—',
-      caption: t('statisticsPage.system.captions.platform'),
+      caption: t('performancePage.system.captions.platform'),
     },
     {
       key: 'browser',
-      label: t('statisticsPage.system.metrics.browser'),
+      label: t('performancePage.system.metrics.browser'),
       value: systemMetrics.system.userAgent ?? '—',
-      caption: t('statisticsPage.system.captions.browser'),
+      caption: t('performancePage.system.captions.browser'),
     },
     {
       key: 'language',
-      label: t('statisticsPage.system.metrics.language'),
+      label: t('performancePage.system.metrics.language'),
       value: systemMetrics.system.language ?? '—',
-      caption: t('statisticsPage.system.captions.language'),
+      caption: t('performancePage.system.captions.language'),
     },
     {
       key: 'languages',
-      label: t('statisticsPage.system.metrics.languages'),
+      label: t('performancePage.system.metrics.languages'),
       value: languagesValue,
-      caption: t('statisticsPage.system.captions.languages'),
+      caption: t('performancePage.system.captions.languages'),
     },
     {
       key: 'timezone',
-      label: t('statisticsPage.system.metrics.timezone'),
+      label: t('performancePage.system.metrics.timezone'),
       value: systemMetrics.system.timezone ?? '—',
-      caption: t('statisticsPage.system.captions.timezone'),
+      caption: t('performancePage.system.captions.timezone'),
     },
   ];
 
   const hardwareCards = [
     {
       key: 'cpu',
-      label: t('statisticsPage.hardware.metrics.cpu'),
+      label: t('performancePage.hardware.metrics.cpu'),
       value:
         systemMetrics.hardware.hardwareConcurrency !== null
-          ? t('statisticsPage.hardware.values.cpu', {
-              count: integerFormatter.format(systemMetrics.hardware.hardwareConcurrency),
+          ? t('performancePage.hardware.values.cpu', {
+              count: systemMetrics.hardware.hardwareConcurrency,
             })
           : '—',
-      caption: t('statisticsPage.hardware.captions.cpu'),
+      caption: t('performancePage.hardware.captions.cpu'),
     },
     {
       key: 'memory',
-      label: t('statisticsPage.hardware.metrics.memory'),
+      label: t('performancePage.hardware.metrics.memory'),
       value:
         systemMetrics.hardware.deviceMemoryGB !== null
           ? `${decimalFormatter.format(systemMetrics.hardware.deviceMemoryGB)} GB`
           : '—',
-      caption: t('statisticsPage.hardware.captions.memory'),
+      caption: t('performancePage.hardware.captions.memory'),
     },
     {
       key: 'gpuVendor',
-      label: t('statisticsPage.hardware.metrics.gpuVendor'),
+      label: t('performancePage.hardware.metrics.gpuVendor'),
       value: systemMetrics.hardware.gpuVendor ?? '—',
-      caption: t('statisticsPage.hardware.captions.gpuVendor'),
+      caption: t('performancePage.hardware.captions.gpuVendor'),
     },
     {
       key: 'gpuRenderer',
-      label: t('statisticsPage.hardware.metrics.gpuRenderer'),
+      label: t('performancePage.hardware.metrics.gpuRenderer'),
       value: systemMetrics.hardware.gpuRenderer ?? '—',
-      caption: t('statisticsPage.hardware.captions.gpuRenderer'),
+      caption: t('performancePage.hardware.captions.gpuRenderer'),
     },
   ];
 
   const screenCards = [
     {
       key: 'resolution',
-      label: t('statisticsPage.screen.metrics.resolution'),
+      label: t('performancePage.screen.metrics.resolution'),
       value:
         systemMetrics.screen.width !== null && systemMetrics.screen.height !== null
           ? `${integerFormatter.format(systemMetrics.screen.width)} × ${integerFormatter.format(
               systemMetrics.screen.height
             )}`
           : '—',
-      caption: t('statisticsPage.screen.captions.resolution'),
+      caption: t('performancePage.screen.captions.resolution'),
     },
     {
       key: 'workspace',
-      label: t('statisticsPage.screen.metrics.workspace'),
+      label: t('performancePage.screen.metrics.workspace'),
       value:
         systemMetrics.screen.availWidth !== null && systemMetrics.screen.availHeight !== null
           ? `${integerFormatter.format(
               systemMetrics.screen.availWidth
             )} × ${integerFormatter.format(systemMetrics.screen.availHeight)}`
           : '—',
-      caption: t('statisticsPage.screen.captions.workspace'),
+      caption: t('performancePage.screen.captions.workspace'),
     },
     {
       key: 'pixelRatio',
-      label: t('statisticsPage.screen.metrics.pixelRatio'),
+      label: t('performancePage.screen.metrics.pixelRatio'),
       value:
         systemMetrics.screen.pixelRatio !== null
           ? decimalFormatter.format(systemMetrics.screen.pixelRatio)
           : '—',
-      caption: t('statisticsPage.screen.captions.pixelRatio'),
+      caption: t('performancePage.screen.captions.pixelRatio'),
     },
     {
       key: 'colorDepth',
-      label: t('statisticsPage.screen.metrics.colorDepth'),
+      label: t('performancePage.screen.metrics.colorDepth'),
       value:
         systemMetrics.screen.colorDepth !== null
-          ? t('statisticsPage.screen.values.colorDepth', {
+          ? t('performancePage.screen.values.colorDepth', {
               depth: integerFormatter.format(systemMetrics.screen.colorDepth),
             })
           : '—',
-      caption: t('statisticsPage.screen.captions.colorDepth'),
+      caption: t('performancePage.screen.captions.colorDepth'),
     },
   ];
 
   const memoryCards = [
     {
       key: 'usedHeap',
-      label: t('statisticsPage.memory.metrics.used'),
+      label: t('performancePage.memory.metrics.used'),
       value: formatBytes(systemMetrics.memory.usedJSHeapSize, decimalFormatter, '—'),
-      caption: t('statisticsPage.memory.captions.used'),
+      caption: t('performancePage.memory.captions.used'),
     },
     {
       key: 'freeHeap',
-      label: t('statisticsPage.memory.metrics.free'),
+      label: t('performancePage.memory.metrics.free'),
       value: formatBytes(memoryAvailable, decimalFormatter, '—'),
-      caption: t('statisticsPage.memory.captions.free'),
+      caption: t('performancePage.memory.captions.free'),
     },
     {
       key: 'limitHeap',
-      label: t('statisticsPage.memory.metrics.limit'),
+      label: t('performancePage.memory.metrics.limit'),
       value: formatBytes(systemMetrics.memory.jsHeapSizeLimit, decimalFormatter, '—'),
-      caption: t('statisticsPage.memory.captions.limit'),
+      caption: t('performancePage.memory.captions.limit'),
     },
   ];
 
   const storageCards = [
     {
       key: 'usage',
-      label: t('statisticsPage.storage.metrics.usage'),
+      label: t('performancePage.storage.metrics.usage'),
       value: formatBytes(systemMetrics.storage.usage, decimalFormatter, '—'),
-      caption: t('statisticsPage.storage.captions.usage'),
+      caption: t('performancePage.storage.captions.usage'),
     },
     {
       key: 'free',
-      label: t('statisticsPage.storage.metrics.free'),
+      label: t('performancePage.storage.metrics.free'),
       value: formatBytes(storageFree, decimalFormatter, '—'),
-      caption: t('statisticsPage.storage.captions.free'),
+      caption: t('performancePage.storage.captions.free'),
     },
     {
       key: 'quota',
-      label: t('statisticsPage.storage.metrics.quota'),
+      label: t('performancePage.storage.metrics.quota'),
       value: formatBytes(systemMetrics.storage.quota, decimalFormatter, '—'),
-      caption: t('statisticsPage.storage.captions.quota'),
+      caption: t('performancePage.storage.captions.quota'),
     },
     {
       key: 'persisted',
-      label: t('statisticsPage.storage.metrics.persisted'),
+      label: t('performancePage.storage.metrics.persisted'),
       value:
         systemMetrics.storage.persisted === null
           ? '—'
           : t(
               systemMetrics.storage.persisted
-                ? 'statisticsPage.shared.boolean.yes'
-                : 'statisticsPage.shared.boolean.no'
+                ? 'performancePage.shared.boolean.yes'
+                : 'performancePage.shared.boolean.no'
             ),
-      caption: t('statisticsPage.storage.captions.persisted'),
+      caption: t('performancePage.storage.captions.persisted'),
     },
   ];
 
   const networkCards = [
     {
       key: 'effectiveType',
-      label: t('statisticsPage.network.metrics.type'),
+      label: t('performancePage.network.metrics.type'),
       value: systemMetrics.connection.effectiveType ?? '—',
-      caption: t('statisticsPage.network.captions.type'),
+      caption: t('performancePage.network.captions.type'),
     },
     {
       key: 'downlink',
-      label: t('statisticsPage.network.metrics.downlink'),
+      label: t('performancePage.network.metrics.downlink'),
       value:
         systemMetrics.connection.downlink !== null
           ? `${decimalFormatter.format(systemMetrics.connection.downlink)} Mbps`
           : '—',
-      caption: t('statisticsPage.network.captions.downlink'),
+      caption: t('performancePage.network.captions.downlink'),
     },
     {
       key: 'rtt',
-      label: t('statisticsPage.network.metrics.rtt'),
+      label: t('performancePage.network.metrics.rtt'),
       value:
         systemMetrics.connection.rtt !== null
           ? `${integerFormatter.format(systemMetrics.connection.rtt)} ms`
           : '—',
-      caption: t('statisticsPage.network.captions.rtt'),
+      caption: t('performancePage.network.captions.rtt'),
     },
     {
       key: 'saveData',
-      label: t('statisticsPage.network.metrics.saveData'),
+      label: t('performancePage.network.metrics.saveData'),
       value:
         systemMetrics.connection.saveData === null
           ? '—'
           : t(
               systemMetrics.connection.saveData
-                ? 'statisticsPage.shared.boolean.enabled'
-                : 'statisticsPage.shared.boolean.disabled'
+                ? 'performancePage.shared.boolean.enabled'
+                : 'performancePage.shared.boolean.disabled'
             ),
-      caption: t('statisticsPage.network.captions.saveData'),
+      caption: t('performancePage.network.captions.saveData'),
     },
   ];
 
   const batteryCards = [
     {
       key: 'level',
-      label: t('statisticsPage.battery.metrics.level'),
+      label: t('performancePage.battery.metrics.level'),
       value: formatPercentage(systemMetrics.battery.level, integerFormatter, '—'),
-      caption: t('statisticsPage.battery.captions.level'),
+      caption: t('performancePage.battery.captions.level'),
     },
     {
       key: 'charging',
-      label: t('statisticsPage.battery.metrics.charging'),
+      label: t('performancePage.battery.metrics.charging'),
       value:
         systemMetrics.battery.charging === null
           ? '—'
           : t(
               systemMetrics.battery.charging
-                ? 'statisticsPage.shared.boolean.yes'
-                : 'statisticsPage.shared.boolean.no'
+                ? 'performancePage.shared.boolean.yes'
+                : 'performancePage.shared.boolean.no'
             ),
-      caption: t('statisticsPage.battery.captions.charging'),
+      caption: t('performancePage.battery.captions.charging'),
     },
     {
       key: 'chargingTime',
-      label: t('statisticsPage.battery.metrics.chargingTime'),
+      label: t('performancePage.battery.metrics.chargingTime'),
       value: formatSeconds(systemMetrics.battery.chargingTime, integerFormatter, '—'),
-      caption: t('statisticsPage.battery.captions.chargingTime'),
+      caption: t('performancePage.battery.captions.chargingTime'),
     },
     {
       key: 'dischargingTime',
-      label: t('statisticsPage.battery.metrics.dischargingTime'),
+      label: t('performancePage.battery.metrics.dischargingTime'),
       value: formatSeconds(systemMetrics.battery.dischargingTime, integerFormatter, '—'),
-      caption: t('statisticsPage.battery.captions.dischargingTime'),
+      caption: t('performancePage.battery.captions.dischargingTime'),
     },
   ];
 
   const sections = [
     {
       key: 'system',
-      title: t('statisticsPage.system.title'),
-      subtitle: t('statisticsPage.system.subtitle'),
+      title: t('performancePage.system.title'),
+      subtitle: t('performancePage.system.subtitle'),
       cards: systemCards,
     },
     {
       key: 'hardware',
-      title: t('statisticsPage.hardware.title'),
-      subtitle: t('statisticsPage.hardware.subtitle'),
+      title: t('performancePage.hardware.title'),
+      subtitle: t('performancePage.hardware.subtitle'),
       cards: hardwareCards,
     },
     {
       key: 'screen',
-      title: t('statisticsPage.screen.title'),
-      subtitle: t('statisticsPage.screen.subtitle'),
+      title: t('performancePage.screen.title'),
+      subtitle: t('performancePage.screen.subtitle'),
       cards: screenCards,
     },
     {
       key: 'memory',
-      title: t('statisticsPage.memory.title'),
+      title: t('performancePage.memory.title'),
       subtitle:
         memoryTimestamp !== null
-          ? t('statisticsPage.memory.updated', { time: timeFormatter.format(memoryTimestamp) })
-          : t('statisticsPage.shared.waiting'),
+          ? t('performancePage.memory.updated', { time: timeFormatter.format(memoryTimestamp) })
+          : t('performancePage.shared.waiting'),
       cards: memoryCards,
       refreshAction: refresh.memory,
     },
     {
       key: 'storage',
-      title: t('statisticsPage.storage.title'),
+      title: t('performancePage.storage.title'),
       subtitle:
         storageTimestamp !== null
-          ? t('statisticsPage.storage.updated', { time: timeFormatter.format(storageTimestamp) })
+          ? t('performancePage.storage.updated', { time: timeFormatter.format(storageTimestamp) })
           : t(
               systemMetrics.storage.supported
-                ? 'statisticsPage.shared.waiting'
-                : 'statisticsPage.storage.unsupported'
+                ? 'performancePage.shared.waiting'
+                : 'performancePage.storage.unsupported'
             ),
       cards: storageCards,
       refreshAction: refresh.storage,
     },
     {
       key: 'network',
-      title: t('statisticsPage.network.title'),
+      title: t('performancePage.network.title'),
       subtitle:
         networkTimestamp !== null
-          ? t('statisticsPage.network.updated', { time: timeFormatter.format(networkTimestamp) })
+          ? t('performancePage.network.updated', { time: timeFormatter.format(networkTimestamp) })
           : t(
               systemMetrics.connection.supported
-                ? 'statisticsPage.shared.waiting'
-                : 'statisticsPage.network.unsupported'
+                ? 'performancePage.shared.waiting'
+                : 'performancePage.network.unsupported'
             ),
       cards: networkCards,
       refreshAction: refresh.network,
     },
     {
       key: 'battery',
-      title: t('statisticsPage.battery.title'),
+      title: t('performancePage.battery.title'),
       subtitle:
         systemMetrics.battery.supported && batteryTimestamp !== null
-          ? t('statisticsPage.battery.updated', { time: timeFormatter.format(batteryTimestamp) })
+          ? t('performancePage.battery.updated', { time: timeFormatter.format(batteryTimestamp) })
           : t(
               systemMetrics.battery.supported
-                ? 'statisticsPage.shared.waiting'
-                : 'statisticsPage.battery.unsupported'
+                ? 'performancePage.shared.waiting'
+                : 'performancePage.battery.unsupported'
             ),
       cards: batteryCards,
       refreshAction: refresh.battery,
@@ -532,41 +566,41 @@ export default function StatisticsPage() {
   ];
 
   return (
-    <div className="statistics-page">
-      <section className="statistics-header hero">
-        <h1>{t('statisticsPage.title')}</h1>
-        <p>{t('statisticsPage.description')}</p>
-        <p className="statistics-hint">{t('statisticsPage.updatedAutomatically')}</p>
+    <div className="performance-page">
+      <section className="performance-header hero">
+        <h1>{t('performancePage.title')}</h1>
+        <p>{t('performancePage.description')}</p>
+        <p className="performance-hint">{t('performancePage.updatedAutomatically')}</p>
       </section>
 
-      <section className="statistics-section">
-        <div className="statistics-section-header">
-          <h2>{t('statisticsPage.performance.title')}</h2>
+      <section className="performance-section">
+        <div className="performance-section-header">
+          <h2>{t('performancePage.performance.title')}</h2>
           <button
             type="button"
-            className={`statistics-action-button${
-              particleMetrics.isAnimating ? '' : ' statistics-action-button--paused'
+            className={`performance-action-button${
+              particleMetrics.isAnimating ? '' : ' performance-action-button--paused'
             }`}
             onClick={handleAnimationToggle}
             aria-pressed={!particleMetrics.isAnimating}
           >
             {particleMetrics.isAnimating
-              ? t('statisticsPage.performance.toggle.pause')
-              : t('statisticsPage.performance.toggle.play')}
+              ? t('performancePage.performance.toggle.pause')
+              : t('performancePage.performance.toggle.play')}
           </button>
         </div>
-        <p className="statistics-subtitle">
+        <p className="performance-subtitle">
           {performanceTimestamp
-            ? t('statisticsPage.performance.lastUpdated', {
+            ? t('performancePage.performance.lastUpdated', {
                 time: timeFormatter.format(performanceTimestamp),
               })
-            : t('statisticsPage.performance.waiting')}
+            : t('performancePage.performance.waiting')}
         </p>
         <div className="metrics-grid">
           {performanceCards.map(card => (
             <article key={card.key} className="metric-card">
               <span className="metric-label">{card.label}</span>
-              <span className="metric-value">{card.value}</span>
+              <span className={getMetricValueClassName(card.value)}>{card.value}</span>
               <span className="metric-caption">{card.caption}</span>
             </article>
           ))}
@@ -576,28 +610,28 @@ export default function StatisticsPage() {
       {sections.map(section => {
         const isRefreshing = Boolean(refreshing[section.key]);
         return (
-          <section key={section.key} className="statistics-section">
-            <div className="statistics-section-header">
+          <section key={section.key} className="performance-section">
+            <div className="performance-section-header">
               <h2>{section.title}</h2>
               {section.refreshAction && (
                 <button
                   type="button"
-                  className="statistics-action-button"
+                  className="performance-action-button"
                   onClick={() => handleRefresh(section.key, section.refreshAction)}
                   disabled={isRefreshing}
                 >
                   {isRefreshing
-                    ? t('statisticsPage.shared.refreshing')
-                    : t('statisticsPage.shared.refresh')}
+                    ? t('performancePage.shared.refreshing')
+                    : t('performancePage.shared.refresh')}
                 </button>
               )}
             </div>
-            <p className="statistics-subtitle">{section.subtitle}</p>
+            <p className="performance-subtitle">{section.subtitle}</p>
             <div className="metrics-grid compact">
               {section.cards.map(card => (
                 <article key={card.key} className="metric-card">
                   <span className="metric-label">{card.label}</span>
-                  <span className="metric-value">{card.value}</span>
+                  <span className={getMetricValueClassName(card.value)}>{card.value}</span>
                   <span className="metric-caption">{card.caption}</span>
                 </article>
               ))}

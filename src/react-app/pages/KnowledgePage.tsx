@@ -128,14 +128,12 @@ const KnowledgePage: React.FC = () => {
             onClick={() => handleTabChange('faq')}
             variant={activeTab === 'faq' ? 'primary' : 'secondary'}
           >
-            <span style={{fontSize: '1.25rem'}}>❓</span>
             {t('knowledgePage.tabFaq')}
           </Button>
           <Button
             onClick={() => handleTabChange('articles')}
             variant={activeTab === 'articles' ? 'primary' : 'secondary'}
           >
-            <span style={{fontSize: '1.25rem'}}>📄</span>
             {t('knowledgePage.tabArticles')}
           </Button>
         </div>
