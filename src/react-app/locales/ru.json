@@ -458,7 +458,7 @@
       "services": "Услуги",
       "pricing": "Прайс",
       "knowledge": "База знаний",
-      "changelog": "Changelog"
+      "changelog": "Изменения"
     },
     "actions": {
       "refresh": "Обновить",
@@ -601,7 +601,7 @@
       "deleted": "Запись удалена."
     },
     "changelog": {
-      "title": "Changelog",
+      "title": "Изменения",
       "subtitle": "Коротко фиксируем ключевые изменения.",
       "empty": "Здесь пока пусто."
     },
