@@ -1,9 +1,9 @@
-import { useState, FormEvent, useEffect, useMemo } from 'react';
+import { useState, FormEvent, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from '../../hooks/useTickets';
 import { useTicketPricing } from '../../hooks/useTicketPricing';
 import { useServices } from '../../hooks/useServices';
-import type { TicketFormData, TicketPriority, Service, LanguageCode, LocalizedText } from '../../types';
+import type { Ticket, TicketFormData, TicketPriority, Service, LanguageCode, LocalizedText } from '../../types';
 import Input from '../common/Input';
 import Textarea from '../common/Textarea';
 import Button from '../common/Button';
@@ -35,7 +35,7 @@ const initialFormData: TicketFormData = {
 };
 
 interface TicketFormProps {
-  onTicketCreated: (ticket: TicketFormData) => void;
+  onTicketCreated: (ticket: Ticket | TicketFormData) => void;
 }
 
 export default function TicketForm({ onTicketCreated }: TicketFormProps) {
@@ -43,6 +43,7 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
     const [formData, setFormData] = useState<TicketFormData>(initialFormData);
     const [errors, setErrors] = useState<FormErrors>({});
     const [prefilledFromQuery, setPrefilledFromQuery] = useState(false);
+    const successTimeoutRef = useRef<number | null>(null);
     const {
       loading,
       error,
@@ -50,7 +51,6 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
       submitTicket,
       resetSuccess,
       resetError,
-      fetchTickets,
     } = useTickets();
     const {
       services,
@@ -214,18 +214,13 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
       }
     }, [success]);
 
-    // Периодическое обновление списка тикетов каждые 5 секунд
     useEffect(() => {
-      const intervalId = setInterval(() => {
-        fetchTickets();
-      }, 5000);
-
-      return () => clearInterval(intervalId);
-    }, [fetchTickets]);
-
-    useEffect(() => {
-      fetchTickets(); // первоначальная загрузка тикетов
-    }, [fetchTickets]);
+      return () => {
+        if (successTimeoutRef.current) {
+          window.clearTimeout(successTimeoutRef.current);
+        }
+      };
+    }, []);
 
   // Валидация email
   const validateEmail = (email: string): boolean => {
@@ -293,23 +288,19 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
 
     if (result.success) {
       // Notify parent component about the new ticket
-      onTicketCreated(payload);
-
-      // Сохранение данных пользователя в localStorage для фильтрации тикетов и автозаполнения формы
-      const userIdentifier = JSON.stringify({
-        clientName: formData.clientName,
-        email: formData.email,
-        phone: formData.phone
-      });
-      localStorage.setItem('userIdentifier', userIdentifier);
+      onTicketCreated(result.data ?? payload);
 
       // Очистка формы после успешной отправки
       setFormData(initialFormData);
       setErrors({});
 
       // Автоматически скрыть сообщение об успехе через 5 секунд
-      setTimeout(() => {
+      if (successTimeoutRef.current) {
+        window.clearTimeout(successTimeoutRef.current);
+      }
+      successTimeoutRef.current = window.setTimeout(() => {
         resetSuccess();
+        successTimeoutRef.current = null;
       }, 5000);
     }
   };

@@ -1,17 +1,56 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { Ticket, TicketFormData } from '../types';
-import { createTicket, fetchTicketById } from '../utils/api';
+import {
+  createTicket,
+  fetchTicketById,
+  fetchUserTickets,
+} from '../utils/api';
+import { computeClientKey } from '../utils/clientKey';
 
-const fetchTickets = async () => {
-  try {
-    const response = await fetch('/api/tickets'); // Adjust the API endpoint as necessary
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return await response.json();
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : 'Failed to fetch tickets' };
+const USER_IDENTIFIER_KEY = 'userIdentifier';
+
+interface StoredUserIdentifier {
+  clientName: string;
+  email: string;
+  phone: string;
+  clientKey?: string;
+}
+
+const readStoredIdentifier = (): StoredUserIdentifier | null => {
+  if (typeof window === 'undefined') {
+    return null;
   }
+  try {
+    const raw = window.localStorage.getItem(USER_IDENTIFIER_KEY);
+    if (!raw) {
+      return null;
+    }
+    return JSON.parse(raw) as StoredUserIdentifier;
+  } catch (error) {
+    console.error('Failed to parse stored user identifier:', error);
+    return null;
+  }
+};
+
+const persistIdentifier = (identifier: StoredUserIdentifier) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.localStorage.setItem(USER_IDENTIFIER_KEY, JSON.stringify(identifier));
+};
+
+const buildIdentifierFromForm = (data: TicketFormData): StoredUserIdentifier => ({
+  clientName: data.clientName.trim(),
+  email: data.email.trim(),
+  phone: data.phone.trim(),
+});
+
+const ensureIdentifierHasKey = async (identifier: StoredUserIdentifier): Promise<StoredUserIdentifier> => {
+  if (identifier.clientKey) {
+    return identifier;
+  }
+  const clientKey = await computeClientKey(identifier);
+  return { ...identifier, clientKey };
 };
 
 interface UseTicketsState {
@@ -37,11 +76,40 @@ export function useTickets() {
     error: null,
     success: false,
   });
+  const [clientKey, setClientKey] = useState<string | null>(() => readStoredIdentifier()?.clientKey ?? null);
+
+  const resolveStoredClientKey = useCallback(async (): Promise<string | null> => {
+    const stored = readStoredIdentifier();
+    if (!stored) {
+      return null;
+    }
+    const withKey = await ensureIdentifierHasKey(stored);
+    if (withKey.clientKey) {
+      persistIdentifier(withKey);
+      setClientKey(withKey.clientKey);
+      return withKey.clientKey;
+    }
+    return null;
+  }, []);
+
+  const persistIdentityFromForm = useCallback(async (ticketData: TicketFormData, providedKey?: string | null) => {
+    const baseIdentity = buildIdentifierFromForm(ticketData);
+    let nextKey = providedKey ?? null;
+    if (!nextKey) {
+      nextKey = await computeClientKey(baseIdentity);
+    }
+    if (nextKey) {
+      const identifierWithKey: StoredUserIdentifier = { ...baseIdentity, clientKey: nextKey };
+      persistIdentifier(identifierWithKey);
+      setClientKey(nextKey);
+    }
+    return nextKey;
+  }, []);
 
   /**
    * Создание новой заявки
    */
-  const submitTicket = async (ticketData: TicketFormData) => {
+  const submitTicket = useCallback(async (ticketData: TicketFormData) => {
     setState(prev => ({ ...prev, loading: true, error: null, success: false }));
 
     try {
@@ -50,35 +118,48 @@ export function useTickets() {
       if (response.error) {
         setState(prev => ({ ...prev, loading: false, error: response.error!, success: false }));
         return { success: false, error: response.error };
-      } else {
-        // После успешного создания обновляем список тикетов
-        const ticketsResponse = await fetchTickets();
-
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: null,
-          success: true,
-          tickets: ticketsResponse.data ? Array.isArray(ticketsResponse.data) ? ticketsResponse.data : [] : prev.tickets
-        }));
-        return { success: true, data: response.data };
       }
+
+      const persistedKey = await persistIdentityFromForm(ticketData, response.data?.clientKey ?? null);
+
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: null,
+        success: true,
+      }));
+
+      const responseData = response.data ? { ...response.data, clientKey: response.data.clientKey ?? persistedKey ?? null } : undefined;
+
+      return { success: true, data: responseData };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create ticket';
       setState(prev => ({ ...prev, loading: false, error: message, success: false }));
       return { success: false, error: message };
     }
-  };
+  }, [persistIdentityFromForm]);
 
   /**
    * Загрузка списка заявок
    */
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     setState(prev => ({ ...prev, loading: true, error: null }));
-    
+
     try {
-      const response = await fetchTickets();
-      
+      const key = clientKey ?? await resolveStoredClientKey();
+
+      if (!key) {
+        setState(prev => ({
+          ...prev,
+          tickets: [],
+          loading: false,
+          error: null,
+        }));
+        return;
+      }
+
+      const response = await fetchUserTickets(key);
+
       if (response.error) {
         setState(prev => ({ ...prev, tickets: [], loading: false, error: response.error! }));
       } else {
@@ -86,14 +167,14 @@ export function useTickets() {
           ...prev,
           tickets: Array.isArray(response.data) ? response.data : [],
           loading: false,
-          error: null
+          error: null,
         }));
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load tickets';
       setState(prev => ({ ...prev, tickets: [], loading: false, error: message }));
     }
-  };
+  }, [clientKey, resolveStoredClientKey]);
 
   /**
    * Сброс состояния success
@@ -111,11 +192,11 @@ export function useTickets() {
 
   return {
     ...state,
+    clientKey,
     submitTicket,
     loadTickets,
     resetSuccess,
     resetError,
-    fetchTickets,
   };
 }
 
@@ -131,10 +212,18 @@ export function useTicket(_id: string | null) {
 
   const loadTicket = async (ticketId: string) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
-    
+
     try {
-      const response = await fetchTicketById(ticketId);
-      
+      const stored = readStoredIdentifier();
+      let key = stored?.clientKey ?? null;
+      if (stored && !key) {
+        const withKey = await ensureIdentifierHasKey(stored);
+        key = withKey.clientKey ?? null;
+        persistIdentifier(withKey);
+      }
+
+      const response = await fetchTicketById(ticketId, key ?? undefined);
+
       if (response.error) {
         setState({ ticket: null, loading: false, error: response.error });
       } else {

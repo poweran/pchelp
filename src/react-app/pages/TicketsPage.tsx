@@ -9,51 +9,28 @@ import './TicketsPage.css';
 
 type TabType = 'create' | 'my-tickets';
 
-interface UserIdentifier {
-  clientName: string;
-  email: string;
-  phone: string;
-}
-
 export default function TicketsPage() {
       const { t } = useTranslation();
       const [activeTab, setActiveTab] = useState<TabType>('create');
       const [searchQuery, setSearchQuery] = useState('');
-      const { tickets, loading, error, loadTickets } = useTickets();
+      const { tickets, loading, error, loadTickets, clientKey } = useTickets();
+      useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, [activeTab]);
 
       // Инициализация загрузки тикетов при первом рендере
       useEffect(() => {
         loadTickets();
-      }, []);
+      }, [loadTickets]);
 
-      // Получение идентификатора пользователя из localStorage для фильтрации
-      const userIdentifierString = localStorage.getItem('userIdentifier');
-      const userIdentifier = userIdentifierString ? JSON.parse(userIdentifierString) as UserIdentifier : null;
-
-      // Фильтрация тикетов: сначала по идентификатору пользователя, затем по поисковому запросу
-      let filteredTickets = tickets;
-
-      // Если пользователь авторизован (есть сохраненные данные), показывать только его тикеты
-      if (userIdentifier) {
-        filteredTickets = filteredTickets.filter(ticket =>
-          ticket.clientName === userIdentifier.clientName &&
-          ticket.email === userIdentifier.email &&
-          ticket.phone === userIdentifier.phone
-        );
-      } else {
-        // Если нет информации о пользователе в localStorage, не показывать никакие тикеты
-        filteredTickets = [];
-      }
-
-     // Дополнительная фильтрация по поисковому запросу
-     filteredTickets = searchQuery
-       ? filteredTickets.filter(ticket =>
-           ticket.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           ticket.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           ticket.id.toLowerCase().includes(searchQuery.toLowerCase())
-         )
-       : filteredTickets;
+      const filteredTickets = searchQuery
+        ? tickets.filter(ticket =>
+            ticket.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ticket.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ticket.id.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : tickets;
 
     const [refreshing, setRefreshing] = useState(false);
 
@@ -154,7 +131,13 @@ export default function TicketsPage() {
                 </div>
 
                 {/* Список заявок */}
-                <TicketList tickets={filteredTickets} loading={loading || refreshing} error={error} loadTickets={loadTickets} />
+                <TicketList
+                  tickets={filteredTickets}
+                  loading={loading || refreshing}
+                  error={error}
+                  loadTickets={loadTickets}
+                  clientKey={clientKey}
+                />
 
                 {/* Подсказка если нет заявок */}
                 <div style={hintBoxStyle}>

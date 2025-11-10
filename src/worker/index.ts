@@ -70,6 +70,7 @@ interface Ticket {
   basePrice: number | null;
   formatSurcharge: number | null;
   finalPrice: number | null;
+  clientKey?: string | null;
 }
 
 interface KnowledgeItem {
@@ -107,6 +108,69 @@ const DEFAULT_FORMAT_SURCHARGES: Record<ServiceFormat, number> = {
   'on-site': 2000,
   'service-center': 0,
 };
+
+const VALID_ADMIN_TOKENS = [
+  'admin-token-2024-secure',
+  'dev-admin-token-123'
+];
+
+const CLIENT_KEY_HEADER = 'x-client-key';
+
+const getAuthToken = (c: any): string | null => {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  return authHeader.slice(7);
+};
+
+const isValidAdminToken = (token: string | null): boolean => {
+  if (!token) {
+    return false;
+  }
+  return VALID_ADMIN_TOKENS.includes(token);
+};
+
+const isAdminRequest = (c: any): boolean => {
+  const token = getAuthToken(c);
+  return isValidAdminToken(token);
+};
+
+const sanitizeClientKey = (value?: string | null): string | null => {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  return normalized;
+};
+
+const bufferToHex = (buffer: ArrayBuffer): string => {
+  return Array.from(new Uint8Array(buffer))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+};
+
+async function generateClientKey(clientName: string, email: string, phone: string): Promise<string> {
+  const normalized = [clientName, email, phone]
+    .map(part => (typeof part === 'string' ? part.trim().toLowerCase() : ''))
+    .join('|');
+
+  if (typeof crypto !== 'undefined' && crypto.subtle && typeof crypto.subtle.digest === 'function') {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(normalized);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      return bufferToHex(digest);
+    } catch (error) {
+      console.error('Failed to generate hash for client key, falling back to plain key:', error);
+    }
+  }
+
+  return normalized;
+}
 
 // Функция отправки email через Resend
 async function sendEmail(env: Env, subject: string, htmlContent: string) {
@@ -211,24 +275,15 @@ const adminAuthMiddleware = async (c: any, next: any) => {
   }
 
   // Получаем заголовок авторизации
-  const authHeader = c.req.header('Authorization');
+  const token = getAuthToken(c);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     return c.json({
       error: 'Отсутствует или некорректный токен авторизации',
       details: 'Требуется Bearer токен для доступа к админским функциям'
     }, 401);
   }
-
-  const token = authHeader.slice(7); // Убираем 'Bearer '
-
-  // Простая проверка токена (в продакшене использовать более безопасные методы)
-  const validTokens = [
-    'admin-token-2024-secure', // Для продакшена
-    'dev-admin-token-123'      // Для разработки
-  ];
-
-  if (!validTokens.includes(token)) {
+  if (!isValidAdminToken(token)) {
     return c.json({
       error: 'Недействительный токен авторизации',
       details: 'Предоставленный токен не найден в списке допустимых'
@@ -1328,6 +1383,22 @@ const pickPriceFromRow = (row: { price?: number | null; min_price?: number | nul
   return null;
 };
 
+const mapTicketRow = (row: any): Ticket => ({
+  id: row.id as string,
+  clientName: row.client_name as string,
+  phone: row.phone as string,
+  email: row.email as string,
+  serviceType: row.service_type as string,
+  serviceFormat: (row.service_format as ServiceFormat) ?? 'remote',
+  description: row.description as string,
+  priority: row.priority as TicketPriority,
+  status: row.status as TicketStatus,
+  createdAt: row.created_at as string,
+  basePrice: typeof row.base_price === 'number' ? row.base_price : null,
+  formatSurcharge: typeof row.format_surcharge === 'number' ? row.format_surcharge : null,
+  finalPrice: typeof row.final_price === 'number' ? row.final_price : null,
+});
+
 async function estimateCategoryBasePrice(env: Env, category: ServiceCategory | null): Promise<number | null> {
   if (!category) {
     return null;
@@ -1602,6 +1673,7 @@ async function ensureTicketsTable(env: Env) {
       base_price REAL,
       format_surcharge REAL,
       final_price REAL,
+      client_key TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
@@ -1610,7 +1682,8 @@ async function ensureTicketsTable(env: Env) {
     "ALTER TABLE tickets ADD COLUMN service_format TEXT DEFAULT 'remote'",
     'ALTER TABLE tickets ADD COLUMN base_price REAL',
     'ALTER TABLE tickets ADD COLUMN format_surcharge REAL',
-    'ALTER TABLE tickets ADD COLUMN final_price REAL'
+    'ALTER TABLE tickets ADD COLUMN final_price REAL',
+    'ALTER TABLE tickets ADD COLUMN client_key TEXT'
   ];
 
   for (const statement of optionalColumns) {
@@ -1654,6 +1727,75 @@ async function listServiceFormatSettings(env: Env): Promise<ServiceFormatSetting
     format: row.format as ServiceFormat,
     surcharge: Number(row.surcharge) || 0,
   }));
+}
+
+async function processTicketUpdate(c: any) {
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const env = c.env as Env;
+  await ensureTicketsTable(env);
+
+  const existingTicket = await env.DB.prepare(
+    'SELECT * FROM tickets WHERE id = ?'
+  ).bind(id).first();
+
+  if (!existingTicket) {
+    return c.json({
+      error: 'Заявка не найдена'
+    }, 404);
+  }
+
+  if (body.status && !['new', 'in-progress', 'completed', 'cancelled'].includes(body.status)) {
+    return c.json({
+      error: 'Некорректный статус заявки',
+      details: ['Статус должен быть одним из: new, in-progress, completed, cancelled']
+    }, 400);
+  }
+
+  if (body.priority && !['low', 'medium', 'high'].includes(body.priority)) {
+    return c.json({
+      error: 'Некорректный приоритет заявки',
+      details: ['Приоритет должен быть одним из: low, medium, high']
+    }, 400);
+  }
+
+  const updateFields: string[] = [];
+  const updateValues: any[] = [];
+
+  if (body.status) {
+    updateFields.push('status = ?');
+    updateValues.push(body.status);
+  }
+  if (body.priority) {
+    updateFields.push('priority = ?');
+    updateValues.push(body.priority);
+  }
+
+  if (updateFields.length > 0) {
+    updateValues.push(id);
+    const result = await env.DB.prepare(
+      `UPDATE tickets SET ${updateFields.join(', ')} WHERE id = ?`
+    ).bind(...updateValues).run();
+
+    if (!result.success) {
+      throw new Error('Failed to update ticket in database');
+    }
+  }
+
+  const updatedTicketResult = await env.DB.prepare(
+    'SELECT * FROM tickets WHERE id = ?'
+  ).bind(id).first();
+
+  if (!updatedTicketResult) {
+    throw new Error('Failed to retrieve updated ticket');
+  }
+
+  const updatedTicket: Ticket = mapTicketRow(updatedTicketResult);
+
+  return c.json({
+    data: updatedTicket,
+    message: 'Заявка успешно обновлена'
+  });
 }
 
 async function getServiceFormatSurcharge(env: Env, format: ServiceFormat): Promise<number> {
@@ -1910,7 +2052,7 @@ app.post('/api/tickets', async (c) => {
       }, 400);
     }
 
-    // Генерация уникального ID для заявки (простая версия без проверки уникальности)
+    // Генерация уникального ID и клиентского ключа
     const ticketId = generateTicketId();
     const serviceType = body.serviceType.trim();
     const serviceFormat = sanitizeServiceFormat(body.serviceFormat);
@@ -1918,6 +2060,7 @@ app.post('/api/tickets', async (c) => {
     const formatSurcharge = await getServiceFormatSurcharge(env, serviceFormat);
     const finalPrice = basePrice !== null ? basePrice + formatSurcharge : null;
     const serviceTitleForEmail = await resolveServiceTitle(env, serviceType, 'ru');
+    const clientKey = await generateClientKey(body.clientName, body.email, body.phone);
 
     // Создание новой заявки
     const newTicket: Ticket = {
@@ -1934,14 +2077,15 @@ app.post('/api/tickets', async (c) => {
       basePrice,
       formatSurcharge,
       finalPrice,
+      clientKey,
     };
 
     // Сохранение в D1 базу данных
     const result = await env.DB.prepare(
       `INSERT INTO tickets (
         id, client_name, phone, email, service_type, service_format,
-        description, priority, status, base_price, format_surcharge, final_price, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        description, priority, status, base_price, format_surcharge, final_price, client_key, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       newTicket.id,
@@ -1956,6 +2100,7 @@ app.post('/api/tickets', async (c) => {
       newTicket.basePrice,
       newTicket.formatSurcharge,
       newTicket.finalPrice,
+      clientKey,
       newTicket.createdAt
     )
     .run();
@@ -1995,29 +2140,31 @@ app.get('/api/tickets', async (c) => {
   try {
     const env = c.env as Env;
     await ensureTicketsTable(env);
-    const result = await env.DB.prepare(
-      'SELECT * FROM tickets ORDER BY created_at DESC'
-    ).all();
+    const isAdmin = isAdminRequest(c);
 
-    const tickets: Ticket[] = (result.results ?? []).map((row: any) => ({
-      id: row.id,
-      clientName: row.client_name,
-      phone: row.phone,
-      email: row.email,
-      serviceType: row.service_type,
-      serviceFormat: (row.service_format as ServiceFormat) ?? 'remote',
-      description: row.description,
-      priority: row.priority,
-      status: row.status,
-      createdAt: row.created_at,
-      basePrice: typeof row.base_price === 'number' ? row.base_price : null,
-      formatSurcharge: typeof row.format_surcharge === 'number' ? row.format_surcharge : null,
-      finalPrice: typeof row.final_price === 'number' ? row.final_price : null,
-    }));
+    let query = 'SELECT * FROM tickets ORDER BY created_at DESC';
+    let bindArgs: any[] = [];
+
+    if (!isAdmin) {
+      const clientKey = sanitizeClientKey(c.req.header(CLIENT_KEY_HEADER));
+      if (!clientKey) {
+        return c.json({
+          error: 'Недостаточно прав для просмотра заявок',
+          details: ['Укажите корректный клиентский ключ в заголовке X-Client-Key']
+        }, 401);
+      }
+      query = 'SELECT * FROM tickets WHERE client_key = ? ORDER BY created_at DESC';
+      bindArgs = [clientKey];
+    }
+
+    const statement = bindArgs.length ? env.DB.prepare(query).bind(...bindArgs) : env.DB.prepare(query);
+    const result = await statement.all();
+
+    const tickets: Ticket[] = (result.results ?? []).map(mapTicketRow);
 
     return c.json({
       data: tickets,
-      message: 'Список заявок загружен успешно',
+      message: isAdmin ? 'Список заявок загружен успешно' : 'Список ваших заявок загружен успешно',
       total: tickets.length
     });
   } catch (error) {
@@ -2034,6 +2181,16 @@ app.get('/api/tickets/:id', async (c) => {
     const id = c.req.param('id');
     const env = c.env as Env;
     await ensureTicketsTable(env);
+    const isAdmin = isAdminRequest(c);
+    const clientKey = isAdmin ? null : sanitizeClientKey(c.req.header(CLIENT_KEY_HEADER));
+
+    if (!isAdmin && !clientKey) {
+      return c.json({
+        error: 'Недостаточно прав для просмотра заявки',
+        details: ['Укажите корректный клиентский ключ в заголовке X-Client-Key']
+      }, 401);
+    }
+
     const result = await env.DB.prepare(
       'SELECT * FROM tickets WHERE id = ?'
     ).bind(id).first();
@@ -2044,21 +2201,13 @@ app.get('/api/tickets/:id', async (c) => {
       }, 404);
     }
 
-    const ticket: Ticket = {
-      id: result.id as string,
-      clientName: result.client_name as string,
-      phone: result.phone as string,
-      email: result.email as string,
-      serviceType: result.service_type as string,
-      serviceFormat: (result.service_format as ServiceFormat) ?? 'remote',
-      description: result.description as string,
-      priority: result.priority as TicketPriority,
-      status: result.status as TicketStatus,
-      createdAt: result.created_at as string,
-      basePrice: typeof result.base_price === 'number' ? result.base_price : null,
-      formatSurcharge: typeof result.format_surcharge === 'number' ? result.format_surcharge : null,
-      finalPrice: typeof result.final_price === 'number' ? result.final_price : null,
-    };
+    if (!isAdmin && result.client_key !== clientKey) {
+      return c.json({
+        error: 'Недостаточно прав для просмотра заявки'
+      }, 403);
+    }
+
+    const ticket: Ticket = mapTicketRow(result);
 
     return c.json({
       data: ticket,
@@ -2075,91 +2224,12 @@ app.get('/api/tickets/:id', async (c) => {
 // PUT /api/tickets/:id - обновление статуса заявки
 app.put('/api/tickets/:id', async (c) => {
   try {
-    const id = c.req.param('id');
-    const body = await c.req.json();
-    const env = c.env as Env;
-    await ensureTicketsTable(env);
-
-    // Проверка существования заявки
-    const existingTicket = await env.DB.prepare(
-      'SELECT * FROM tickets WHERE id = ?'
-    ).bind(id).first();
-
-    if (!existingTicket) {
+    if (!isAdminRequest(c)) {
       return c.json({
-        error: 'Заявка не найдена'
-      }, 404);
+        error: 'Недостаточно прав для обновления заявки'
+      }, 403);
     }
-
-    // Валидация статуса
-    if (body.status && !['new', 'in-progress', 'completed', 'cancelled'].includes(body.status)) {
-      return c.json({
-        error: 'Некорректный статус заявки',
-        details: ['Статус должен быть одним из: new, in-progress, completed, cancelled']
-      }, 400);
-    }
-
-    // Валидация приоритета
-    if (body.priority && !['low', 'medium', 'high'].includes(body.priority)) {
-      return c.json({
-        error: 'Некорректный приоритет заявки',
-        details: ['Приоритет должен быть одним из: low, medium, high']
-      }, 400);
-    }
-
-    // Обновление заявки
-    let updateFields = [];
-    let updateValues = [];
-
-    if (body.status) {
-      updateFields.push('status = ?');
-      updateValues.push(body.status);
-    }
-    if (body.priority) {
-      updateFields.push('priority = ?');
-      updateValues.push(body.priority);
-    }
-
-    if (updateFields.length > 0) {
-      updateValues.push(id);
-      const result = await env.DB.prepare(
-        `UPDATE tickets SET ${updateFields.join(', ')} WHERE id = ?`
-      ).bind(...updateValues).run();
-
-      if (!result.success) {
-        throw new Error('Failed to update ticket in database');
-      }
-    }
-
-    // Получение обновленной заявки
-    const updatedTicketResult = await env.DB.prepare(
-      'SELECT * FROM tickets WHERE id = ?'
-    ).bind(id).first();
-
-    if (!updatedTicketResult) {
-      throw new Error('Failed to retrieve updated ticket');
-    }
-
-    const updatedTicket: Ticket = {
-      id: updatedTicketResult.id as string,
-      clientName: updatedTicketResult.client_name as string,
-      phone: updatedTicketResult.phone as string,
-      email: updatedTicketResult.email as string,
-      serviceType: updatedTicketResult.service_type as string,
-      serviceFormat: (updatedTicketResult.service_format as ServiceFormat) ?? 'remote',
-      description: updatedTicketResult.description as string,
-      priority: updatedTicketResult.priority as TicketPriority,
-      status: updatedTicketResult.status as TicketStatus,
-      createdAt: updatedTicketResult.created_at as string,
-      basePrice: typeof updatedTicketResult.base_price === 'number' ? updatedTicketResult.base_price : null,
-      formatSurcharge: typeof updatedTicketResult.format_surcharge === 'number' ? updatedTicketResult.format_surcharge : null,
-      finalPrice: typeof updatedTicketResult.final_price === 'number' ? updatedTicketResult.final_price : null,
-    };
-
-    return c.json({
-      data: updatedTicket,
-      message: 'Заявка успешно обновлена'
-    });
+    return await processTicketUpdate(c);
   } catch (error) {
     return c.json({
       error: 'Ошибка при обновлении заявки',
@@ -2174,11 +2244,23 @@ app.delete('/api/tickets/:id', async (c) => {
     const id = c.req.param('id');
     const env = c.env as Env;
     await ensureTicketsTable(env);
+    const isAdmin = isAdminRequest(c);
+    const clientKey = isAdmin ? null : sanitizeClientKey(c.req.header(CLIENT_KEY_HEADER));
+
+    if (!isAdmin && !clientKey) {
+      return c.json({
+        error: 'Недостаточно прав для удаления заявки',
+        details: ['Укажите корректный клиентский ключ в заголовке X-Client-Key']
+      }, 401);
+    }
 
     // Проверка существования заявки
-    const existing = await env.DB.prepare('SELECT id FROM tickets WHERE id = ?').bind(id).first();
+    const existing = await env.DB.prepare('SELECT id, client_key FROM tickets WHERE id = ?').bind(id).first();
     if (!existing) {
       return c.json({ error: 'Заявка не найдена' }, 404);
+    }
+    if (!isAdmin && existing.client_key !== clientKey) {
+      return c.json({ error: 'Недостаточно прав для удаления заявки' }, 403);
     }
 
     const result = await env.DB.prepare('DELETE FROM tickets WHERE id = ?').bind(id).run();
@@ -2193,6 +2275,63 @@ app.delete('/api/tickets/:id', async (c) => {
 });
 
 // --- Admin endpoints ---
+
+app.get('/api/admin/tickets', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureTicketsTable(env);
+    const result = await env.DB.prepare('SELECT * FROM tickets ORDER BY created_at DESC').all();
+    const tickets: Ticket[] = (result.results ?? []).map(mapTicketRow);
+
+    return c.json({
+      data: tickets,
+      message: 'Список заявок загружен успешно',
+      total: tickets.length
+    });
+  } catch (error) {
+    return c.json({
+      error: 'Ошибка при загрузке заявок',
+      details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+    }, 500);
+  }
+});
+
+app.put('/api/admin/tickets/:id', async (c) => {
+  try {
+    return await processTicketUpdate(c);
+  } catch (error) {
+    return c.json({
+      error: 'Ошибка при обновлении заявки',
+      details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+    }, 500);
+  }
+});
+
+app.delete('/api/admin/tickets/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const env = c.env as Env;
+    await ensureTicketsTable(env);
+
+    const existing = await env.DB.prepare('SELECT id FROM tickets WHERE id = ?').bind(id).first();
+    if (!existing) {
+      return c.json({ error: 'Заявка не найдена' }, 404);
+    }
+
+    const result = await env.DB.prepare('DELETE FROM tickets WHERE id = ?').bind(id).run();
+    if (!result.success) {
+      throw new Error('Failed to delete ticket from database');
+    }
+
+    return c.json({ data: null, message: 'Заявка успешно удалена' });
+  } catch (error) {
+    return c.json({
+      error: 'Ошибка при удалении заявки',
+      details: error instanceof Error ? error.message : 'Неизвестная ошибка'
+    }, 500);
+  }
+});
+
 
 app.get('/api/admin/service-formats', async (c) => {
   try {

@@ -5,16 +5,17 @@ import { useServices } from '../../hooks/useServices';
 import TicketCard from './TicketCard';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
-import { del } from '../../utils/api';
+import { deleteUserTicket } from '../../utils/api';
 
 interface TicketListProps {
   tickets: Ticket[];
   loading: boolean;
   error: string | null;
   loadTickets: () => Promise<void>;
+  clientKey?: string | null;
 }
 
-export default function TicketList({ tickets, loading, error, loadTickets }: TicketListProps) {
+export default function TicketList({ tickets, loading, error, loadTickets, clientKey }: TicketListProps) {
   const { t, i18n } = useTranslation();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const {
@@ -118,14 +119,16 @@ if (error) {
                   deleting={deletingId === ticket.id}
                   serviceName={localizedServices[ticket.serviceType]}
                   onDelete={async (id: string) => {
+                    if (!clientKey) {
+                      alert(t('ticketList.deleteError', { defaultValue: 'Не удалось удалить заявку: отсутствует подтверждение клиента.' }));
+                      return;
+                    }
                     try {
                       setDeletingId(id);
-                      const res = await del(`/tickets/${id}`);
+                      const res = await deleteUserTicket(id, clientKey);
                       if (res.error) {
-                        // Показываем ошибку пользователю
                         alert(t('ticketList.deleteError', { defaultValue: 'Не удалось удалить заявку: ' }) + res.error);
                       } else {
-                        // Обновляем список
                         await loadTickets();
                       }
                     } catch (e) {

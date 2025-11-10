@@ -61,18 +61,6 @@ const HomePage = memo(function HomePage() {
     }
   }, []);
 
-  // Сохранение данных в localStorage при изменении формы
-  useEffect(() => {
-    if (formData.name || formData.email || formData.phone) {
-      const userIdentifier = JSON.stringify({
-        clientName: formData.name,
-        email: formData.email,
-        phone: formData.phone
-      });
-      localStorage.setItem('userIdentifier', userIdentifier);
-    }
-  }, [formData.name, formData.email, formData.phone]);
-
   const validateForm = useCallback((): boolean => {
     const errors: {[key: string]: string | undefined} = {};
 
@@ -125,14 +113,6 @@ const HomePage = memo(function HomePage() {
     const result = await submitTicket(ticketData);
 
     if (result.success) {
-      // Сохранение данных пользователя в localStorage после успешной отправки
-      const userIdentifier = JSON.stringify({
-        clientName: formData.name,
-        email: formData.email,
-        phone: formData.phone
-      });
-      localStorage.setItem('userIdentifier', userIdentifier);
-
       setFormData({ name: '', phone: '', email: '', description: '', serviceFormat: 'remote' });
       setValidationErrors({});
     }

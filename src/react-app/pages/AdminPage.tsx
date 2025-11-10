@@ -7,9 +7,9 @@ import Textarea from '../components/common/Textarea';
 import Modal from '../components/common/Modal';
 import Loading from '../components/common/Loading';
 import {
-  fetchTickets,
-  updateTicket,
-  deleteTicket,
+  fetchAdminTickets,
+  updateAdminTicket,
+  deleteAdminTicket,
   fetchAdminServices,
   createAdminService,
   updateAdminService,
@@ -126,7 +126,7 @@ const FORMAT_SERVICE_UNIT: LocalizedText = {
 };
 
 const TicketsSection: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -137,9 +137,14 @@ const TicketsSection: React.FC = () => {
     const saved = localStorage.getItem('admin-tickets-auto-refresh');
     return saved ? JSON.parse(saved) : false;
   });
+  const [serviceLabels, setServiceLabels] = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<string>('');
   const [modalTitle, setModalTitle] = useState<string>('');
+  const resolvedLang = useMemo<LanguageCode>(() => {
+    const normalized = (i18n.language || 'ru').split('-')[0] as LanguageCode;
+    return (['ru', 'en', 'hy'] as LanguageCode[]).includes(normalized) ? normalized : 'ru';
+  }, [i18n.language]);
 
   const handleAutoRefreshChange = (checked: boolean) => {
     localStorage.setItem('admin-tickets-auto-refresh', JSON.stringify(checked));
@@ -147,7 +152,7 @@ const TicketsSection: React.FC = () => {
   };
 
   const loadTickets = useCallback(async () => {
-    const response = await fetchTickets();
+    const response = await fetchAdminTickets();
     if (response.error) {
       setError(response.error);
       setTickets([]);
@@ -162,6 +167,23 @@ const TicketsSection: React.FC = () => {
   useEffect(() => {
     loadTickets();
   }, []);
+
+  useEffect(() => {
+    const loadServiceLabels = async () => {
+      const response = await fetchAdminServices();
+      if (response.error || !Array.isArray(response.data)) {
+        setServiceLabels({});
+        return;
+      }
+      const labels = response.data.reduce<Record<string, string>>((acc, service) => {
+        const title = service.title?.[resolvedLang] ?? service.title?.ru ?? service.id;
+        acc[service.id] = title;
+        return acc;
+      }, {});
+      setServiceLabels(labels);
+    };
+    loadServiceLabels();
+  }, [resolvedLang]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -196,11 +218,14 @@ const TicketsSection: React.FC = () => {
     }
     return t('ticketCard.priceNotAvailable');
   }, [t]);
+  const getServiceTitle = useCallback((ticket: Ticket) => (
+    serviceLabels[ticket.serviceType] ?? ticket.serviceType
+  ), [serviceLabels]);
 
   const handleStatusChange = async (ticketId: string, status: TicketStatus) => {
     setProcessingId(ticketId);
     setError(null);
-    const response = await updateTicket(ticketId, { status });
+    const response = await updateAdminTicket(ticketId, { status });
     if (response.error || !response.data) {
       setError(response.error || t('admin.tickets.updateError'));
     } else {
@@ -213,7 +238,7 @@ const TicketsSection: React.FC = () => {
   const handlePriorityChange = async (ticketId: string, priority: TicketPriority) => {
     setProcessingId(ticketId);
     setError(null);
-    const response = await updateTicket(ticketId, { priority });
+    const response = await updateAdminTicket(ticketId, { priority });
     if (response.error || !response.data) {
       setError(response.error || t('admin.tickets.updateError'));
     } else {
@@ -224,8 +249,21 @@ const TicketsSection: React.FC = () => {
   };
 
   const handleViewDescription = (ticket: Ticket) => {
-    setModalTitle(`${t('admin.tickets.viewDescription')} - ${ticket.clientName}`);
-    setModalContent(ticket.description);
+    const details: string[] = [
+      `Клиент: ${ticket.clientName}`,
+      `Телефон: ${ticket.phone}`,
+      `Email: ${ticket.email}`,
+      `Услуга: ${getServiceTitle(ticket)}`,
+      `Формат: ${formatLabels(ticket.serviceFormat)}`,
+      `Приоритет: ${priorityLabels[ticket.priority]}`,
+      `Статус: ${statusLabels[ticket.status]}`,
+      `Стоимость: ${formatPrice(ticket.finalPrice ?? ticket.basePrice ?? null)}`,
+      '',
+      'Описание:',
+      ticket.description,
+    ];
+    setModalTitle(`${t('admin.tickets.viewDescription')} - ${ticket.id}`);
+    setModalContent(details.join('\n'));
     setModalOpen(true);
   };
 
@@ -235,7 +273,7 @@ const TicketsSection: React.FC = () => {
     }
     setDeletingId(ticketId);
     setError(null);
-    const response = await deleteTicket(ticketId);
+    const response = await deleteAdminTicket(ticketId);
     if (response.error) {
       setError(response.error || t('admin.tickets.deleteError'));
     } else {
@@ -279,7 +317,6 @@ const TicketsSection: React.FC = () => {
             <thead>
               <tr>
                 <th>{t('admin.tickets.table.client')}</th>
-                <th>{t('admin.tickets.table.contact')}</th>
                 <th>{t('admin.tickets.table.serviceType')}</th>
                 <th>{t('admin.tickets.table.format')}</th>
                 <th>{t('admin.tickets.table.priority')}</th>
@@ -296,11 +333,7 @@ const TicketsSection: React.FC = () => {
                     <div className="admin-ticket__title">{ticket.clientName}</div>
                     <div className="admin-ticket__id">{ticket.id}</div>
                   </td>
-                  <td>
-                    <div>{ticket.phone}</div>
-                    <div>{ticket.email}</div>
-                  </td>
-                  <td>{ticket.serviceType}</td>
+                  <td>{getServiceTitle(ticket)}</td>
                   <td>{formatLabels(ticket.serviceFormat)}</td>
                   <td>
                     <select

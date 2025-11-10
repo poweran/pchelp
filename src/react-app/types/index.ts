@@ -50,6 +50,7 @@ export interface Ticket {
   basePrice?: number | null;
   formatSurcharge?: number | null;
   finalPrice?: number | null;
+  clientKey?: string | null;
 }
 
 export type TicketPriority = 'low' | 'medium' | 'high';

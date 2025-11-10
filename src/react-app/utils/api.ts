@@ -85,8 +85,8 @@ export async function apiRequest<T>(
 }
 
 // GET запрос
-export async function get<T>(endpoint: string): Promise<ApiResponse<T>> {
-  return apiRequest<T>(endpoint, { method: 'GET' });
+export async function get<T>(endpoint: string, init?: RequestInit): Promise<ApiResponse<T>> {
+  return apiRequest<T>(endpoint, { method: 'GET', ...init });
 }
 
 // POST запрос
@@ -130,20 +130,38 @@ export async function createTicket(ticketData: TicketFormData) {
   return post<Ticket>('/tickets', ticketData);
 }
 
-export async function fetchTickets() {
-  return get<Ticket[]>('/tickets');
+export async function fetchUserTickets(clientKey: string) {
+  return apiRequest<Ticket[]>('/tickets', {
+    method: 'GET',
+    headers: { 'X-Client-Key': clientKey },
+  });
 }
 
-export async function fetchTicketById(id: string) {
-  return get<Ticket>(`/tickets/${id}`);
+export async function fetchTicketById(id: string, clientKey?: string) {
+  const headers = clientKey ? { 'X-Client-Key': clientKey } : undefined;
+  return apiRequest<Ticket>(`/tickets/${id}`, {
+    method: 'GET',
+    headers,
+  });
 }
 
-export async function updateTicket(id: string, data: Partial<Pick<Ticket, 'status' | 'priority'>>) {
-  return put<Ticket>(`/tickets/${id}`, data);
+export async function fetchAdminTickets() {
+  return get<Ticket[]>('/admin/tickets');
 }
 
-export async function deleteTicket(id: string) {
-  return del<null>(`/tickets/${id}`);
+export async function updateAdminTicket(id: string, data: Partial<Pick<Ticket, 'status' | 'priority'>>) {
+  return put<Ticket>(`/admin/tickets/${id}`, data);
+}
+
+export async function deleteAdminTicket(id: string) {
+  return del<null>(`/admin/tickets/${id}`);
+}
+
+export async function deleteUserTicket(id: string, clientKey: string) {
+  return apiRequest<null>(`/tickets/${id}`, {
+    method: 'DELETE',
+    headers: { 'X-Client-Key': clientKey },
+  });
 }
 
 // API функции для работы с базой знаний

@@ -108,14 +108,6 @@ const ContactsPage: React.FC = () => {
     const result = await submitTicket(payload);
 
     if (result.success) {
-      // Сохранение данных пользователя в localStorage после успешной отправки
-      const userIdentifier = JSON.stringify({
-        clientName: formData.clientName,
-        email: formData.email,
-        phone: formData.phone
-      });
-      localStorage.setItem('userIdentifier', userIdentifier);
-
       setFormData({
         clientName: '',
         phone: '',
