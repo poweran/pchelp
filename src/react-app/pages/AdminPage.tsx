@@ -156,9 +156,7 @@ const TicketsSection: React.FC = () => {
     return saved ? JSON.parse(saved) : false;
   });
   const [serviceLabels, setServiceLabels] = useState<Record<string, string>>({});
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<string>('');
-  const [modalTitle, setModalTitle] = useState<string>('');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const resolvedLang = useMemo<LanguageCode>(() => {
     const normalized = (i18n.language || 'ru').split('-')[0] as LanguageCode;
     return (['ru', 'en', 'hy'] as LanguageCode[]).includes(normalized) ? normalized : 'ru';
@@ -267,22 +265,7 @@ const TicketsSection: React.FC = () => {
   };
 
   const handleViewDescription = (ticket: Ticket) => {
-    const details: string[] = [
-      `Клиент: ${ticket.clientName}`,
-      `Телефон: ${ticket.phone}`,
-      `Email: ${ticket.email}`,
-      `Услуга: ${getServiceTitle(ticket)}`,
-      `Формат: ${formatLabels(ticket.serviceFormat)}`,
-      `Приоритет: ${priorityLabels[ticket.priority]}`,
-      `Статус: ${statusLabels[ticket.status]}`,
-      `Стоимость: ${formatPrice(ticket.finalPrice ?? ticket.basePrice ?? null)}`,
-      '',
-      'Описание:',
-      ticket.description,
-    ];
-    setModalTitle(`${t('admin.tickets.viewDescription')} - ${ticket.id}`);
-    setModalContent(details.join('\n'));
-    setModalOpen(true);
+    setSelectedTicket(ticket);
   };
 
   const handleDelete = async (ticketId: string) => {
@@ -324,113 +307,227 @@ const TicketsSection: React.FC = () => {
         </div>
       </div>
 
-      {error && <div className="admin-feedback admin-feedback--error">{error}</div>}
-      {feedback && <div className="admin-feedback admin-feedback--success">{feedback}</div>}
+      <div className="admin-section--tickets">
+        {error && <div className="admin-feedback admin-feedback--error">{error}</div>}
+        {feedback && <div className="admin-feedback admin-feedback--success">{feedback}</div>}
 
-      {tickets.length === 0 ? (
-        <div className="admin-empty">{t('admin.tickets.empty')}</div>
-      ) : (
-        <div className="admin-table-wrapper">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>{t('admin.tickets.table.client')}</th>
-                <th>{t('admin.tickets.table.serviceType')}</th>
-                <th>{t('admin.tickets.table.format')}</th>
-                <th>{t('admin.tickets.table.priority')}</th>
-                <th>{t('admin.tickets.table.status')}</th>
-                <th>{t('admin.tickets.table.cost')}</th>
-                <th>{t('admin.tickets.table.created')}</th>
-                <th>{t('admin.tickets.table.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map(ticket => (
-                <tr key={ticket.id}>
-                  <td>
-                    <div className="admin-ticket__title">{ticket.clientName}</div>
-                    <div className="admin-ticket__id">{ticket.id}</div>
-                  </td>
-                  <td>{getServiceTitle(ticket)}</td>
-                  <td>{formatLabels(ticket.serviceFormat)}</td>
-                  <td>
-                    <select
-                      className="admin-select"
-                      value={ticket.priority}
-                      disabled={processingId === ticket.id}
-                      onChange={(event) => handlePriorityChange(ticket.id, event.target.value as TicketPriority)}
-                    >
-                      {TICKET_PRIORITIES.map(priority => (
-                        <option key={priority} value={priority}>
-                          {priorityLabels[priority]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <select
-                      className="admin-select"
-                      value={ticket.status}
-                      disabled={processingId === ticket.id}
-                      onChange={(event) => handleStatusChange(ticket.id, event.target.value as TicketStatus)}
-                    >
-                      {TICKET_STATUSES.map(status => (
-                        <option key={status} value={status}>
-                          {statusLabels[status]}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <div className="admin-ticket__cost-main">
-                      {formatPrice(ticket.finalPrice ?? ticket.basePrice ?? null)}
-                    </div>
-                    <div className="admin-ticket__cost-details">
-                      {t('admin.tickets.costDetails', {
-                        base: formatPrice(ticket.basePrice ?? null),
-                        surcharge: formatPrice(ticket.formatSurcharge ?? null),
-                      })}
-                    </div>
-                  </td>
-                  <td>{formatDateTime(ticket.createdAt)}</td>
-                  <td>
-                    <div className="admin-ticket__actions">
-                      <Button
-                        className="admin-ticket__action-button"
-                        onClick={() => handleViewDescription(ticket)}
-                        variant="secondary"
-                        size="small"
-                        title={t('admin.tickets.viewDescription')}
-                      >
-                        ⓘ
-                      </Button>
-                      <Button
-                        className="admin-ticket__action-button"
-                        onClick={() => handleDelete(ticket.id)}
-                        variant="danger"
-                        size="small"
-                        disabled={deletingId === ticket.id}
-                        title={deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
-                      >
-                        ✖
-                      </Button>
-                    </div>
-                  </td>
+        {tickets.length === 0 ? (
+          <div className="admin-empty">{t('admin.tickets.empty')}</div>
+        ) : (
+          <div className="admin-table-wrapper">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>{t('admin.tickets.table.client')}</th>
+                  <th>{t('admin.tickets.table.serviceType')}</th>
+                  <th>{t('admin.tickets.table.format')}</th>
+                  <th>{t('admin.tickets.table.priority')}</th>
+                  <th>{t('admin.tickets.table.status')}</th>
+                  <th>{t('admin.tickets.table.cost')}</th>
+                  <th>{t('admin.tickets.table.created')}</th>
+                  <th>{t('admin.tickets.table.actions')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {tickets.map(ticket => (
+                  <tr key={ticket.id}>
+                    <td>
+                      <div className="admin-ticket__title">{ticket.clientName}</div>
+                      <div className="admin-ticket__id">{ticket.id}</div>
+                    </td>
+                    <td>{getServiceTitle(ticket)}</td>
+                    <td>{formatLabels(ticket.serviceFormat)}</td>
+                    <td>
+                      <select
+                        className="admin-select"
+                        value={ticket.priority}
+                        disabled={processingId === ticket.id}
+                        onChange={(event) => handlePriorityChange(ticket.id, event.target.value as TicketPriority)}
+                      >
+                        {TICKET_PRIORITIES.map(priority => (
+                          <option key={priority} value={priority}>
+                            {priorityLabels[priority]}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className="admin-select"
+                        value={ticket.status}
+                        disabled={processingId === ticket.id}
+                        onChange={(event) => handleStatusChange(ticket.id, event.target.value as TicketStatus)}
+                      >
+                        {TICKET_STATUSES.map(status => (
+                          <option key={status} value={status}>
+                            {statusLabels[status]}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <div className="admin-ticket__cost-main">
+                        {formatPrice(ticket.finalPrice ?? ticket.basePrice ?? null)}
+                      </div>
+                      <div className="admin-ticket__cost-details">
+                        {t('admin.tickets.costDetails', {
+                          base: formatPrice(ticket.basePrice ?? null),
+                          surcharge: formatPrice(ticket.formatSurcharge ?? null),
+                        })}
+                      </div>
+                    </td>
+                    <td>{formatDateTime(ticket.createdAt)}</td>
+                    <td>
+                      <div className="admin-ticket__actions">
+                        <Button
+                          className="admin-ticket__action-button"
+                          onClick={() => handleViewDescription(ticket)}
+                          variant="secondary"
+                          size="small"
+                          title={t('admin.tickets.viewDescription')}
+                        >
+                          ⓘ
+                        </Button>
+                        <Button
+                          className="admin-ticket__action-button"
+                          onClick={() => handleDelete(ticket.id)}
+                          variant="danger"
+                          size="small"
+                          disabled={deletingId === ticket.id}
+                          title={deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
+                        >
+                          ✖
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={modalTitle}
+        isOpen={Boolean(selectedTicket)}
+        onClose={() => setSelectedTicket(null)}
+        title={selectedTicket ? t('admin.tickets.modal.title', { id: selectedTicket.id }) : undefined}
+        size="wide"
       >
-        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-          {modalContent}
-        </pre>
+        {selectedTicket && (
+          <div className="admin-ticket-modal">
+            <div className="admin-ticket-modal__header">
+              <div>
+                <p className="admin-ticket-modal__client">{selectedTicket.clientName}</p>
+                <p className="admin-ticket-modal__id">#{selectedTicket.id}</p>
+              </div>
+              <div className="admin-ticket-modal__tags">
+                <span className={`admin-badge admin-badge--status-${selectedTicket.status}`}>
+                  {statusLabels[selectedTicket.status]}
+                </span>
+                <span className={`admin-badge admin-badge--priority-${selectedTicket.priority}`}>
+                  {priorityLabels[selectedTicket.priority]}
+                </span>
+                <span className="admin-badge">
+                  {formatLabels(selectedTicket.serviceFormat)}
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-ticket-modal__grid">
+              <section className="admin-ticket-modal__card">
+                <h4>{t('admin.tickets.modal.client')}</h4>
+                <dl className="admin-ticket-modal__list">
+                  <div className="admin-ticket-modal__list-row">
+                    <dt>{t('admin.tickets.modal.phone')}</dt>
+                    <dd>
+                      <a href={`tel:${selectedTicket.phone}`} className="admin-ticket-modal__contact-link">
+                        {selectedTicket.phone}
+                      </a>
+                    </dd>
+                  </div>
+                  <div className="admin-ticket-modal__list-row">
+                    <dt>{t('admin.tickets.modal.email')}</dt>
+                    <dd>
+                      {selectedTicket.email ? (
+                        <a href={`mailto:${selectedTicket.email}`} className="admin-ticket-modal__contact-link">
+                          {selectedTicket.email}
+                        </a>
+                      ) : (
+                        <span className="admin-ticket-modal__muted">—</span>
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section className="admin-ticket-modal__card">
+                <h4>{t('admin.tickets.modal.service')}</h4>
+                <dl className="admin-ticket-modal__list">
+                  <div className="admin-ticket-modal__list-row">
+                    <dt>{t('admin.tickets.table.serviceType')}</dt>
+                    <dd>{getServiceTitle(selectedTicket)}</dd>
+                  </div>
+                  <div className="admin-ticket-modal__list-row">
+                    <dt>{t('admin.tickets.table.format')}</dt>
+                    <dd>{formatLabels(selectedTicket.serviceFormat)}</dd>
+                  </div>
+                  <div className="admin-ticket-modal__list-row">
+                    <dt>{t('admin.tickets.modal.submitted')}</dt>
+                    <dd>{formatDateTime(selectedTicket.createdAt)}</dd>
+                  </div>
+                </dl>
+              </section>
+            </div>
+
+            <section className="admin-ticket-modal__card admin-ticket-modal__pricing-card">
+              <div className="admin-ticket-modal__pricing-header">
+                <h4>{t('admin.tickets.modal.pricing')}</h4>
+                <span className="admin-badge">{formatLabels(selectedTicket.serviceFormat)}</span>
+              </div>
+
+              <div className="admin-ticket-modal__pricing-breakdown">
+                <div className="admin-ticket-modal__pricing-item">
+                  <div>
+                    <span className="admin-ticket-modal__muted">{t('admin.tickets.modal.basePrice')}</span>
+                    <strong>{formatPrice(selectedTicket.basePrice ?? null)}</strong>
+                  </div>
+                  <span className="admin-ticket-modal__pricing-note">{getServiceTitle(selectedTicket)}</span>
+                </div>
+                <div className="admin-ticket-modal__pricing-item">
+                  <div>
+                    <span className="admin-ticket-modal__muted">{t('admin.tickets.modal.surcharge')}</span>
+                    <strong>{formatPrice(selectedTicket.formatSurcharge ?? null)}</strong>
+                  </div>
+                  <span className="admin-ticket-modal__pricing-note">
+                    {t('admin.tickets.modal.formatApplied', {
+                      format: formatLabels(selectedTicket.serviceFormat),
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="admin-ticket-modal__pricing-total">
+                <div>
+                  <span className="admin-ticket-modal__muted">{t('admin.tickets.modal.finalCost')}</span>
+                  <strong>{formatPrice(selectedTicket.finalPrice ?? selectedTicket.basePrice ?? null)}</strong>
+                </div>
+                <span className="admin-ticket-modal__pricing-total-note">
+                  {t('admin.tickets.modal.totalHint')}
+                </span>
+              </div>
+            </section>
+
+            <section className="admin-ticket-modal__card">
+              <h4>{t('admin.tickets.modal.description')}</h4>
+              <div className="admin-ticket-modal__description-body">
+                {selectedTicket.description?.trim()
+                  ? selectedTicket.description
+                  : <span className="admin-ticket-modal__muted">{t('admin.tickets.modal.emptyDescription')}</span>}
+              </div>
+            </section>
+          </div>
+        )}
       </Modal>
     </section>
   );

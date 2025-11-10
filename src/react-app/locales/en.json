@@ -495,7 +495,24 @@
         "actions": "Actions"
       },
       "costDetails": "Base: {base} · Format: {surcharge}",
-      "viewDescription": "View problem description"
+      "viewDescription": "View problem description",
+      "modal": {
+        "title": "Ticket #{id}",
+        "client": "Client profile",
+        "contact": "Contacts",
+        "service": "Service details",
+        "pricing": "Cost breakdown",
+        "description": "Client message",
+        "submitted": "Submitted",
+        "finalCost": "Final cost",
+        "basePrice": "Base price",
+        "surcharge": "Format surcharge",
+        "emptyDescription": "Client did not leave additional comments.",
+        "phone": "Phone",
+        "email": "Email",
+        "formatApplied": "Applied format: {format}",
+        "totalHint": "Base + format surcharge"
+      }
     },
     "services": {
       "loading": "Loading services...",

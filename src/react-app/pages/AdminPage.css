@@ -47,6 +47,17 @@
   gap: 1.25rem;
 }
 
+.admin-section--tickets {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
 .admin-section__header {
   display: flex;
   align-items: center;
@@ -218,8 +229,8 @@
 
 .admin-changelog__entry {
   border: 1px solid #e2e8f0;
-  border-left: 4px solid #2563eb;
-  border-radius: 10px;
+  border-left: none;
+  border-radius: 0;
   padding: 1rem 1.25rem;
   background: #ffffff;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -236,6 +247,7 @@
   margin: 0.35rem 0 0.6rem;
   font-size: 1.1rem;
   color: #0f172a;
+  text-align: left;
 }
 
 .admin-changelog__list {
@@ -296,7 +308,7 @@
 
 .admin-table tbody td {
   border: none;
-  background: #f8fafc;
+  background: #f1f5f9;
   transition: background-color 0.2s ease;
 }
 
@@ -342,6 +354,223 @@
   border-radius: 8px;
   box-shadow: none;
   font-size: 0.9rem;
+}
+
+.admin-ticket-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin-ticket-modal__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.admin-ticket-modal__client {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.admin-ticket-modal__id {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.admin-ticket-modal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.admin-badge--status-new {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.admin-badge--status-in-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-badge--status-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.admin-badge--status-cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-badge--priority-low {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.admin-badge--priority-medium {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.admin-badge--priority-high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-ticket-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.admin-ticket-modal__card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.admin-ticket-modal__card h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.admin-ticket-modal__list {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-ticket-modal__list-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-ticket-modal__list-row dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.admin-ticket-modal__list-row dd {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #1e293b;
+}
+
+.admin-ticket-modal__contact-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-ticket-modal__contact-link:hover {
+  text-decoration: underline;
+}
+
+.admin-ticket-modal__description-body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #1e293b;
+  white-space: pre-line;
+}
+
+.admin-ticket-modal__muted {
+  color: #94a3b8;
+}
+
+@media (max-width: 640px) {
+  .admin-ticket-modal__header {
+    flex-direction: column;
+  }
+
+  .admin-ticket-modal__tags {
+    justify-content: flex-start;
+  }
+}
+
+.admin-ticket-modal__pricing-card {
+  gap: 1rem;
+}
+
+.admin-ticket-modal__pricing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-ticket-modal__pricing-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-ticket-modal__pricing-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px dashed #cbd5f5;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.admin-ticket-modal__pricing-item strong,
+.admin-ticket-modal__pricing-total strong {
+  padding-left: 0.35rem;
+}
+
+.admin-ticket-modal__pricing-note {
+  font-size: 0.85rem;
+  color: #475569;
+  text-align: right;
+}
+
+.admin-ticket-modal__pricing-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #fff;
+}
+
+.admin-ticket-modal__pricing-total-note {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  text-align: right;
 }
 
 .admin-select,

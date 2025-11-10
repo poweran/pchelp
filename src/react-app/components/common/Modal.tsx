@@ -7,9 +7,17 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  size?: 'default' | 'wide';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer }) => {
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  footer,
+  size = 'default',
+}) => {
   if (!isOpen) {
     return null;
   }
@@ -26,6 +34,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
     }
   };
 
+  const contentClassName = [
+    styles['modal-content'],
+    size === 'wide' ? styles['modal-content--wide'] : null,
+  ].filter(Boolean).join(' ');
+
   return (
     <div
       className={styles['modal-overlay']}
@@ -35,7 +48,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer 
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
-      <div className={styles['modal-content']}>
+      <div className={contentClassName}>
         {title && (
           <div className={styles['modal-header']}>
             <h2 id="modal-title" className={styles['modal-title']}>

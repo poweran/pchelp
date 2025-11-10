@@ -8,6 +8,31 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2025-11-11',
+    title: {
+      en: 'Admin changelog & table polish',
+      ru: 'Changelog в админке и полировка таблиц',
+      hy: 'Ադմինի changelog և աղյուսակների հարդարում',
+    },
+    highlights: [
+      {
+        en: 'Admin panel now has a dedicated Changelog tab that renders localized entries straight from the source data.',
+        ru: 'В админке появилась вкладка Changelog, выводящая локализованные записи из исходного массива.',
+        hy: 'Ադմին վահանակում ավելացվել է Changelog-ի ներդիր, որը ցուցադրում է տեղայնացված գրառումներ աղբյուրից։',
+      },
+      {
+        en: 'Date/locale helpers keep changelog copy consistent for ru/en/hy without manual duplication.',
+        ru: 'Новые хелперы форматируют дату и тексты, чтобы Changelog всегда был консистентным на ru/en/hy.',
+        hy: 'Ավելացվել են օրվա և լեզվի հելփերներ, որպեսզի changelog-ի տեքստերը մնան նույնական բոլոր լեզուներով։',
+      },
+      {
+        en: 'Tickets and services tables switched to card-like rows with spacing, shadows, and clearer section descriptions.',
+        ru: 'Таблицы тикетов и услуг стали карточками с отступами, тенями и понятными описаниями секций.',
+        hy: 'Տոմսերի և ծառայությունների աղյուսակները դարձել են քարտային շարքեր՝ բաց տարածություններով, ստվերներով և ավելի պարզ նկարագրերով։',
+      },
+    ],
+  },
+  {
     date: '2025-11-10',
     title: {
       en: 'Ticket tooling overhaul',

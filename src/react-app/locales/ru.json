@@ -496,7 +496,24 @@
         "actions": "Действия"
       },
       "costDetails": "База: {base} · Наценка: {surcharge}",
-      "viewDescription": "Просмотр текста проблемы"
+      "viewDescription": "Просмотр текста проблемы",
+      "modal": {
+        "title": "Заявка #{id}",
+        "client": "Профиль клиента",
+        "contact": "Контакты",
+        "service": "Детали услуги",
+        "pricing": "Расчет стоимости",
+        "description": "Сообщение клиента",
+        "submitted": "Создана",
+        "finalCost": "Итоговая стоимость",
+        "basePrice": "Базовая цена",
+        "surcharge": "Наценка за формат",
+        "emptyDescription": "Клиент не оставил комментарий.",
+        "phone": "Телефон",
+        "email": "Email",
+        "formatApplied": "Учитываем формат: {format}",
+        "totalHint": "Базовая цена + наценка"
+      }
     },
     "services": {
       "loading": "Загрузка услуг...",
