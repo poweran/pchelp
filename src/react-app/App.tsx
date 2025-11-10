@@ -18,6 +18,12 @@ const PerformancePage = lazy(() => import('./pages/PerformancePage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 function App() {
+  const renderAdminPage = () => (
+    <Suspense fallback={<Loading />}>
+      <AdminPage />
+    </Suspense>
+  );
+
   // Конфигурация маршрутов с Suspense для lazy loading
   const routes = {
     '/': () => (
@@ -55,11 +61,11 @@ function App() {
         <ContactsPage />
       </Suspense>
     ),
-    '/admin': () => (
-      <Suspense fallback={<Loading />}>
-        <AdminPage />
-      </Suspense>
-    ),
+    '/admin': renderAdminPage,
+    '/admin/tickets': renderAdminPage,
+    '/admin/services': renderAdminPage,
+    '/admin/knowledge': renderAdminPage,
+    '/admin/changelog': renderAdminPage,
   };
 
   return (

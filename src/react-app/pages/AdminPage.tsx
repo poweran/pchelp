@@ -27,6 +27,7 @@ import {
   saveServicesToCache,
   upsertServiceInCache,
 } from '../utils/serviceCache';
+import { addRouteChangeListener, getCurrentPath, navigate } from '../utils/router';
 import type {
   Ticket,
   TicketStatus,
@@ -47,6 +48,45 @@ import { CHANGELOG_ENTRIES } from '../data/changelog';
 import './AdminPage.css';
 
 type AdminTab = 'tickets' | 'services' | 'knowledge' | 'changelog';
+
+const DEFAULT_ADMIN_TAB: AdminTab = 'tickets';
+
+const ADMIN_TAB_PATHS: Record<AdminTab, string> = {
+  tickets: '/admin/tickets',
+  services: '/admin/services',
+  knowledge: '/admin/knowledge',
+  changelog: '/admin/changelog',
+};
+
+const normalizeAdminPath = (path: string): string => {
+  if (!path) {
+    return '/admin';
+  }
+
+  if (path === '/admin') {
+    return path;
+  }
+
+  return path.replace(/\/+$/, '');
+};
+
+const getTabFromPath = (path: string): AdminTab => {
+  const normalized = normalizeAdminPath(path);
+
+  const matchedEntry = Object.entries(ADMIN_TAB_PATHS).find(
+    ([, tabPath]) => tabPath === normalized,
+  );
+
+  if (matchedEntry) {
+    return matchedEntry[0] as AdminTab;
+  }
+
+  return DEFAULT_ADMIN_TAB;
+};
+
+const getPathForTab = (tab: AdminTab): string => {
+  return ADMIN_TAB_PATHS[tab] ?? ADMIN_TAB_PATHS[DEFAULT_ADMIN_TAB];
+};
 
 const LANGUAGES: LanguageCode[] = ['ru', 'en', 'hy'];
 const TICKET_STATUSES: TicketStatus[] = ['new', 'in-progress', 'completed', 'cancelled'];
@@ -1300,7 +1340,28 @@ const AuthForm: React.FC<{ onAuthenticated: () => void }> = ({ onAuthenticated }
 
 const AdminContent: React.FC = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<AdminTab>('tickets');
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => getTabFromPath(getCurrentPath()));
+
+  useEffect(() => {
+    const unsubscribe = addRouteChangeListener((path: string) => {
+      if (!path.startsWith('/admin')) {
+        return;
+      }
+      setActiveTab(getTabFromPath(path));
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const handleTabChange = (tabKey: AdminTab) => {
+    const targetPath = getPathForTab(tabKey);
+    setActiveTab(tabKey);
+
+    const currentPath = getCurrentPath();
+    if (currentPath !== targetPath) {
+      navigate(targetPath, { skipScroll: true });
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('admin-auth');
@@ -1332,7 +1393,7 @@ const AdminContent: React.FC = () => {
         {tabs.map(tab => (
           <Button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => handleTabChange(tab.key)}
             variant={activeTab === tab.key ? 'primary' : 'secondary'}
             className="admin-tab-button"
           >
