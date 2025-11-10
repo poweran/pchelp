@@ -207,6 +207,7 @@
     "errorServiceRequired": "Ընտրեք ծառայության տեսակը",
     "labelDescription": "Խնդրի նկարագրություն",
     "placeholderDescription": "Նկարագրեք ձեր խնդիրը մանրամասն...",
+    "descriptionHint": "Նշեք ախտանիշները, երբ է խնդիրն առաջանում և ինչ եք արդեն փորձել, որպեսզի մենք արագ գտնենք լուծում։",
     "errorDescriptionRequired": "Խնդրի նկարագրությունը պարտադիր է",
     "errorDescriptionLength": "Նկարագրությունը պետք է պարունակի առնվազն 10 նիշ",
     "labelPriority": "Առաջնահերթություն",

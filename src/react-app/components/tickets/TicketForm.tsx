@@ -335,6 +335,23 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
         </div>
       )}
 
+      {/* Описание проблемы */}
+      <div style={descriptionSectionStyle}>
+        <Textarea
+          label={t('ticketForm.labelDescription')}
+          value={formData.description}
+          onChange={(value) => handleChange('description', value)}
+          error={errors.description}
+          placeholder={t('ticketForm.placeholderDescription')}
+          required
+          disabled={loading}
+          rows={5}
+        />
+        <p style={descriptionHintStyle}>
+          {t('ticketForm.descriptionHint')}
+        </p>
+      </div>
+
       {/* Имя клиента */}
       <Input
         label={t('ticketForm.labelName')}
@@ -499,19 +516,6 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
         </div>
       </div>
 
-      {/* Описание проблемы */}
-      <Textarea
-        label={t('ticketForm.labelDescription')}
-        value={formData.description}
-        onChange={(value) => handleChange('description', value)}
-        error={errors.description}
-        placeholder={t('ticketForm.placeholderDescription')}
-        required
-        disabled={loading}
-        rows={5}
-        autoFocus
-      />
-
       {/* Кнопка отправки */}
       <Button
         type="submit"
@@ -532,6 +536,18 @@ const formStyle: CSSProperties = {
   gap: '1.25rem',
   maxWidth: '600px',
   width: '100%',
+};
+
+const descriptionSectionStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
+};
+
+const descriptionHintStyle: CSSProperties = {
+  fontSize: '0.8125rem',
+  color: '#475569',
+  margin: '0',
 };
 
 const titleStyle: CSSProperties = {

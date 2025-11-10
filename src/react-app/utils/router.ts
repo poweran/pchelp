@@ -5,6 +5,11 @@
 // Тип для колбэков при изменении маршрута
 type RouteChangeListener = (path: string) => void;
 
+type NavigateOptions = {
+  replace?: boolean;
+  skipScroll?: boolean;
+};
+
 // Массив слушателей изменений маршрута
 const listeners: Set<RouteChangeListener> = new Set();
 
@@ -15,16 +20,26 @@ export function getCurrentPath(): string {
   return window.location.pathname;
 }
 
+let pendingScrollBehavior: 'top' | 'none' | null = null;
+
 /**
  * Программная навигация к новому пути
  * @param path - Путь для навигации
- * @param replace - Заменить текущую запись в истории вместо добавления новой
+ * @param replaceOrOptions - Флаг замены записи в истории или объект опций
  */
-export function navigate(path: string, replace: boolean = false): void {
+export function navigate(path: string, replaceOrOptions: boolean | NavigateOptions = false): void {
   // Проверяем, не находимся ли мы уже на этом пути
   if (path === getCurrentPath()) {
     return;
   }
+
+  const options: NavigateOptions =
+    typeof replaceOrOptions === 'boolean'
+      ? { replace: replaceOrOptions }
+      : replaceOrOptions;
+  const { replace = false, skipScroll = false } = options;
+
+  pendingScrollBehavior = skipScroll ? 'none' : 'top';
 
   // Используем History API для изменения URL без перезагрузки страницы
   if (replace) {
@@ -57,7 +72,13 @@ export function addRouteChangeListener(listener: RouteChangeListener): () => voi
 function notifyListeners(path: string): void {
   listeners.forEach(listener => listener(path));
   // Сбрасываем скролл на начало страницы при изменении маршрута
+  if (pendingScrollBehavior === 'none') {
+    pendingScrollBehavior = null;
+    return;
+  }
+
   window.scrollTo(0, 0);
+  pendingScrollBehavior = null;
 }
 
 /**

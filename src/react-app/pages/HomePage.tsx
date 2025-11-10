@@ -1,4 +1,4 @@
-import { useState, FormEvent, useCallback, memo, useEffect } from 'react';
+import { useState, FormEvent, useCallback, memo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -26,6 +26,7 @@ interface UserIdentifier {
 
 const HomePage = memo(function HomePage() {
   const { t } = useTranslation();
+  const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [formData, setFormData] = useState<QuickFormData>({
     name: '',
     phone: '',
@@ -134,7 +135,10 @@ const HomePage = memo(function HomePage() {
             </Button>
             <Button
               variant="secondary"
-              onClick={() => document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => descriptionTextareaRef.current?.focus(), 500);
+              }}
               aria-label={t('homePage.requestButton')}
             >
               {t('homePage.requestButton')}
@@ -154,6 +158,7 @@ const HomePage = memo(function HomePage() {
             <Card role="listitem" onClick={() => {
               const element = document.getElementById('quick-form');
               element?.scrollIntoView({ behavior: 'smooth' });
+              setTimeout(() => descriptionTextareaRef.current?.focus(), 500);
             }}>
               <div className="feature-card" title="Нажмите, чтобы перейти к форме">
                 <h3 className="feature-title">{t('homePage.quickResponse')}</h3>
@@ -304,6 +309,7 @@ const HomePage = memo(function HomePage() {
               </div>
 
               <Textarea
+                ref={descriptionTextareaRef}
                 label={t('homePage.describeProblem')}
                 value={formData.description}
                 onChange={(value) => {

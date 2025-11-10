@@ -1,4 +1,4 @@
-import { CSSProperties, ChangeEvent, memo, useCallback } from 'react';
+import { CSSProperties, ChangeEvent, memo, useCallback, forwardRef } from 'react';
 
 interface TextareaProps {
    label?: string;
@@ -14,7 +14,7 @@ interface TextareaProps {
    autoFocus?: boolean;
  }
 
-const Textarea = memo<TextareaProps>(function Textarea({
+const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea({
    label,
    value,
    onChange,
@@ -26,7 +26,7 @@ const Textarea = memo<TextareaProps>(function Textarea({
    name,
    rows = 4,
    autoFocus = false,
- }) {
+}, ref) {
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
   }, [onChange]);
@@ -40,6 +40,7 @@ const Textarea = memo<TextareaProps>(function Textarea({
         </label>
       )}
       <textarea
+        ref={ref}
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
@@ -73,9 +74,10 @@ const Textarea = memo<TextareaProps>(function Textarea({
   );
 });
 
-Textarea.displayName = 'Textarea';
+const MemoizedTextarea = memo(Textarea);
+MemoizedTextarea.displayName = 'Textarea';
 
-export default Textarea;
+export default MemoizedTextarea;
 
 const wrapperStyle: CSSProperties = {
   display: 'flex',

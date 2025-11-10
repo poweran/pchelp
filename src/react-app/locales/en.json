@@ -207,6 +207,7 @@
     "errorServiceRequired": "Please select service type",
     "labelDescription": "Problem description",
     "placeholderDescription": "Describe your problem in detail...",
+    "descriptionHint": "Share the symptoms, when the issue occurs, and what you have already tried so we can help faster.",
     "errorDescriptionRequired": "Problem description is required",
     "errorDescriptionLength": "Description must contain at least 10 characters",
     "labelPriority": "Priority",

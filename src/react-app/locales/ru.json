@@ -208,6 +208,7 @@
     "errorServiceRequired": "Выберите тип услуги",
     "labelDescription": "Описание проблемы",
     "placeholderDescription": "Опишите подробно вашу проблему...",
+    "descriptionHint": "Укажите симптомы, когда проявляется проблема и что вы уже пробовали — так мы быстрее подберём решение.",
     "errorDescriptionRequired": "Описание проблемы обязательно",
     "errorDescriptionLength": "Описание должно содержать минимум 10 символов",
     "labelPriority": "Приоритет",
