@@ -21,6 +21,7 @@ import {
   fetchAdminServiceFormats,
   updateAdminServiceFormats,
 } from '../utils/api';
+import { removeServiceFromCache, saveServicesToCache, upsertServiceInCache } from '../utils/serviceCache';
 import type {
   Ticket,
   TicketStatus,
@@ -556,6 +557,7 @@ const ServicesSection: React.FC = () => {
       setServices([]);
     } else if (Array.isArray(response.data)) {
       setServices(response.data);
+      saveServicesToCache(response.data);
     } else {
       setServices([]);
     }
@@ -732,6 +734,7 @@ const ServicesSection: React.FC = () => {
         setServices(prev => [...prev, response.data!]);
         setSelectedId(response.data!.id);
       }
+      upsertServiceInCache(response.data);
       setFeedback(t('admin.services.saved'));
     }
 
@@ -755,6 +758,7 @@ const ServicesSection: React.FC = () => {
       if (selectedId === serviceId) {
         resetForm();
       }
+      removeServiceFromCache(serviceId);
       setFeedback(t('admin.services.deleted'));
     }
     setDeletingId(null);
