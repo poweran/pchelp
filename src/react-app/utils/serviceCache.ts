@@ -1,24 +1,27 @@
-import type { Service } from '../types';
+import type { Service, ServiceFormatSetting } from '../types';
 
 const SERVICE_CACHE_KEY = 'services-cache-v1';
+const SERVICE_FORMATS_CACHE_KEY = 'service-formats-cache-v1';
 
-interface ServiceCacheEntry {
-  data: Service[];
+interface ServiceCacheEntry<T> {
+  data: T[];
   updatedAt: number;
 }
 
 type ServiceCacheListener = (services: Service[]) => void;
+type ServiceFormatsCacheListener = (formats: ServiceFormatSetting[]) => void;
 
-const listeners = new Set<ServiceCacheListener>();
+const serviceListeners = new Set<ServiceCacheListener>();
+const formatListeners = new Set<ServiceFormatsCacheListener>();
 
 const hasStorage = (): boolean => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
-const parseEntry = (raw: string | null): ServiceCacheEntry | null => {
+const parseEntry = <T>(raw: string | null): ServiceCacheEntry<T> | null => {
   if (!raw) {
     return null;
   }
   try {
-    const parsed = JSON.parse(raw) as ServiceCacheEntry;
+    const parsed = JSON.parse(raw) as ServiceCacheEntry<T>;
     if (!parsed || !Array.isArray(parsed.data)) {
       return null;
     }
@@ -29,47 +32,47 @@ const parseEntry = (raw: string | null): ServiceCacheEntry | null => {
   }
 };
 
-const readEntry = (): ServiceCacheEntry | null => {
+const readEntry = <T>(key: string): ServiceCacheEntry<T> | null => {
   if (!hasStorage()) {
     return null;
   }
   try {
-    return parseEntry(window.localStorage.getItem(SERVICE_CACHE_KEY));
+    return parseEntry<T>(window.localStorage.getItem(key));
   } catch {
     return null;
   }
 };
 
-const notifyListeners = (services: Service[]) => {
-  listeners.forEach(listener => {
+const notifyListeners = <T>(listenersSet: Set<(value: T[]) => void>, value: T[]) => {
+  listenersSet.forEach(listener => {
     try {
-      listener(services);
+      listener(value);
     } catch (error) {
       console.error('[serviceCache] Listener error', error);
     }
   });
 };
 
-const writeEntry = (entry: ServiceCacheEntry | null) => {
+const writeEntry = <T>(key: string, entry: ServiceCacheEntry<T> | null, listenersSet: Set<(value: T[]) => void>) => {
   if (!hasStorage()) {
-    notifyListeners(entry?.data ?? []);
+    notifyListeners(listenersSet, entry?.data ?? []);
     return;
   }
   try {
     if (entry) {
-      window.localStorage.setItem(SERVICE_CACHE_KEY, JSON.stringify(entry));
+      window.localStorage.setItem(key, JSON.stringify(entry));
     } else {
-      window.localStorage.removeItem(SERVICE_CACHE_KEY);
+      window.localStorage.removeItem(key);
     }
   } catch (error) {
     console.warn('[serviceCache] Failed to write cache entry', error);
   } finally {
-    notifyListeners(entry?.data ?? []);
+    notifyListeners(listenersSet, entry?.data ?? []);
   }
 };
 
 export const getCachedServices = (): Service[] | null => {
-  const entry = readEntry();
+  const entry = readEntry<Service>(SERVICE_CACHE_KEY);
   return entry?.data ?? null;
 };
 
@@ -79,7 +82,7 @@ export const getCachedService = (id: string): Service | undefined => {
 };
 
 export const saveServicesToCache = (services: Service[]): void => {
-  writeEntry({ data: services, updatedAt: Date.now() });
+  writeEntry<Service>(SERVICE_CACHE_KEY, { data: services, updatedAt: Date.now() }, serviceListeners);
 };
 
 export const upsertServiceInCache = (service: Service): void => {
@@ -100,20 +103,50 @@ export const removeServiceFromCache = (id: string): void => {
 };
 
 export const clearServicesCache = (): void => {
-  writeEntry(null);
+  writeEntry<Service>(SERVICE_CACHE_KEY, null, serviceListeners);
 };
 
 export const subscribeToServiceCache = (listener: ServiceCacheListener): (() => void) => {
-  listeners.add(listener);
+  serviceListeners.add(listener);
   return () => {
-    listeners.delete(listener);
+    serviceListeners.delete(listener);
+  };
+};
+
+export const getCachedServiceFormats = (): ServiceFormatSetting[] | null => {
+  const entry = readEntry<ServiceFormatSetting>(SERVICE_FORMATS_CACHE_KEY);
+  return entry?.data ?? null;
+};
+
+export const saveServiceFormatsToCache = (formats: ServiceFormatSetting[]): void => {
+  writeEntry<ServiceFormatSetting>(
+    SERVICE_FORMATS_CACHE_KEY,
+    { data: formats, updatedAt: Date.now() },
+    formatListeners,
+  );
+};
+
+export const clearServiceFormatsCache = (): void => {
+  writeEntry<ServiceFormatSetting>(SERVICE_FORMATS_CACHE_KEY, null, formatListeners);
+};
+
+export const subscribeToServiceFormatsCache = (listener: ServiceFormatsCacheListener): (() => void) => {
+  formatListeners.add(listener);
+  return () => {
+    formatListeners.delete(listener);
   };
 };
 
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', event => {
     if (event.key === SERVICE_CACHE_KEY) {
-      notifyListeners(parseEntry(event.newValue)?.data ?? []);
+      notifyListeners<Service>(serviceListeners, parseEntry<Service>(event.newValue)?.data ?? []);
+    }
+    if (event.key === SERVICE_FORMATS_CACHE_KEY) {
+      notifyListeners<ServiceFormatSetting>(
+        formatListeners,
+        parseEntry<ServiceFormatSetting>(event.newValue)?.data ?? [],
+      );
     }
   });
 }

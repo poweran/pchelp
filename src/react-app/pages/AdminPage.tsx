@@ -21,7 +21,12 @@ import {
   fetchAdminServiceFormats,
   updateAdminServiceFormats,
 } from '../utils/api';
-import { removeServiceFromCache, saveServicesToCache, upsertServiceInCache } from '../utils/serviceCache';
+import {
+  removeServiceFromCache,
+  saveServiceFormatsToCache,
+  saveServicesToCache,
+  upsertServiceInCache,
+} from '../utils/serviceCache';
 import type {
   Ticket,
   TicketStatus,
@@ -574,6 +579,7 @@ const ServicesSection: React.FC = () => {
       setFormatSetting(null);
     } else {
       const items = Array.isArray(response.data) ? response.data : [];
+      saveServiceFormatsToCache(items);
       const onSite = items.find(item => item.format === ON_SITE_FORMAT);
       setFormatSetting(onSite ?? { format: ON_SITE_FORMAT, surcharge: 2000 });
     }
@@ -682,6 +688,7 @@ const ServicesSection: React.FC = () => {
         setError(response.error || t('admin.services.errorSave'));
       } else {
         const items = Array.isArray(response.data) ? response.data : [];
+        saveServiceFormatsToCache(items);
         const updated = items.find(item => item.format === ON_SITE_FORMAT) ?? { format: ON_SITE_FORMAT, surcharge: priceValue };
         setFormatSetting(updated);
         setFeedback(t('admin.services.formatService.saved'));
