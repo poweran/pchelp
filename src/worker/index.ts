@@ -14,6 +14,7 @@ type ServiceCategory = 'repair' | 'setup' | 'recovery' | 'consultation';
 type TicketPriority = 'low' | 'medium' | 'high';
 type TicketStatus = 'new' | 'in-progress' | 'completed' | 'cancelled';
 type KnowledgeType = 'faq' | 'article';
+type ServiceFormat = 'remote' | 'on-site' | 'service-center';
 
 interface Service {
    id: string;
@@ -61,10 +62,14 @@ interface Ticket {
   phone: string;
   email: string;
   serviceType: string;
+  serviceFormat: ServiceFormat;
   description: string;
   priority: TicketPriority;
   status: TicketStatus;
   createdAt: string;
+  basePrice: number | null;
+  formatSurcharge: number | null;
+  finalPrice: number | null;
 }
 
 interface KnowledgeItem {
@@ -87,8 +92,21 @@ interface KnowledgeItem {
   type: KnowledgeType;
 }
 
+interface ServiceFormatSetting {
+  format: ServiceFormat;
+  surcharge: number;
+}
+
 
 const app = new Hono<{ Bindings: Env }>();
+
+const SERVICE_FORMATS: ServiceFormat[] = ['remote', 'on-site', 'service-center'];
+
+const DEFAULT_FORMAT_SURCHARGES: Record<ServiceFormat, number> = {
+  remote: 0,
+  'on-site': 2000,
+  'service-center': 0,
+};
 
 // Функция отправки email через Resend
 async function sendEmail(env: Env, subject: string, htmlContent: string) {
@@ -121,7 +139,7 @@ async function sendEmail(env: Env, subject: string, htmlContent: string) {
 }
 
 // Функция генерации HTML письма для новой заявки
-function generateTicketEmailHtml(ticket: Ticket): string {
+function generateTicketEmailHtml(ticket: Ticket, options?: { serviceName?: string }): string {
   const priorityLabels = {
     low: 'Низкий',
     medium: 'Средний',
@@ -137,6 +155,17 @@ function generateTicketEmailHtml(ticket: Ticket): string {
     'virus-removal': 'Удаление вирусов'
   };
 
+  const serviceFormatLabels = {
+    'remote': 'Удалённо',
+    'on-site': 'У клиента (дом/офис)',
+    'service-center': 'В сервис-центре'
+  } as Record<ServiceFormat, string>;
+
+  const formatCurrency = (value: number | null) =>
+    typeof value === 'number'
+      ? `${value.toLocaleString('ru-RU')} դր`
+      : 'уточняется';
+
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #1e293b;">Новая заявка на обслуживание</h2>
@@ -148,9 +177,13 @@ function generateTicketEmailHtml(ticket: Ticket): string {
       </div>
       <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Детали заявки</h3>
-        <p><strong>Тип услуги:</strong> ${serviceTypeLabels[ticket.serviceType as keyof typeof serviceTypeLabels] || ticket.serviceType}</p>
+        <p><strong>Тип услуги:</strong> ${options?.serviceName || serviceTypeLabels[ticket.serviceType as keyof typeof serviceTypeLabels] || ticket.serviceType}</p>
+        <p><strong>Формат:</strong> ${serviceFormatLabels[ticket.serviceFormat] || ticket.serviceFormat}</p>
         <p><strong>Приоритет:</strong> ${priorityLabels[ticket.priority]}</p>
         <p><strong>Дата создания:</strong> ${new Date(ticket.createdAt).toLocaleString('ru-RU')}</p>
+        <p><strong>Базовая стоимость:</strong> ${formatCurrency(ticket.basePrice)}</p>
+        <p><strong>Наценка за формат:</strong> ${formatCurrency(ticket.formatSurcharge)}</p>
+        <p><strong>Итого:</strong> ${formatCurrency(ticket.finalPrice)}</p>
       </div>
       <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Описание проблемы</h3>
@@ -1263,6 +1296,111 @@ function sanitizeLanguage(lang?: string | null): LanguageCode {
   return 'ru';
 }
 
+const SERVICE_TYPE_CATEGORY_MAP: Record<string, ServiceCategory | null> = {
+  repair: 'repair',
+  setup: 'setup',
+  recovery: 'recovery',
+  consultation: 'consultation',
+  installation: 'setup',
+  'virus-removal': 'recovery',
+};
+
+function sanitizeServiceFormat(value: any): ServiceFormat {
+  if (typeof value === 'string') {
+    const normalized = value.toLowerCase().replace('_', '-') as ServiceFormat;
+    if (SERVICE_FORMATS.includes(normalized)) {
+      return normalized;
+    }
+  }
+  return 'remote';
+}
+
+const pickPriceFromRow = (row: { price?: number | null; min_price?: number | null; max_price?: number | null }): number | null => {
+  if (typeof row?.price === 'number' && row.price > 0) {
+    return row.price;
+  }
+  if (typeof row?.min_price === 'number' && row.min_price > 0) {
+    return row.min_price;
+  }
+  if (typeof row?.max_price === 'number' && row.max_price > 0) {
+    return row.max_price;
+  }
+  return null;
+};
+
+async function estimateCategoryBasePrice(env: Env, category: ServiceCategory | null): Promise<number | null> {
+  if (!category) {
+    return null;
+  }
+
+  const result = await env.DB.prepare(
+    'SELECT price, min_price, max_price FROM services WHERE category = ?'
+  ).bind(category).all();
+
+  const values = (result.results ?? [])
+    .map(row => pickPriceFromRow(row))
+    .filter((value): value is number => value !== null);
+
+  if (!values.length) {
+    return null;
+  }
+
+  return Math.min(...values);
+}
+
+async function estimateBasePrice(env: Env, serviceType: string): Promise<number | null> {
+  if (!serviceType) {
+    return null;
+  }
+
+  await ensureServicesInitialized(env);
+
+  const directService = await env.DB.prepare(
+    'SELECT price, min_price, max_price, category FROM services WHERE id = ?'
+  ).bind(serviceType).first<{ price?: number; min_price?: number; max_price?: number; category?: string }>();
+
+  if (directService) {
+    const directPrice = pickPriceFromRow(directService);
+    if (directPrice !== null) {
+      return directPrice;
+    }
+
+    if (typeof directService.category === 'string') {
+      const categoryPrice = await estimateCategoryBasePrice(env, directService.category as ServiceCategory);
+      if (categoryPrice !== null) {
+        return categoryPrice;
+      }
+    }
+  }
+
+  // Legacy fallback for old category slugs
+  const fallbackCategory = SERVICE_TYPE_CATEGORY_MAP[serviceType] ?? null;
+  return estimateCategoryBasePrice(env, fallbackCategory);
+}
+
+async function resolveServiceTitle(env: Env, serviceType: string, lang: LanguageCode = 'ru'): Promise<string | null> {
+  if (!serviceType) {
+    return null;
+  }
+
+  await ensureServicesInitialized(env);
+  const row = await env.DB.prepare(
+    'SELECT title_ru, title_en, title_hy FROM services WHERE id = ?'
+  ).bind(serviceType).first<{ title_ru?: string; title_en?: string; title_hy?: string }>();
+
+  if (!row) {
+    return null;
+  }
+
+  const titles: Record<LanguageCode, string | undefined> = {
+    ru: typeof row.title_ru === 'string' ? row.title_ru : undefined,
+    en: typeof row.title_en === 'string' ? row.title_en : undefined,
+    hy: typeof row.title_hy === 'string' ? row.title_hy : undefined,
+  };
+
+  return titles[lang] ?? titles.ru ?? null;
+}
+
 async function ensureServicesInitialized(env: Env) {
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS services (
@@ -1447,6 +1585,88 @@ async function ensureCatalogInitialized(env: Env) {
   await ensureServicesInitialized(env);
   await ensurePricingInitialized(env);
   await ensureKnowledgeInitialized(env);
+}
+
+async function ensureTicketsTable(env: Env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS tickets (
+      id TEXT PRIMARY KEY,
+      client_name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT NOT NULL,
+      service_type TEXT NOT NULL,
+      service_format TEXT NOT NULL DEFAULT 'remote',
+      description TEXT NOT NULL,
+      priority TEXT NOT NULL,
+      status TEXT NOT NULL,
+      base_price REAL,
+      format_surcharge REAL,
+      final_price REAL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  const optionalColumns = [
+    "ALTER TABLE tickets ADD COLUMN service_format TEXT DEFAULT 'remote'",
+    'ALTER TABLE tickets ADD COLUMN base_price REAL',
+    'ALTER TABLE tickets ADD COLUMN format_surcharge REAL',
+    'ALTER TABLE tickets ADD COLUMN final_price REAL'
+  ];
+
+  for (const statement of optionalColumns) {
+    try {
+      await env.DB.prepare(statement).run();
+    } catch (error) {
+      // Игнорируем, если колонка уже есть
+    }
+  }
+}
+
+async function ensureServiceFormatSettings(env: Env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS service_format_surcharges (
+      format TEXT PRIMARY KEY,
+      surcharge REAL NOT NULL DEFAULT 0,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  for (const format of SERVICE_FORMATS) {
+    const existing = await env.DB.prepare(
+      'SELECT COUNT(*) as count FROM service_format_surcharges WHERE format = ?'
+    ).bind(format).first<{ count: number }>();
+
+    if (!existing || !existing.count) {
+      await env.DB.prepare(
+        'INSERT INTO service_format_surcharges (format, surcharge) VALUES (?, ?)'
+      ).bind(format, DEFAULT_FORMAT_SURCHARGES[format]).run();
+    }
+  }
+}
+
+async function listServiceFormatSettings(env: Env): Promise<ServiceFormatSetting[]> {
+  await ensureServiceFormatSettings(env);
+  const result = await env.DB.prepare(
+    'SELECT format, surcharge FROM service_format_surcharges ORDER BY format ASC'
+  ).all();
+
+  return (result.results ?? []).map(row => ({
+    format: row.format as ServiceFormat,
+    surcharge: Number(row.surcharge) || 0,
+  }));
+}
+
+async function getServiceFormatSurcharge(env: Env, format: ServiceFormat): Promise<number> {
+  await ensureServiceFormatSettings(env);
+  const row = await env.DB.prepare(
+    'SELECT surcharge FROM service_format_surcharges WHERE format = ?'
+  ).bind(format).first<{ surcharge: number }>();
+
+  if (typeof row?.surcharge === 'number') {
+    return row.surcharge;
+  }
+
+  return DEFAULT_FORMAT_SURCHARGES[format] ?? 0;
 }
 
 async function listServiceRecords(env: Env): Promise<ServiceRecord[]> {
@@ -1655,10 +1875,31 @@ app.get('/api/pricing', async (c) => {
   }
 });
 
+// GET /api/service-formats - настройки форматов для расчёта цены
+app.get('/api/service-formats', async (c) => {
+  try {
+    const env = c.env as Env;
+    const formats = await listServiceFormatSettings(env);
+    return c.json({
+      data: formats,
+      message: 'Настройки форматов услуг загружены успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить форматы услуг';
+    return c.json({
+      error: 'Ошибка при загрузке форматов услуг',
+      details: message
+    }, 500);
+  }
+});
+
 // POST /api/tickets - создание новой заявки
 app.post('/api/tickets', async (c) => {
   try {
     const body = await c.req.json();
+    const env = c.env as Env;
+    await ensureTicketsTable(env);
+    await ensureServiceFormatSettings(env);
 
     // Валидация данных
     const validation = validateTicketData(body);
@@ -1671,6 +1912,12 @@ app.post('/api/tickets', async (c) => {
 
     // Генерация уникального ID для заявки (простая версия без проверки уникальности)
     const ticketId = generateTicketId();
+    const serviceType = body.serviceType.trim();
+    const serviceFormat = sanitizeServiceFormat(body.serviceFormat);
+    const basePrice = await estimateBasePrice(env, serviceType);
+    const formatSurcharge = await getServiceFormatSurcharge(env, serviceFormat);
+    const finalPrice = basePrice !== null ? basePrice + formatSurcharge : null;
+    const serviceTitleForEmail = await resolveServiceTitle(env, serviceType, 'ru');
 
     // Создание новой заявки
     const newTicket: Ticket = {
@@ -1678,17 +1925,23 @@ app.post('/api/tickets', async (c) => {
       clientName: body.clientName.trim(),
       phone: body.phone.trim(),
       email: body.email.trim(),
-      serviceType: body.serviceType.trim(),
+      serviceType,
+      serviceFormat,
       description: body.description.trim(),
       priority: body.priority,
       status: 'new',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      basePrice,
+      formatSurcharge,
+      finalPrice,
     };
 
     // Сохранение в D1 базу данных
-    const env = c.env as Env;
     const result = await env.DB.prepare(
-      'INSERT INTO tickets (id, client_name, phone, email, service_type, description, priority, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+      `INSERT INTO tickets (
+        id, client_name, phone, email, service_type, service_format,
+        description, priority, status, base_price, format_surcharge, final_price, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       newTicket.id,
@@ -1696,9 +1949,13 @@ app.post('/api/tickets', async (c) => {
       newTicket.phone,
       newTicket.email,
       newTicket.serviceType,
+      newTicket.serviceFormat,
       newTicket.description,
       newTicket.priority,
       newTicket.status,
+      newTicket.basePrice,
+      newTicket.formatSurcharge,
+      newTicket.finalPrice,
       newTicket.createdAt
     )
     .run();
@@ -1710,7 +1967,7 @@ app.post('/api/tickets', async (c) => {
     // Отправка email уведомления
     if (env.RESEND_API_KEY && env.RESEND_API_KEY !== 'your-resend-api-key-here') {
       const emailSubject = `Новая заявка #${newTicket.id} - ${newTicket.clientName}`;
-      const emailHtml = generateTicketEmailHtml(newTicket);
+      const emailHtml = generateTicketEmailHtml(newTicket, { serviceName: serviceTitleForEmail ?? undefined });
 
       const emailSent = await sendEmail(env, emailSubject, emailHtml);
       if (!emailSent) {
@@ -1737,20 +1994,25 @@ app.post('/api/tickets', async (c) => {
 app.get('/api/tickets', async (c) => {
   try {
     const env = c.env as Env;
+    await ensureTicketsTable(env);
     const result = await env.DB.prepare(
       'SELECT * FROM tickets ORDER BY created_at DESC'
     ).all();
 
-    const tickets: Ticket[] = result.results.map((row: any) => ({
+    const tickets: Ticket[] = (result.results ?? []).map((row: any) => ({
       id: row.id,
       clientName: row.client_name,
       phone: row.phone,
       email: row.email,
       serviceType: row.service_type,
+      serviceFormat: (row.service_format as ServiceFormat) ?? 'remote',
       description: row.description,
       priority: row.priority,
       status: row.status,
-      createdAt: row.created_at
+      createdAt: row.created_at,
+      basePrice: typeof row.base_price === 'number' ? row.base_price : null,
+      formatSurcharge: typeof row.format_surcharge === 'number' ? row.format_surcharge : null,
+      finalPrice: typeof row.final_price === 'number' ? row.final_price : null,
     }));
 
     return c.json({
@@ -1771,6 +2033,7 @@ app.get('/api/tickets/:id', async (c) => {
   try {
     const id = c.req.param('id');
     const env = c.env as Env;
+    await ensureTicketsTable(env);
     const result = await env.DB.prepare(
       'SELECT * FROM tickets WHERE id = ?'
     ).bind(id).first();
@@ -1787,10 +2050,14 @@ app.get('/api/tickets/:id', async (c) => {
       phone: result.phone as string,
       email: result.email as string,
       serviceType: result.service_type as string,
+      serviceFormat: (result.service_format as ServiceFormat) ?? 'remote',
       description: result.description as string,
       priority: result.priority as TicketPriority,
       status: result.status as TicketStatus,
-      createdAt: result.created_at as string
+      createdAt: result.created_at as string,
+      basePrice: typeof result.base_price === 'number' ? result.base_price : null,
+      formatSurcharge: typeof result.format_surcharge === 'number' ? result.format_surcharge : null,
+      finalPrice: typeof result.final_price === 'number' ? result.final_price : null,
     };
 
     return c.json({
@@ -1811,6 +2078,7 @@ app.put('/api/tickets/:id', async (c) => {
     const id = c.req.param('id');
     const body = await c.req.json();
     const env = c.env as Env;
+    await ensureTicketsTable(env);
 
     // Проверка существования заявки
     const existingTicket = await env.DB.prepare(
@@ -1878,10 +2146,14 @@ app.put('/api/tickets/:id', async (c) => {
       phone: updatedTicketResult.phone as string,
       email: updatedTicketResult.email as string,
       serviceType: updatedTicketResult.service_type as string,
+      serviceFormat: (updatedTicketResult.service_format as ServiceFormat) ?? 'remote',
       description: updatedTicketResult.description as string,
       priority: updatedTicketResult.priority as TicketPriority,
       status: updatedTicketResult.status as TicketStatus,
-      createdAt: updatedTicketResult.created_at as string
+      createdAt: updatedTicketResult.created_at as string,
+      basePrice: typeof updatedTicketResult.base_price === 'number' ? updatedTicketResult.base_price : null,
+      formatSurcharge: typeof updatedTicketResult.format_surcharge === 'number' ? updatedTicketResult.format_surcharge : null,
+      finalPrice: typeof updatedTicketResult.final_price === 'number' ? updatedTicketResult.final_price : null,
     };
 
     return c.json({
@@ -1901,6 +2173,7 @@ app.delete('/api/tickets/:id', async (c) => {
   try {
     const id = c.req.param('id');
     const env = c.env as Env;
+    await ensureTicketsTable(env);
 
     // Проверка существования заявки
     const existing = await env.DB.prepare('SELECT id FROM tickets WHERE id = ?').bind(id).first();
@@ -1920,6 +2193,87 @@ app.delete('/api/tickets/:id', async (c) => {
 });
 
 // --- Admin endpoints ---
+
+app.get('/api/admin/service-formats', async (c) => {
+  try {
+    const env = c.env as Env;
+    const formats = await listServiceFormatSettings(env);
+    return c.json({
+      data: formats,
+      message: 'Настройки форматов услуг загружены успешно'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось загрузить форматы услуг';
+    return c.json({
+      error: 'Ошибка при загрузке форматов услуг',
+      details: message
+    }, 500);
+  }
+});
+
+app.put('/api/admin/service-formats', async (c) => {
+  try {
+    const env = c.env as Env;
+    await ensureServiceFormatSettings(env);
+    const body = await c.req.json();
+
+    const rawPayload = Array.isArray(body)
+      ? body
+      : Array.isArray(body?.formats)
+        ? body.formats
+        : [];
+
+    if (!rawPayload.length) {
+      return c.json({
+        error: 'Нет данных для обновления',
+        details: ['Необходимо передать массив с форматами услуг']
+      }, 400);
+    }
+
+    const errors: string[] = [];
+    const updates: ServiceFormatSetting[] = [];
+
+    rawPayload.forEach((item: any) => {
+      const format = sanitizeServiceFormat(item?.format);
+      const surcharge = Number(item?.surcharge);
+      if (!Number.isFinite(surcharge) || surcharge < 0) {
+        errors.push(`Наценка для формата "${format}" должна быть неотрицательным числом`);
+        return;
+      }
+      updates.push({ format, surcharge });
+    });
+
+    if (errors.length) {
+      return c.json({
+        error: 'Ошибка валидации',
+        details: errors
+      }, 400);
+    }
+
+    for (const item of updates) {
+      await env.DB.prepare(
+        `INSERT INTO service_format_surcharges (format, surcharge, updated_at)
+         VALUES (?, ?, CURRENT_TIMESTAMP)
+         ON CONFLICT(format) DO UPDATE SET
+           surcharge = excluded.surcharge,
+           updated_at = CURRENT_TIMESTAMP`
+      ).bind(item.format, item.surcharge).run();
+    }
+
+    const formats = await listServiceFormatSettings(env);
+
+    return c.json({
+      data: formats,
+      message: 'Настройки форматов услуг обновлены'
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Не удалось обновить форматы услуг';
+    return c.json({
+      error: 'Ошибка при обновлении форматов услуг',
+      details: message
+    }, 500);
+  }
+});
 
 // Services admin CRUD
 app.get('/api/admin/services', async (c) => {

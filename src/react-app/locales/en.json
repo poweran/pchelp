@@ -183,7 +183,16 @@
     "labelEmail": "Email",
     "placeholderEmail": "example@email.com",
     "labelServiceType": "Service type*",
+    "labelServiceFormat": "Service format",
+    "format": {
+      "remote": "Remote",
+      "on-site": "At client (home/office)",
+      "service-center": "In service center"
+    },
     "selectDefault": "Select service",
+    "servicesLoading": "Loading services...",
+    "servicesError": "Failed to load services: {error}",
+    "servicesEmpty": "No services available yet",
     "optionRepair": "Repair",
     "optionSetup": "Software setup",
     "optionRecovery": "Data recovery",
@@ -204,6 +213,12 @@
     "radioLow": "Low",
     "radioMedium": "Medium",
     "radioHigh": "High",
+    "priceTitle": "Price with format adjustments",
+    "priceLoading": "Calculating...",
+    "priceBase": "Base price",
+    "priceSurcharge": "Format surcharge",
+    "priceTotal": "Total",
+    "priceNotAvailable": "clarified after diagnostics",
     "submitButton": "Submit ticket",
     "submitLoading": "Sending..."
   },
@@ -235,6 +250,7 @@
     "priorityHigh": "High",
     "labelClient": "Client:",
     "labelService": "Service:",
+    "labelFormat": "Format:",
     "labelDescription": "Description:",
     "services": {
       "repair": "Repair",
@@ -243,7 +259,16 @@
       "consultation": "Consultation",
       "installation": "Equipment installation",
       "virus-removal": "Virus removal"
-    }
+    },
+    "formats": {
+      "remote": "Remote",
+      "on-site": "At client (home/office)",
+      "service-center": "In service center"
+    },
+    "priceBase": "Base",
+    "priceSurcharge": "Surcharge",
+    "priceTotal": "Total",
+    "priceNotAvailable": "to be confirmed"
   },
   "performancePage": {
     "title": "System performance",
@@ -460,12 +485,14 @@
         "client": "Client",
         "contact": "Contacts",
         "serviceType": "Service type",
-        "description": "Problem description",
+        "format": "Format",
         "priority": "Priority",
         "status": "Status",
+        "cost": "Cost",
         "created": "Created at",
         "actions": "Actions"
       },
+      "costDetails": "Base: {base} · Format: {surcharge}",
       "viewDescription": "View problem description"
     },
     "services": {
@@ -497,7 +524,14 @@
       "saved": "Service saved.",
       "confirmDelete": "Delete this service?",
       "errorDelete": "Could not delete the service.",
-      "deleted": "Service deleted."
+      "deleted": "Service deleted.",
+      "formatSettings": {
+        "title": "Format surcharges",
+        "description": "Configure additional costs for on-site and other service formats.",
+        "save": "Save surcharges",
+        "saved": "Format surcharges updated.",
+        "loading": "Loading surcharges..."
+      }
     },
     "pricing": {
       "loading": "Loading pricing...",

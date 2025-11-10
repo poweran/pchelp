@@ -6,7 +6,8 @@ import Input from '../components/common/Input';
 import Textarea from '../components/common/Textarea';
 import { useTickets } from '../hooks/useTickets';
 import { navigate } from '../utils/router';
-import type { TicketFormData } from '../types';
+import type { TicketFormData, ServiceFormat } from '../types';
+import { useTicketPricing } from '../hooks/useTicketPricing';
 import './HomePage.css';
 
 interface QuickFormData {
@@ -14,6 +15,7 @@ interface QuickFormData {
   phone: string;
   email: string;
   description: string;
+  serviceFormat: ServiceFormat;
 }
 
 interface UserIdentifier {
@@ -29,9 +31,17 @@ const HomePage = memo(function HomePage() {
     phone: '',
     email: '',
     description: '',
+    serviceFormat: 'remote',
   });
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
   const { loading, error, success, submitTicket, resetError } = useTickets();
+  const {
+    basePrice,
+    formatSurcharge,
+    finalPrice,
+    formatOptions,
+    loading: pricingLoading,
+  } = useTicketPricing('consultation', formData.serviceFormat);
 
   // Загрузка сохраненных данных пользователя при первом рендере
   useEffect(() => {
@@ -104,8 +114,12 @@ const HomePage = memo(function HomePage() {
       phone: formData.phone,
       email: formData.email,
       serviceType: 'consultation', // По умолчанию консультация для быстрой формы
+      serviceFormat: formData.serviceFormat,
       description: formData.description,
       priority: 'medium', // По умолчанию средний приоритет
+      basePrice: basePrice ?? null,
+      formatSurcharge: formatSurcharge ?? null,
+      finalPrice: finalPrice ?? null,
     };
 
     const result = await submitTicket(ticketData);
@@ -119,7 +133,7 @@ const HomePage = memo(function HomePage() {
       });
       localStorage.setItem('userIdentifier', userIdentifier);
 
-      setFormData({ name: '', phone: '', email: '', description: '' });
+      setFormData({ name: '', phone: '', email: '', description: '', serviceFormat: 'remote' });
       setValidationErrors({});
     }
   }, [formData, submitTicket, resetError, validateForm]);
@@ -266,6 +280,48 @@ const HomePage = memo(function HomePage() {
                 required
                 disabled={loading}
               />
+
+              <div className="form-group">
+                <label htmlFor="serviceFormat">{t('ticketForm.labelServiceFormat')}</label>
+                <select
+                  id="serviceFormat"
+                  className="form-select"
+                  value={formData.serviceFormat}
+                  onChange={(event) => setFormData({ ...formData, serviceFormat: event.target.value as ServiceFormat })}
+                  disabled={loading || pricingLoading}
+                >
+                  {formatOptions.map(option => (
+                    <option key={option.format} value={option.format}>
+                      {t(`ticketForm.format.${option.format}`)} (+{option.surcharge.toLocaleString('ru-RU')} {t('servicesPage.currency')})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="price-summary-card">
+                <div className="price-summary-row">
+                  <span>{t('ticketForm.priceBase')}</span>
+                  <strong>
+                    {basePrice !== null
+                      ? `${basePrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+                      : t('ticketForm.priceNotAvailable')}
+                  </strong>
+                </div>
+                <div className="price-summary-row">
+                  <span>{t('ticketForm.priceSurcharge')}</span>
+                  <strong>
+                    {`${(formatSurcharge ?? 0).toLocaleString('ru-RU')} ${t('servicesPage.currency')}`}
+                  </strong>
+                </div>
+                <div className="price-summary-total">
+                  <span>{t('ticketForm.priceTotal')}</span>
+                  <strong>
+                    {finalPrice !== null
+                      ? `${finalPrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+                      : t('ticketForm.priceNotAvailable')}
+                  </strong>
+                </div>
+              </div>
 
               <Textarea
                 label={t('homePage.describeProblem')}

@@ -183,7 +183,16 @@
     "labelEmail": "Email",
     "placeholderEmail": "example@email.com",
     "labelServiceType": "Ծառայության տեսակ*",
+    "labelServiceFormat": "Սպասարկման ձևաչափ",
+    "format": {
+      "remote": "Հեռավար",
+      "on-site": "Հաճախորդի մոտ (տուն/գրասենյակ)",
+      "service-center": "Սերվիս կենտրոնում"
+    },
     "selectDefault": "Ընտրել ծառայություն",
+    "servicesLoading": "Ծառայությունների ցանկը բեռնվում է...",
+    "servicesError": "Չհաջողվեց բեռնել ծառայությունները՝ {error}",
+    "servicesEmpty": "Ծառայությունների ցանկը դատարկ է",
     "optionRepair": "Վերանորոգում",
     "optionSetup": "Ծրագրային ապահովման տեղադրում",
     "optionRecovery": "Տվյալների վերականգնում",
@@ -204,6 +213,12 @@
     "radioLow": "Ցածր",
     "radioMedium": "Միջին",
     "radioHigh": "Բարձր",
+    "priceTitle": "Արժեքը՝ հաշվի առնելով ձևաչափը",
+    "priceLoading": "Հաշվարկ...",
+    "priceBase": "Հիմնական արժեք",
+    "priceSurcharge": "Լրացուցիչ վճար",
+    "priceTotal": "Ընդհանուր",
+    "priceNotAvailable": "կպարզվի ախտորոշումից հետո",
     "submitButton": "Ուղարկել հայտը",
     "submitLoading": "Ուղարկվում է..."
   },
@@ -235,6 +250,7 @@
     "priorityHigh": "Բարձր",
     "labelClient": "Հաճախորդ:",
     "labelService": "Ծառայություն:",
+    "labelFormat": "Ձևաչափ:",
     "labelDescription": "Նկարագրություն:",
     "services": {
       "repair": "Վերանորոգում",
@@ -243,7 +259,16 @@
       "consultation": "Խորհրդատվություն",
       "installation": "Սարքավորումների տեղադրում",
       "virus-removal": "Վիրուսների հեռացում"
-    }
+    },
+    "formats": {
+      "remote": "Հեռավար",
+      "on-site": "Հաճախորդի մոտ (տուն/գրասենյակ)",
+      "service-center": "Սերվիս կենտրոնում"
+    },
+    "priceBase": "Հիմք",
+    "priceSurcharge": "Լրացուցիչ",
+    "priceTotal": "Ընդհանուր",
+    "priceNotAvailable": "կպարզվի"
   },
   "performancePage": {
     "title": "Համակարգի արտադրողականություն",
@@ -460,12 +485,14 @@
         "client": "Հաճախորդ",
         "contact": "Կոնտակտներ",
         "serviceType": "Ծառայության տեսակ",
-        "description": "Խնդրի նկարագրություն",
+        "format": "Ձևաչափ",
         "priority": "Առաջնահերթություն",
         "status": "Կարգավիճակ",
+        "cost": "Արժեք",
         "created": "Ստեղծվել է",
         "actions": "Գործողություններ"
       },
+      "costDetails": "Հիմք՝ {base} · Լրացուցիչ՝ {surcharge}",
       "viewDescription": "Դիտել խնդրի նկարագրությունը"
     },
     "services": {
@@ -497,7 +524,14 @@
       "saved": "Ծառայությունը պահպանվել է.",
       "confirmDelete": "Ջնջե՞լ այս ծառայությունը:",
       "errorDelete": "Չհաջողվեց ջնջել ծառայությունը.",
-      "deleted": "Ծառայությունը ջնջվել է."
+      "deleted": "Ծառայությունը ջնջվել է.",
+      "formatSettings": {
+        "title": "Ձևաչափերի հավելավճարներ",
+        "description": "Կարգավորեք այցելության և այլ սպասարկման ձևաչափերի հավելավճարները։",
+        "save": "Պահպանել հավելավճարները",
+        "saved": "Հավելավճարների կարգավորումները թարմացվել են։",
+        "loading": "Հավելավճարների բեռնում..."
+      }
     },
     "pricing": {
       "loading": "Գնացուցակի բեռնում...",

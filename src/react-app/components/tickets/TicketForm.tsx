@@ -1,7 +1,9 @@
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from '../../hooks/useTickets';
-import type { TicketFormData, TicketPriority } from '../../types';
+import { useTicketPricing } from '../../hooks/useTicketPricing';
+import { useServices } from '../../hooks/useServices';
+import type { TicketFormData, TicketPriority, Service, LanguageCode, LocalizedText } from '../../types';
 import Input from '../common/Input';
 import Textarea from '../common/Textarea';
 import Button from '../common/Button';
@@ -12,6 +14,7 @@ interface FormErrors {
   phone?: string;
   email?: string;
   serviceType?: string;
+  serviceFormat?: string;
   description?: string;
 }
 
@@ -26,6 +29,7 @@ const initialFormData: TicketFormData = {
   phone: '',
   email: '',
   serviceType: '',
+  serviceFormat: 'remote',
   description: '',
   priority: 'medium',
 };
@@ -35,11 +39,94 @@ interface TicketFormProps {
 }
 
 export default function TicketForm({ onTicketCreated }: TicketFormProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [formData, setFormData] = useState<TicketFormData>(initialFormData);
     const [errors, setErrors] = useState<FormErrors>({});
-    const { loading, error, success, submitTicket, resetSuccess, resetError } = useTickets();
-    const { fetchTickets } = useTickets();
+    const [prefilledFromQuery, setPrefilledFromQuery] = useState(false);
+    const {
+      loading,
+      error,
+      success,
+      submitTicket,
+      resetSuccess,
+      resetError,
+      fetchTickets,
+    } = useTickets();
+    const {
+      services,
+      loading: servicesLoading,
+      error: servicesError,
+      loadServices,
+    } = useServices();
+    const {
+      basePrice,
+      formatSurcharge,
+      finalPrice,
+      formatOptions,
+      loading: pricingLoading,
+    } = useTicketPricing(formData.serviceType, formData.serviceFormat);
+
+    useEffect(() => {
+      loadServices();
+    }, [loadServices]);
+
+    const resolveLanguage = (language: string): LanguageCode => {
+      const normalized = (language || 'ru').split('-')[0] as LanguageCode;
+      return ['ru', 'en', 'hy'].includes(normalized) ? normalized : 'ru';
+    };
+
+    const currentLanguage = useMemo<LanguageCode>(() => resolveLanguage(i18n.language), [i18n.language]);
+
+    const numberLocale = useMemo(() => {
+      switch (currentLanguage) {
+        case 'en':
+          return 'en-US';
+        case 'hy':
+          return 'hy-AM';
+        default:
+          return 'ru-RU';
+      }
+    }, [currentLanguage]);
+
+    const getLocalizedText = (text: LocalizedText): string => {
+      return text[currentLanguage] ?? text.ru;
+    };
+
+    const formatNumber = (value: number): string => {
+      return value.toLocaleString(numberLocale);
+    };
+
+    const formatServicePrice = (service: Service): string => {
+      const currency = t('servicesPage.currency');
+      if (typeof service.price === 'number' && service.price > 0) {
+        return `${formatNumber(service.price)} ${currency}`;
+      }
+
+      const hasMin = typeof service.minPrice === 'number' && service.minPrice > 0;
+      const hasMax = typeof service.maxPrice === 'number' && service.maxPrice > 0;
+
+      if (hasMin && hasMax) {
+        return `${formatNumber(service.minPrice!)}–${formatNumber(service.maxPrice!)} ${currency}`;
+      }
+
+      if (hasMin) {
+        return `≥ ${formatNumber(service.minPrice!)} ${currency}`;
+      }
+
+      if (hasMax) {
+        return `≤ ${formatNumber(service.maxPrice!)} ${currency}`;
+      }
+
+      return t('ticketForm.priceNotAvailable');
+    };
+
+    const serviceOptions = useMemo(
+      () => services.map(service => ({
+        id: service.id,
+        label: `${getLocalizedText(service.title)} — ${formatServicePrice(service)}`,
+      })),
+      [services, currentLanguage, numberLocale, t]
+    );
 
     // Загрузка сохраненных данных пользователя при первом рендере
     useEffect(() => {
@@ -58,16 +145,46 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
         }
       }
 
-      // Чтение категории из query params
+    }, []);
+
+    useEffect(() => {
+      if (prefilledFromQuery) {
+        return;
+      }
+
+      if (formData.serviceType) {
+        setPrefilledFromQuery(true);
+        return;
+      }
+
+      if (servicesLoading) {
+        return;
+      }
+
+      if (!services.length) {
+        setPrefilledFromQuery(true);
+        return;
+      }
+
       const urlParams = new URLSearchParams(window.location.search);
       const category = urlParams.get('category');
-      if (category) {
+      if (!category) {
+        setPrefilledFromQuery(true);
+        return;
+      }
+
+      const matchedService = services.find(service =>
+        service.id === category || service.category === category
+      );
+
+      if (matchedService) {
         setFormData(prev => ({
           ...prev,
-          serviceType: category,
+          serviceType: matchedService.id,
         }));
       }
-    }, []);
+      setPrefilledFromQuery(true);
+    }, [services, servicesLoading, prefilledFromQuery, formData.serviceType]);
 
     // Загрузка сохраненных данных после успешной отправки формы
     useEffect(() => {
@@ -157,11 +274,18 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
         return;
     }
 
-    const result = await submitTicket(formData);
+    const payload: TicketFormData = {
+      ...formData,
+      basePrice: basePrice ?? null,
+      formatSurcharge: formatSurcharge ?? null,
+      finalPrice: finalPrice ?? null,
+    };
+
+    const result = await submitTicket(payload);
 
     if (result.success) {
       // Notify parent component about the new ticket
-      onTicketCreated(formData);
+      onTicketCreated(payload);
 
       // Сохранение данных пользователя в localStorage для фильтрации тикетов и автозаполнения формы
       const userIdentifier = JSON.stringify({
@@ -260,19 +384,77 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
             ...selectStyle,
             ...(errors.serviceType ? errorBorderStyle : {}),
           }}
-          disabled={loading}
+          disabled={loading || servicesLoading}
         >
-          <option value="">{t('ticketForm.selectDefault')}</option>
-          <option value="repair">{t('ticketForm.optionRepair')}</option>
-          <option value="setup">{t('ticketForm.optionSetup')}</option>
-          <option value="recovery">{t('ticketForm.optionRecovery')}</option>
-          <option value="consultation">{t('ticketForm.optionConsultation')}</option>
-          <option value="installation">{t('ticketForm.optionInstallation')}</option>
-          <option value="virus-removal">{t('ticketForm.optionVirusRemoval')}</option>
+          <option value="">
+            {servicesLoading ? t('ticketForm.servicesLoading') : t('ticketForm.selectDefault')}
+          </option>
+          {serviceOptions.map(option => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
         </select>
         {errors.serviceType && (
           <span style={errorTextStyle}>{errors.serviceType}</span>
         )}
+        {servicesError && (
+          <span style={errorTextStyle}>
+            {t('ticketForm.servicesError', { error: servicesError })}
+          </span>
+        )}
+        {!servicesLoading && !servicesError && serviceOptions.length === 0 && (
+          <span style={errorTextStyle}>{t('ticketForm.servicesEmpty')}</span>
+        )}
+      </div>
+
+      {/* Формат оказания услуги */}
+      <div style={fieldWrapperStyle}>
+        <label style={labelStyle}>
+          {t('ticketForm.labelServiceFormat')}
+        </label>
+        <select
+          value={formData.serviceFormat}
+          onChange={(e) => handleChange('serviceFormat', e.target.value)}
+          style={selectStyle}
+          disabled={loading || pricingLoading}
+        >
+          {formatOptions.map(option => (
+            <option key={option.format} value={option.format}>
+              {t(`ticketForm.format.${option.format}`)} (+{option.surcharge.toLocaleString('ru-RU')} {t('servicesPage.currency')})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Стоимость */}
+      <div style={priceSummaryStyle}>
+        <div style={priceSummaryHeaderStyle}>
+          <span>{t('ticketForm.priceTitle')}</span>
+          {pricingLoading && <span>{t('ticketForm.priceLoading')}</span>}
+        </div>
+        <div style={priceSummaryRowStyle}>
+          <span>{t('ticketForm.priceBase')}</span>
+          <strong style={priceSummaryValueStyle}>
+            {basePrice !== null
+              ? `${basePrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+              : t('ticketForm.priceNotAvailable')}
+          </strong>
+        </div>
+        <div style={priceSummaryRowStyle}>
+          <span>{t('ticketForm.priceSurcharge')}</span>
+          <strong style={priceSummaryValueStyle}>
+            {`${(formatSurcharge ?? 0).toLocaleString('ru-RU')} ${t('servicesPage.currency')}`}
+          </strong>
+        </div>
+        <div style={priceSummaryTotalStyle}>
+          <span>{t('ticketForm.priceTotal')}</span>
+          <strong>
+            {finalPrice !== null
+              ? `${finalPrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+              : t('ticketForm.priceNotAvailable')}
+          </strong>
+        </div>
       </div>
 
       {/* Приоритет */}
@@ -394,6 +576,43 @@ const errorTextStyle: CSSProperties = {
   fontSize: '0.75rem',
   color: '#ef4444',
   marginTop: '0.25rem',
+};
+
+const priceSummaryStyle: CSSProperties = {
+  border: '1px solid #e2e8f0',
+  borderRadius: '0.5rem',
+  padding: '1rem',
+  backgroundColor: '#f8fafc',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
+};
+
+const priceSummaryHeaderStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '0.9rem',
+  color: '#475569',
+};
+
+const priceSummaryRowStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '0.9rem',
+  color: '#475569',
+};
+
+const priceSummaryTotalStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '1rem',
+  fontWeight: 600,
+  color: '#0f172a',
+};
+
+const priceSummaryValueStyle: CSSProperties = {
+  fontWeight: 600,
+  color: '#0f172a',
 };
 
 const radioGroupStyle: CSSProperties = {

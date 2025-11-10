@@ -184,7 +184,16 @@
     "labelEmail": "Email",
     "placeholderEmail": "example@email.com",
     "labelServiceType": "Тип услуги*",
+    "labelServiceFormat": "Формат оказания услуги",
+    "format": {
+      "remote": "Удалённо",
+      "on-site": "У заказчика (дом/офис)",
+      "service-center": "В сервис-центре"
+    },
     "selectDefault": "Выберите услугу",
+    "servicesLoading": "Загрузка списка услуг...",
+    "servicesError": "Не удалось загрузить услуги: {error}",
+    "servicesEmpty": "Список услуг пока пуст",
     "optionRepair": "Ремонт",
     "optionSetup": "Настройка ПО",
     "optionRecovery": "Восстановление данных",
@@ -205,6 +214,12 @@
     "radioLow": "Низкий",
     "radioMedium": "Средний",
     "radioHigh": "Высокий",
+    "priceTitle": "Стоимость с учётом формата",
+    "priceLoading": "Расчёт...",
+    "priceBase": "Базовая стоимость",
+    "priceSurcharge": "Наценка за формат",
+    "priceTotal": "Итого",
+    "priceNotAvailable": "уточняется после диагностики",
     "submitButton": "Отправить заявку",
     "submitLoading": "Отправка..."
   },
@@ -236,6 +251,7 @@
     "priorityHigh": "Высокий",
     "labelClient": "Клиент:",
     "labelService": "Услуга:",
+    "labelFormat": "Формат:",
     "labelDescription": "Описание:",
     "services": {
       "repair": "Ремонт",
@@ -244,7 +260,16 @@
       "consultation": "Консультация",
       "installation": "Установка оборудования",
       "virus-removal": "Удаление вирусов"
-    }
+    },
+    "formats": {
+      "remote": "Удалённо",
+      "on-site": "У заказчика (дом/офис)",
+      "service-center": "В сервис-центре"
+    },
+    "priceBase": "База",
+    "priceSurcharge": "Наценка",
+    "priceTotal": "Итого",
+    "priceNotAvailable": "уточняется"
   },
   "performancePage": {
     "title": "Производительность системы",
@@ -461,11 +486,14 @@
         "client": "Клиент",
         "contact": "Контакты",
         "serviceType": "Тип услуги",
+        "format": "Формат",
         "priority": "Приоритет",
         "status": "Статус",
+        "cost": "Стоимость",
         "created": "Создан",
         "actions": "Действия"
       },
+      "costDetails": "База: {base} · Наценка: {surcharge}",
       "viewDescription": "Просмотр текста проблемы"
     },
     "services": {
@@ -497,7 +525,14 @@
       "saved": "Услуга сохранена.",
       "confirmDelete": "Удалить эту услугу?",
       "errorDelete": "Не удалось удалить услугу.",
-      "deleted": "Услуга удалена."
+      "deleted": "Услуга удалена.",
+      "formatSettings": {
+        "title": "Наценки по форматам",
+        "description": "Настройте доплату за выезд и другие форматы оказания услуг.",
+        "save": "Сохранить наценки",
+        "saved": "Настройки наценок обновлены.",
+        "loading": "Загрузка наценок..."
+      }
     },
     "pricing": {
       "loading": "Загрузка прайс-листа...",

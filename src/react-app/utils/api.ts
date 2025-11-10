@@ -10,6 +10,7 @@ import type {
   AdminServicePayload,
   AdminKnowledgeItem,
   AdminKnowledgePayload,
+  ServiceFormatSetting,
 } from '../types';
 
 // Базовый URL для API
@@ -188,4 +189,17 @@ export async function updateAdminKnowledge(id: string, data: AdminKnowledgePaylo
 
 export async function deleteAdminKnowledge(id: string) {
   return del<null>(`/admin/knowledge/${id}`);
+}
+
+// Service format surcharges
+export async function fetchServiceFormats() {
+  return get<ServiceFormatSetting[]>('/service-formats');
+}
+
+export async function fetchAdminServiceFormats() {
+  return get<ServiceFormatSetting[]>('/admin/service-formats');
+}
+
+export async function updateAdminServiceFormats(data: ServiceFormatSetting[]) {
+  return put<ServiceFormatSetting[]>('/admin/service-formats', data);
 }

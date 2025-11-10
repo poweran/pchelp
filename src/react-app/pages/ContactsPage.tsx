@@ -5,6 +5,7 @@ import Button from '../components/common/Button';
 import type { TicketFormData } from '../types';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from '../hooks/useTickets';
+import { useTicketPricing } from '../hooks/useTicketPricing';
 import './ContactsPage.css';
 
 interface UserIdentifier {
@@ -20,11 +21,19 @@ const ContactsPage: React.FC = () => {
     phone: '',
     email: '',
     serviceType: 'consultation',
+    serviceFormat: 'remote',
     description: '',
     priority: 'medium',
   });
   const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
   const { loading, error, success, submitTicket, resetError } = useTickets();
+  const {
+    basePrice,
+    formatSurcharge,
+    finalPrice,
+    formatOptions,
+    loading: pricingLoading,
+  } = useTicketPricing(formData.serviceType, formData.serviceFormat);
 
   // Загрузка сохраненных данных пользователя при первом рендере
   useEffect(() => {
@@ -89,7 +98,14 @@ const ContactsPage: React.FC = () => {
       return;
     }
 
-    const result = await submitTicket(formData);
+    const payload: TicketFormData = {
+      ...formData,
+      basePrice: basePrice ?? null,
+      formatSurcharge: formatSurcharge ?? null,
+      finalPrice: finalPrice ?? null,
+    };
+
+    const result = await submitTicket(payload);
 
     if (result.success) {
       // Сохранение данных пользователя в localStorage после успешной отправки
@@ -105,6 +121,7 @@ const ContactsPage: React.FC = () => {
         phone: '',
         email: '',
         serviceType: 'consultation',
+        serviceFormat: 'remote',
         description: '',
         priority: 'medium',
       });
@@ -221,6 +238,48 @@ const ContactsPage: React.FC = () => {
                 error={validationErrors.email}
                 disabled={loading}
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="serviceFormat">{t('ticketForm.labelServiceFormat')}</label>
+              <select
+                id="serviceFormat"
+                className="form-select"
+                value={formData.serviceFormat}
+                onChange={(event) => handleChange(event.target.value, 'serviceFormat')}
+                disabled={loading || pricingLoading}
+              >
+                {formatOptions.map(option => (
+                  <option key={option.format} value={option.format}>
+                    {t(`ticketForm.format.${option.format}`)} (+{option.surcharge.toLocaleString('ru-RU')} {t('servicesPage.currency')})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="price-summary-card">
+              <div className="price-summary-row">
+                <span>{t('ticketForm.priceBase')}</span>
+                <strong>
+                  {basePrice !== null
+                    ? `${basePrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+                    : t('ticketForm.priceNotAvailable')}
+                </strong>
+              </div>
+              <div className="price-summary-row">
+                <span>{t('ticketForm.priceSurcharge')}</span>
+                <strong>
+                  {`${(formatSurcharge ?? 0).toLocaleString('ru-RU')} ${t('servicesPage.currency')}`}
+                </strong>
+              </div>
+              <div className="price-summary-total">
+                <span>{t('ticketForm.priceTotal')}</span>
+                <strong>
+                  {finalPrice !== null
+                    ? `${finalPrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+                    : t('ticketForm.priceNotAvailable')}
+                </strong>
+              </div>
             </div>
 
             <div className="form-group">

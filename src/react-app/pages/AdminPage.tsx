@@ -18,6 +18,8 @@ import {
   createAdminKnowledge,
   updateAdminKnowledge,
   deleteAdminKnowledge,
+  fetchAdminServiceFormats,
+  updateAdminServiceFormats,
 } from '../utils/api';
 import type {
   Ticket,
@@ -31,8 +33,10 @@ import type {
   ServiceCategory,
   KnowledgeType,
   LanguageCode,
+  ServiceFormat,
+  ServiceFormatSetting,
 } from '../types';
-import { SERVICE_CATEGORIES } from '../types';
+import { SERVICE_CATEGORIES, SERVICE_FORMATS } from '../types';
 import './AdminPage.css';
 
 type AdminTab = 'tickets' | 'services' | 'knowledge';
@@ -103,6 +107,11 @@ const createEmptyKnowledgeForm = (): KnowledgeFormState => ({
   type: 'faq',
 });
 
+interface FormatFormValue {
+  format: ServiceFormat;
+  surcharge: string;
+}
+
 const TicketsSection: React.FC = () => {
   const { t } = useTranslation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -165,6 +174,15 @@ const TicketsSection: React.FC = () => {
     medium: t('ticketCard.priorityMedium'),
     high: t('ticketCard.priorityHigh'),
   }), [t]);
+  const formatLabels = useCallback((format: Ticket['serviceFormat']) => (
+    t(`ticketCard.formats.${format}`, { defaultValue: format })
+  ), [t]);
+  const formatPrice = useCallback((value: number | null | undefined) => {
+    if (typeof value === 'number') {
+      return `${value.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`;
+    }
+    return t('ticketCard.priceNotAvailable');
+  }, [t]);
 
   const handleStatusChange = async (ticketId: string, status: TicketStatus) => {
     setProcessingId(ticketId);
@@ -250,8 +268,10 @@ const TicketsSection: React.FC = () => {
                 <th>{t('admin.tickets.table.client')}</th>
                 <th>{t('admin.tickets.table.contact')}</th>
                 <th>{t('admin.tickets.table.serviceType')}</th>
+                <th>{t('admin.tickets.table.format')}</th>
                 <th>{t('admin.tickets.table.priority')}</th>
                 <th>{t('admin.tickets.table.status')}</th>
+                <th>{t('admin.tickets.table.cost')}</th>
                 <th>{t('admin.tickets.table.created')}</th>
                 <th>{t('admin.tickets.table.actions')}</th>
               </tr>
@@ -268,6 +288,7 @@ const TicketsSection: React.FC = () => {
                     <div>{ticket.email}</div>
                   </td>
                   <td>{ticket.serviceType}</td>
+                  <td>{formatLabels(ticket.serviceFormat)}</td>
                   <td>
                     <select
                       className="admin-select"
@@ -295,6 +316,17 @@ const TicketsSection: React.FC = () => {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td>
+                    <div className="admin-ticket__cost-main">
+                      {formatPrice(ticket.finalPrice ?? ticket.basePrice ?? null)}
+                    </div>
+                    <div className="admin-ticket__cost-details">
+                      {t('admin.tickets.costDetails', {
+                        base: formatPrice(ticket.basePrice ?? null),
+                        surcharge: formatPrice(ticket.formatSurcharge ?? null),
+                      })}
+                    </div>
                   </td>
                   <td>{formatDateTime(ticket.createdAt)}</td>
                   <td>
@@ -347,6 +379,13 @@ const ServicesSection: React.FC = () => {
   const [formState, setFormState] = useState<ServiceFormState>(() => createEmptyServiceForm());
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [formatSettings, setFormatSettings] = useState<FormatFormValue[]>(
+    () => SERVICE_FORMATS.map(format => ({ format, surcharge: '0' }))
+  );
+  const [formatLoading, setFormatLoading] = useState(true);
+  const [formatError, setFormatError] = useState<string | null>(null);
+  const [formatFeedback, setFormatFeedback] = useState<string | null>(null);
+  const [formatSaving, setFormatSaving] = useState(false);
 
   const loadServices = async () => {
     setLoading(true);
@@ -363,9 +402,62 @@ const ServicesSection: React.FC = () => {
     setLoading(false);
   };
 
+  const mapFormatResponseToState = useCallback((items?: ServiceFormatSetting[]) => {
+    const source = Array.isArray(items) ? items : [];
+    return SERVICE_FORMATS.map(format => {
+      const found = source.find(item => item.format === format);
+      return {
+        format,
+        surcharge: found ? String(found.surcharge ?? 0) : '0',
+      };
+    });
+  }, []);
+
+  const loadFormatSettings = useCallback(async () => {
+    setFormatLoading(true);
+    setFormatError(null);
+    setFormatFeedback(null);
+    const response = await fetchAdminServiceFormats();
+    if (response.error) {
+      setFormatError(response.error);
+      setFormatSettings(mapFormatResponseToState());
+    } else {
+      setFormatSettings(mapFormatResponseToState(response.data));
+    }
+    setFormatLoading(false);
+  }, [mapFormatResponseToState]);
+
+  const handleFormatInputChange = (format: ServiceFormat, value: string) => {
+    setFormatSettings(prev => prev.map(item => item.format === format ? { ...item, surcharge: value } : item));
+  };
+
+  const handleSaveFormats = async () => {
+    setFormatSaving(true);
+    setFormatError(null);
+    setFormatFeedback(null);
+    const payload = formatSettings.map(item => {
+      const numeric = Number(item.surcharge);
+      const surcharge = Number.isFinite(numeric) && numeric >= 0 ? numeric : 0;
+      return { format: item.format, surcharge };
+    });
+
+    const response = await updateAdminServiceFormats(payload);
+    if (response.error) {
+      setFormatError(response.error);
+    } else {
+      setFormatFeedback(t('admin.services.formatSettings.saved'));
+      setFormatSettings(mapFormatResponseToState(response.data));
+    }
+    setFormatSaving(false);
+  };
+
   useEffect(() => {
     loadServices();
   }, []);
+
+  useEffect(() => {
+    loadFormatSettings();
+  }, [loadFormatSettings]);
 
   const languageLabels = useMemo<Record<LanguageCode, string>>(() => ({
     ru: t('admin.locales.ru'),
@@ -646,6 +738,41 @@ const ServicesSection: React.FC = () => {
             </Button>
           </div>
         </form>
+      </div>
+
+      <div className="admin-format-settings">
+        <h3>{t('admin.services.formatSettings.title')}</h3>
+        <p className="admin-format-settings__description">
+          {t('admin.services.formatSettings.description')}
+        </p>
+        {formatError && <div className="admin-feedback admin-feedback--error">{formatError}</div>}
+        {formatFeedback && <div className="admin-feedback admin-feedback--success">{formatFeedback}</div>}
+        {formatLoading ? (
+          <Loading text={t('admin.services.formatSettings.loading')} />
+        ) : (
+          <>
+            <div className="admin-format-grid">
+              {formatSettings.map(setting => (
+                <Input
+                  key={setting.format}
+                  type="number"
+                  label={`${t(`ticketForm.format.${setting.format}`)} (${t('servicesPage.currency')})`}
+                  value={setting.surcharge}
+                  onChange={(value) => handleFormatInputChange(setting.format, value)}
+                  disabled={formatSaving}
+                />
+              ))}
+            </div>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={handleSaveFormats}
+              disabled={formatSaving}
+            >
+              {formatSaving ? t('admin.actions.saving') : t('admin.services.formatSettings.save')}
+            </Button>
+          </>
+        )}
       </div>
     </section>
   );

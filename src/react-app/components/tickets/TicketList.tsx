@@ -1,6 +1,7 @@
-import { CSSProperties, useState } from 'react';
+import { CSSProperties, useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Ticket } from '../../types';
+import type { Ticket, LanguageCode } from '../../types';
+import { useServices } from '../../hooks/useServices';
 import TicketCard from './TicketCard';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
@@ -14,8 +15,29 @@ interface TicketListProps {
 }
 
 export default function TicketList({ tickets, loading, error, loadTickets }: TicketListProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const {
+    services,
+    loadServices,
+  } = useServices();
+
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
+
+  const resolveLanguage = (language: string): LanguageCode => {
+    const normalized = (language || 'ru').split('-')[0] as LanguageCode;
+    return ['ru', 'en', 'hy'].includes(normalized) ? normalized : 'ru';
+  };
+
+  const localizedServices = useMemo(() => {
+    const lang = resolveLanguage(i18n.language);
+    return services.reduce<Record<string, string>>((acc, service) => {
+      acc[service.id] = service.title[lang] ?? service.title.ru;
+      return acc;
+    }, {});
+  }, [services, i18n.language]);
 
 
   // Сортировка заявок по дате создания (новые сначала)
@@ -94,6 +116,7 @@ if (error) {
                 <TicketCard
                   ticket={ticket}
                   deleting={deletingId === ticket.id}
+                  serviceName={localizedServices[ticket.serviceType]}
                   onDelete={async (id: string) => {
                     try {
                       setDeletingId(id);

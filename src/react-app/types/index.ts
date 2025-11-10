@@ -25,6 +25,15 @@ export type ServiceCategory = 'repair' | 'setup' | 'recovery' | 'consultation';
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = ['repair', 'setup', 'recovery', 'consultation'];
 
+export type ServiceFormat = 'remote' | 'on-site' | 'service-center';
+
+export const SERVICE_FORMATS: ServiceFormat[] = ['remote', 'on-site', 'service-center'];
+
+export interface ServiceFormatSetting {
+  format: ServiceFormat;
+  surcharge: number;
+}
+
 // Типы для заявок
 export interface Ticket {
   id: string;
@@ -37,6 +46,10 @@ export interface Ticket {
   priority: TicketPriority;
   status: TicketStatus;
   createdAt: string;
+  serviceFormat: ServiceFormat;
+  basePrice?: number | null;
+  formatSurcharge?: number | null;
+  finalPrice?: number | null;
 }
 
 export type TicketPriority = 'low' | 'medium' | 'high';
@@ -102,8 +115,12 @@ export interface TicketFormData {
   phone: string;
   email: string;
   serviceType: string;
+  serviceFormat: ServiceFormat;
   description: string;
   priority: TicketPriority;
+  basePrice?: number | null;
+  formatSurcharge?: number | null;
+  finalPrice?: number | null;
 }
 
 export interface ContactFormData {

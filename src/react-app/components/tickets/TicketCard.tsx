@@ -8,10 +8,18 @@ interface TicketCardProps {
   ticket: Ticket;
   onDelete?: (id: string) => void;
   deleting?: boolean;
+  serviceName?: string;
 }
 
-export default function TicketCard({ ticket, onDelete, deleting = false }: TicketCardProps) {
+export default function TicketCard({ ticket, onDelete, deleting = false, serviceName }: TicketCardProps) {
    const { t } = useTranslation();
+   const resolvedServiceName = serviceName ?? t(`ticketCard.services.${ticket.serviceType}`, { defaultValue: ticket.serviceType });
+   const formatPrice = (value: number | null) => {
+     if (typeof value === 'number') {
+       return `${value.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`;
+     }
+     return t('ticketCard.priceNotAvailable');
+   };
 
    // Получить стиль для статуса
    const getStatusStyle = (status: Ticket['status']): CSSProperties => {
@@ -154,7 +162,27 @@ export default function TicketCard({ ticket, onDelete, deleting = false }: Ticke
         {/* Тип услуги */}
         <div style={sectionStyle}>
           <div style={labelStyle}>{t('ticketCard.labelService')}</div>
-          <div style={valueStyle}>{getServiceTypeText(ticket.serviceType)}</div>
+          <div style={valueStyle}>{resolvedServiceName}</div>
+        </div>
+
+        <div style={sectionStyle}>
+          <div style={labelStyle}>{t('ticketCard.labelFormat')}</div>
+          <div style={valueStyle}>{t(`ticketCard.formats.${ticket.serviceFormat}`, { defaultValue: ticket.serviceFormat })}</div>
+        </div>
+
+        <div style={priceBoxStyle}>
+          <div style={priceRowStyle}>
+            <span>{t('ticketCard.priceBase')}</span>
+            <strong>{formatPrice(ticket.basePrice ?? null)}</strong>
+          </div>
+          <div style={priceRowStyle}>
+            <span>{t('ticketCard.priceSurcharge')}</span>
+            <strong>{formatPrice(ticket.formatSurcharge ?? null)}</strong>
+          </div>
+          <div style={priceTotalStyle}>
+            <span>{t('ticketCard.priceTotal')}</span>
+            <strong>{formatPrice(ticket.finalPrice ?? null)}</strong>
+          </div>
         </div>
  
         {/* Описание проблемы */}
@@ -172,12 +200,6 @@ export default function TicketCard({ ticket, onDelete, deleting = false }: Ticke
       </div>
     </Card>
   );
-}
-
-// Вспомогательная функция для получения текста типа услуги
-function getServiceTypeText(serviceType: string): string {
-  const { t } = useTranslation();
-  return t(`ticketCard.services.${serviceType}`, { defaultValue: serviceType });
 }
 
 // Стили
@@ -256,6 +278,31 @@ const valueStyle: CSSProperties = {
   fontSize: '0.875rem',
   color: '#1e293b',
   fontWeight: 500,
+};
+
+const priceBoxStyle: CSSProperties = {
+  border: '1px solid #e2e8f0',
+  borderRadius: '0.5rem',
+  padding: '0.75rem',
+  backgroundColor: '#f8fafc',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.25rem',
+};
+
+const priceRowStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '0.8rem',
+  color: '#475569',
+};
+
+const priceTotalStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '0.9rem',
+  fontWeight: 600,
+  color: '#0f172a',
 };
 
 const contactsStyle: CSSProperties = {
