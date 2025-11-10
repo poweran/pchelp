@@ -44,7 +44,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
   }, [isHovered, service.videoUrl]);
 
   const handleClick = () => {
-    navigate(`/tickets?category=${service.category}`);
+    navigate(`/tickets?service=${service.id}`);
   };
 
   return (

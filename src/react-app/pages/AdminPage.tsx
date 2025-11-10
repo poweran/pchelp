@@ -36,7 +36,7 @@ import type {
   ServiceFormat,
   ServiceFormatSetting,
 } from '../types';
-import { SERVICE_CATEGORIES, SERVICE_FORMATS } from '../types';
+import { SERVICE_CATEGORIES } from '../types';
 import './AdminPage.css';
 
 type AdminTab = 'tickets' | 'services' | 'knowledge';
@@ -107,10 +107,23 @@ const createEmptyKnowledgeForm = (): KnowledgeFormState => ({
   type: 'faq',
 });
 
-interface FormatFormValue {
-  format: ServiceFormat;
-  surcharge: string;
-}
+const FORMAT_SERVICE_ID = 'service-format-on-site';
+const ON_SITE_FORMAT: ServiceFormat = 'on-site';
+const FORMAT_SERVICE_TITLE: LocalizedText = {
+  ru: 'Доплата за выезд',
+  en: 'On-site visit surcharge',
+  hy: 'Այցի հավելավճար',
+};
+const FORMAT_SERVICE_DESCRIPTION: LocalizedText = {
+  ru: 'Служебная услуга для учета выезда специалиста. Не отображается на сайте.',
+  en: 'Internal service used to account for technician visits. Not visible on the public site.',
+  hy: 'Ծառայություն, որը հաշվարկում է մասնագետի այցի հավելավճարը։ Կայքում չի ցուցադրվում։',
+};
+const FORMAT_SERVICE_UNIT: LocalizedText = {
+  ru: 'доплата',
+  en: 'surcharge',
+  hy: 'լրացուցիչ վճար',
+};
 
 const TicketsSection: React.FC = () => {
   const { t } = useTranslation();
@@ -330,23 +343,27 @@ const TicketsSection: React.FC = () => {
                   </td>
                   <td>{formatDateTime(ticket.createdAt)}</td>
                   <td>
-                    <Button
-                      onClick={() => handleViewDescription(ticket)}
-                      variant="secondary"
-                      size="small"
-                      title={t('admin.tickets.viewDescription')}
-                    >
-                      ⓘ
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(ticket.id)}
-                      variant="danger"
-                      size="small"
-                      disabled={deletingId === ticket.id}
-                      title={deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
-                    >
-                      ✖
-                    </Button>
+                    <div className="admin-ticket__actions">
+                      <Button
+                        className="admin-ticket__action-button"
+                        onClick={() => handleViewDescription(ticket)}
+                        variant="secondary"
+                        size="small"
+                        title={t('admin.tickets.viewDescription')}
+                      >
+                        ⓘ
+                      </Button>
+                      <Button
+                        className="admin-ticket__action-button"
+                        onClick={() => handleDelete(ticket.id)}
+                        variant="danger"
+                        size="small"
+                        disabled={deletingId === ticket.id}
+                        title={deletingId === ticket.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
+                      >
+                        ✖
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -379,13 +396,8 @@ const ServicesSection: React.FC = () => {
   const [formState, setFormState] = useState<ServiceFormState>(() => createEmptyServiceForm());
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [formatSettings, setFormatSettings] = useState<FormatFormValue[]>(
-    () => SERVICE_FORMATS.map(format => ({ format, surcharge: '0' }))
-  );
-  const [formatLoading, setFormatLoading] = useState(true);
-  const [formatError, setFormatError] = useState<string | null>(null);
-  const [formatFeedback, setFormatFeedback] = useState<string | null>(null);
-  const [formatSaving, setFormatSaving] = useState(false);
+  const [formatSetting, setFormatSetting] = useState<ServiceFormatSetting | null>(null);
+  const [isFormatServiceSelected, setIsFormatServiceSelected] = useState(false);
 
   const loadServices = async () => {
     setLoading(true);
@@ -402,62 +414,44 @@ const ServicesSection: React.FC = () => {
     setLoading(false);
   };
 
-  const mapFormatResponseToState = useCallback((items?: ServiceFormatSetting[]) => {
-    const source = Array.isArray(items) ? items : [];
-    return SERVICE_FORMATS.map(format => {
-      const found = source.find(item => item.format === format);
-      return {
-        format,
-        surcharge: found ? String(found.surcharge ?? 0) : '0',
-      };
-    });
-  }, []);
-
-  const loadFormatSettings = useCallback(async () => {
-    setFormatLoading(true);
-    setFormatError(null);
-    setFormatFeedback(null);
-    const response = await fetchAdminServiceFormats();
-    if (response.error) {
-      setFormatError(response.error);
-      setFormatSettings(mapFormatResponseToState());
-    } else {
-      setFormatSettings(mapFormatResponseToState(response.data));
-    }
-    setFormatLoading(false);
-  }, [mapFormatResponseToState]);
-
-  const handleFormatInputChange = (format: ServiceFormat, value: string) => {
-    setFormatSettings(prev => prev.map(item => item.format === format ? { ...item, surcharge: value } : item));
-  };
-
-  const handleSaveFormats = async () => {
-    setFormatSaving(true);
-    setFormatError(null);
-    setFormatFeedback(null);
-    const payload = formatSettings.map(item => {
-      const numeric = Number(item.surcharge);
-      const surcharge = Number.isFinite(numeric) && numeric >= 0 ? numeric : 0;
-      return { format: item.format, surcharge };
-    });
-
-    const response = await updateAdminServiceFormats(payload);
-    if (response.error) {
-      setFormatError(response.error);
-    } else {
-      setFormatFeedback(t('admin.services.formatSettings.saved'));
-      setFormatSettings(mapFormatResponseToState(response.data));
-    }
-    setFormatSaving(false);
-  };
-
   useEffect(() => {
     loadServices();
   }, []);
 
+  const loadFormatSetting = useCallback(async () => {
+    const response = await fetchAdminServiceFormats();
+    if (response.error) {
+      setFormatSetting(null);
+    } else {
+      const items = Array.isArray(response.data) ? response.data : [];
+      const onSite = items.find(item => item.format === ON_SITE_FORMAT);
+      setFormatSetting(onSite ?? { format: ON_SITE_FORMAT, surcharge: 2000 });
+    }
+  }, []);
+
   useEffect(() => {
-    loadFormatSettings();
-  }, [loadFormatSettings]);
+    loadFormatSetting();
+  }, [loadFormatSetting]);
+
+  const formatService = useMemo<AdminService | null>(() => {
+    if (!formatSetting) {
+      return null;
+    }
+    return {
+      id: FORMAT_SERVICE_ID,
+      title: FORMAT_SERVICE_TITLE,
+      description: FORMAT_SERVICE_DESCRIPTION,
+      category: 'repair',
+      price: formatSetting.surcharge,
+      minPrice: null,
+      maxPrice: null,
+      unit: FORMAT_SERVICE_UNIT,
+    };
+  }, [formatSetting]);
+
+  const displayServices = useMemo(() => {
+    return formatService ? [...services, formatService] : services;
+  }, [services, formatService]);
 
   const languageLabels = useMemo<Record<LanguageCode, string>>(() => ({
     ru: t('admin.locales.ru'),
@@ -467,6 +461,24 @@ const ServicesSection: React.FC = () => {
 
   const handleSelect = (service: AdminService) => {
     setSelectedId(service.id);
+    const isFormat = service.id === FORMAT_SERVICE_ID;
+    setIsFormatServiceSelected(isFormat);
+    if (isFormat) {
+      setFormState({
+        title: FORMAT_SERVICE_TITLE,
+        description: FORMAT_SERVICE_DESCRIPTION,
+        category: 'repair',
+        isRangePrice: false,
+        price: service.price !== null && service.price !== undefined ? String(service.price) : '',
+        minPrice: '',
+        maxPrice: '',
+        unit: FORMAT_SERVICE_UNIT,
+        videoUrl: '',
+      });
+      setFeedback(null);
+      setError(null);
+      return;
+    }
     setFormState({
       title: { ...service.title },
       description: { ...service.description },
@@ -487,6 +499,7 @@ const ServicesSection: React.FC = () => {
     setFormState(createEmptyServiceForm());
     setFeedback(null);
     setError(null);
+    setIsFormatServiceSelected(false);
   };
 
   const handleLocalizedChange = (field: 'title' | 'description' | 'unit', lang: LanguageCode, value: string) => {
@@ -507,6 +520,26 @@ const ServicesSection: React.FC = () => {
     const priceValue = parseNumeric(formState.price);
     const minPriceValue = parseNumeric(formState.minPrice);
     const maxPriceValue = parseNumeric(formState.maxPrice);
+
+    if (selectedId === FORMAT_SERVICE_ID) {
+      if (priceValue === null) {
+        setError(t('admin.services.validation.priceRequired'));
+        setSubmitting(false);
+        return;
+      }
+      const response = await updateAdminServiceFormats([{ format: ON_SITE_FORMAT, surcharge: priceValue }]);
+      if (response.error) {
+        setError(response.error || t('admin.services.errorSave'));
+      } else {
+        const items = Array.isArray(response.data) ? response.data : [];
+        const updated = items.find(item => item.format === ON_SITE_FORMAT) ?? { format: ON_SITE_FORMAT, surcharge: priceValue };
+        setFormatSetting(updated);
+        setFeedback(t('admin.services.formatService.saved'));
+        setError(null);
+      }
+      setSubmitting(false);
+      return;
+    }
 
     if (formState.isRangePrice) {
       if (minPriceValue === null || maxPriceValue === null) {
@@ -558,6 +591,9 @@ const ServicesSection: React.FC = () => {
   };
 
   const handleDelete = async (serviceId: string) => {
+    if (serviceId === FORMAT_SERVICE_ID) {
+      return;
+    }
     if (!window.confirm(t('admin.services.confirmDelete'))) {
       return;
     }
@@ -595,11 +631,11 @@ const ServicesSection: React.FC = () => {
       <div className="admin-section__layout">
         <div className="admin-card">
           <h3 className="admin-card__title">{t('admin.services.listTitle')}</h3>
-          {services.length === 0 ? (
+          {displayServices.length === 0 ? (
             <div className="admin-empty">{t('admin.services.empty')}</div>
           ) : (
             <ul className="admin-list">
-              {services.map(service => (
+              {displayServices.map(service => (
                 <li
                   key={service.id}
                   className={`admin-list__item ${selectedId === service.id ? 'admin-list__item--active' : ''}`}
@@ -611,14 +647,21 @@ const ServicesSection: React.FC = () => {
                   >
                     <span className="admin-list__title">{service.title[currentLang] || service.title.ru}</span>
                     <span className="admin-list__meta">{service.category}</span>
+                    {service.id === FORMAT_SERVICE_ID && (
+                      <span className="admin-list__tag">
+                        {t('admin.services.formatService.badge')}
+                      </span>
+                    )}
                   </button>
-                  <Button
-                    onClick={() => handleDelete(service.id)}
-                    variant="danger"
-                    disabled={deletingId === service.id}
-                  >
-                    {deletingId === service.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
-                  </Button>
+                  {service.id !== FORMAT_SERVICE_ID && (
+                    <Button
+                      onClick={() => handleDelete(service.id)}
+                      variant="danger"
+                      disabled={deletingId === service.id}
+                    >
+                      {deletingId === service.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -629,6 +672,11 @@ const ServicesSection: React.FC = () => {
           <h3 className="admin-card__title">
             {selectedId ? t('admin.services.editTitle') : t('admin.services.newTitle')}
           </h3>
+          {isFormatServiceSelected && (
+            <div className="admin-feedback admin-feedback--info">
+              {t('admin.services.formatService.notice')}
+            </div>
+          )}
 
           <div className="admin-form__grid">
             {LANGUAGES.map(lang => (
@@ -639,6 +687,7 @@ const ServicesSection: React.FC = () => {
                   value={formState.title[lang]}
                   onChange={(value) => handleLocalizedChange('title', lang, value)}
                   required={lang === 'ru'}
+                  disabled={isFormatServiceSelected}
                 />
                 <Textarea
                   label={t('admin.services.fields.description')}
@@ -646,11 +695,13 @@ const ServicesSection: React.FC = () => {
                   onChange={(value) => handleLocalizedChange('description', lang, value)}
                   rows={4}
                   required={lang === 'ru'}
+                  disabled={isFormatServiceSelected}
                 />
                 <Input
                   label={t('admin.services.fields.unit')}
                   value={formState.unit[lang]}
                   onChange={(value) => handleLocalizedChange('unit', lang, value)}
+                  disabled={isFormatServiceSelected}
                 />
               </div>
             ))}
@@ -669,6 +720,7 @@ const ServicesSection: React.FC = () => {
                     minPrice: e.target.checked ? prev.minPrice : '',
                     maxPrice: e.target.checked ? prev.maxPrice : '',
                   }))}
+                  disabled={isFormatServiceSelected}
                 />
                 <span className="admin-checkbox__label">{t('admin.services.fields.isRangePrice')}</span>
               </label>
@@ -688,12 +740,14 @@ const ServicesSection: React.FC = () => {
                   type="number"
                   value={formState.minPrice}
                   onChange={(value) => setFormState(prev => ({ ...prev, minPrice: value }))}
+                  disabled={isFormatServiceSelected}
                 />
                 <Input
                   label={t('admin.services.fields.maxPrice')}
                   type="number"
                   value={formState.maxPrice}
                   onChange={(value) => setFormState(prev => ({ ...prev, maxPrice: value }))}
+                  disabled={isFormatServiceSelected}
                 />
               </div>
             )}
@@ -709,6 +763,7 @@ const ServicesSection: React.FC = () => {
                   ...prev,
                   category: event.target.value as ServiceCategory
                 }))}
+                disabled={isFormatServiceSelected}
               >
                 {SERVICE_CATEGORIES.map(category => (
                   <option key={category} value={category}>
@@ -726,6 +781,7 @@ const ServicesSection: React.FC = () => {
               value={formState.videoUrl}
               onChange={(value) => setFormState(prev => ({ ...prev, videoUrl: value }))}
               placeholder="task_01k95v9v01f7hv9frbs4d9x8yf_task_01k95v9v01f7hv9frbs4d9x8yf_genid_7959ccc2-1108-42b7-8d89-fcd9df20021f_25_11_03_21_52_958581_videos_00000_794519525_source.mp4"
+              disabled={isFormatServiceSelected}
             />
           </div>
 
@@ -740,40 +796,6 @@ const ServicesSection: React.FC = () => {
         </form>
       </div>
 
-      <div className="admin-format-settings">
-        <h3>{t('admin.services.formatSettings.title')}</h3>
-        <p className="admin-format-settings__description">
-          {t('admin.services.formatSettings.description')}
-        </p>
-        {formatError && <div className="admin-feedback admin-feedback--error">{formatError}</div>}
-        {formatFeedback && <div className="admin-feedback admin-feedback--success">{formatFeedback}</div>}
-        {formatLoading ? (
-          <Loading text={t('admin.services.formatSettings.loading')} />
-        ) : (
-          <>
-            <div className="admin-format-grid">
-              {formatSettings.map(setting => (
-                <Input
-                  key={setting.format}
-                  type="number"
-                  label={`${t(`ticketForm.format.${setting.format}`)} (${t('servicesPage.currency')})`}
-                  value={setting.surcharge}
-                  onChange={(value) => handleFormatInputChange(setting.format, value)}
-                  disabled={formatSaving}
-                />
-              ))}
-            </div>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleSaveFormats}
-              disabled={formatSaving}
-            >
-              {formatSaving ? t('admin.actions.saving') : t('admin.services.formatSettings.save')}
-            </Button>
-          </>
-        )}
-      </div>
     </section>
   );
 };

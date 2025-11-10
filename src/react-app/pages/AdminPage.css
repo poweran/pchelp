@@ -157,6 +157,19 @@
   color: #64748b;
 }
 
+.admin-list__tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+
 .admin-feedback {
   padding: 0.75rem 1rem;
   border-radius: 10px;
@@ -173,6 +186,12 @@
   background: #dcfce7;
   border: 1px solid #4ade80;
   color: #166534;
+}
+
+.admin-feedback--info {
+  background: #e0f2fe;
+  border: 1px solid #38bdf8;
+  color: #0369a1;
 }
 
 .admin-empty {
@@ -231,6 +250,22 @@
 .admin-ticket__id {
   font-size: 0.75rem;
   color: #64748b;
+}
+
+.admin-ticket__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-ticket__action-button {
+  margin-right: 0;
+  padding: 0.35rem 0.75rem;
+  min-width: 2.5rem;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: none;
+  font-size: 0.9rem;
 }
 
 .admin-select,
@@ -425,25 +460,6 @@
   flex-wrap: wrap;
 }
 
-.admin-format-settings {
-  border-top: 1px solid #e2e8f0;
-  padding-top: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.admin-format-settings__description {
-  color: #475569;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.admin-format-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
 
 .admin-list__button:hover,
 .admin-list__item--active .admin-list__button {

@@ -525,12 +525,10 @@
       "confirmDelete": "Delete this service?",
       "errorDelete": "Could not delete the service.",
       "deleted": "Service deleted.",
-      "formatSettings": {
-        "title": "Format surcharges",
-        "description": "Configure additional costs for on-site and other service formats.",
-        "save": "Save surcharges",
-        "saved": "Format surcharges updated.",
-        "loading": "Loading surcharges..."
+      "formatService": {
+        "badge": "Internal",
+        "notice": "This entry is only used to calculate the on-site visit surcharge and is hidden from clients.",
+        "saved": "On-site surcharge saved."
       }
     },
     "pricing": {

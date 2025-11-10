@@ -167,15 +167,23 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
       }
 
       const urlParams = new URLSearchParams(window.location.search);
-      const category = urlParams.get('category');
-      if (!category) {
+      const serviceIdParam = urlParams.get('serviceId') || urlParams.get('service');
+      const categoryParam = urlParams.get('category');
+
+      if (!serviceIdParam && !categoryParam) {
         setPrefilledFromQuery(true);
         return;
       }
 
-      const matchedService = services.find(service =>
-        service.id === category || service.category === category
-      );
+      let matchedService: Service | undefined;
+
+      if (serviceIdParam) {
+        matchedService = services.find(service => service.id === serviceIdParam);
+      }
+
+      if (!matchedService && categoryParam) {
+        matchedService = services.find(service => service.category === categoryParam);
+      }
 
       if (matchedService) {
         setFormData(prev => ({
