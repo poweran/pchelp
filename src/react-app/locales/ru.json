@@ -457,7 +457,8 @@
       "tickets": "Тикеты",
       "services": "Услуги",
       "pricing": "Прайс",
-      "knowledge": "База знаний"
+      "knowledge": "База знаний",
+      "changelog": "Changelog"
     },
     "actions": {
       "refresh": "Обновить",
@@ -581,6 +582,11 @@
       "confirmDelete": "Удалить эту запись?",
       "errorDelete": "Не удалось удалить запись.",
       "deleted": "Запись удалена."
+    },
+    "changelog": {
+      "title": "Changelog",
+      "subtitle": "Коротко фиксируем ключевые изменения.",
+      "empty": "Здесь пока пусто."
     },
     "auth": {
       "title": "Админка",

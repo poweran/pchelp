@@ -456,7 +456,8 @@
       "tickets": "Tickets",
       "services": "Services",
       "pricing": "Pricing",
-      "knowledge": "Knowledge"
+      "knowledge": "Knowledge",
+      "changelog": "Changelog"
     },
     "actions": {
       "refresh": "Refresh",
@@ -580,6 +581,11 @@
       "confirmDelete": "Delete this entry?",
       "errorDelete": "Could not delete the entry.",
       "deleted": "Entry deleted."
+    },
+    "changelog": {
+      "title": "Changelog",
+      "subtitle": "Summaries of what changed in the codebase.",
+      "empty": "No changelog entries yet."
     },
     "auth": {
       "title": "Admin Panel",

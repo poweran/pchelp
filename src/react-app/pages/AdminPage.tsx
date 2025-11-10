@@ -37,9 +37,10 @@ import type {
   ServiceFormatSetting,
 } from '../types';
 import { SERVICE_CATEGORIES } from '../types';
+import { CHANGELOG_ENTRIES } from '../data/changelog';
 import './AdminPage.css';
 
-type AdminTab = 'tickets' | 'services' | 'knowledge';
+type AdminTab = 'tickets' | 'services' | 'knowledge' | 'changelog';
 
 const LANGUAGES: LanguageCode[] = ['ru', 'en', 'hy'];
 const TICKET_STATUSES: TicketStatus[] = ['new', 'in-progress', 'completed', 'cancelled'];
@@ -70,16 +71,16 @@ const formatDateTime = (value: string): string => {
 };
 
 interface ServiceFormState {
-   title: LocalizedText;
-   description: LocalizedText;
-   category: ServiceCategory;
-   isRangePrice: boolean;
-   price: string;
-   minPrice: string;
-   maxPrice: string;
-   unit: LocalizedText;
-   videoUrl: string;
- }
+  title: LocalizedText;
+  description: LocalizedText;
+  category: ServiceCategory;
+  isRangePrice: boolean;
+  price: string;
+  minPrice: string;
+  maxPrice: string;
+  unit: LocalizedText;
+  videoUrl: string;
+}
 
 interface KnowledgeFormState {
   title: LocalizedText;
@@ -89,16 +90,16 @@ interface KnowledgeFormState {
 }
 
 const createEmptyServiceForm = (): ServiceFormState => ({
-   title: createEmptyLocalized(),
-   description: createEmptyLocalized(),
-   category: 'repair',
-   isRangePrice: false,
-   price: '',
-   minPrice: '',
-   maxPrice: '',
-   unit: createEmptyLocalized(),
-   videoUrl: '',
- });
+  title: createEmptyLocalized(),
+  description: createEmptyLocalized(),
+  category: 'repair',
+  isRangePrice: false,
+  price: '',
+  minPrice: '',
+  maxPrice: '',
+  unit: createEmptyLocalized(),
+  videoUrl: '',
+});
 
 const createEmptyKnowledgeForm = (): KnowledgeFormState => ({
   title: createEmptyLocalized(),
@@ -124,6 +125,23 @@ const FORMAT_SERVICE_UNIT: LocalizedText = {
   en: 'surcharge',
   hy: 'լրացուցիչ վճար',
 };
+
+const formatChangelogDate = (value: string, locale: string): string => {
+  try {
+    return new Date(value).toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch (error) {
+    return value;
+  }
+};
+
+const getLocalizedText = (text: LocalizedText, lang: LanguageCode): string => {
+  return text?.[lang] ?? text?.ru ?? text?.en ?? text?.hy ?? '';
+};
+
 
 const TicketsSection: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -1077,6 +1095,47 @@ const KnowledgeSection: React.FC = () => {
   );
 };
 
+const ChangelogSection: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const resolvedLang = useMemo<LanguageCode>(() => {
+    const normalized = (i18n.language || 'ru').split('-')[0] as LanguageCode;
+    return (['ru', 'en', 'hy'] as LanguageCode[]).includes(normalized) ? normalized : 'ru';
+  }, [i18n.language]);
+
+  return (
+    <section className="admin-section">
+      <div className="admin-section__header">
+        <div>
+          <h2>{t('admin.changelog.title')}</h2>
+          <p className="admin-section__description">{t('admin.changelog.subtitle')}</p>
+        </div>
+      </div>
+
+      {CHANGELOG_ENTRIES.length === 0 ? (
+        <div className="admin-empty">{t('admin.changelog.empty')}</div>
+      ) : (
+        <div className="admin-changelog">
+          {CHANGELOG_ENTRIES.map(entry => (
+            <article key={entry.date} className="admin-changelog__entry">
+              <div className="admin-changelog__date">
+                {formatChangelogDate(entry.date, i18n.language || resolvedLang)}
+              </div>
+              <h3 className="admin-changelog__title">
+                {getLocalizedText(entry.title, resolvedLang)}
+              </h3>
+              <ul className="admin-changelog__list">
+                {entry.highlights.map((highlight, index) => (
+                  <li key={index}>{getLocalizedText(highlight, resolvedLang)}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+};
+
 const AuthForm: React.FC<{ onAuthenticated: () => void }> = ({ onAuthenticated }) => {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
@@ -1144,6 +1203,7 @@ const AdminContent: React.FC = () => {
     { key: 'tickets' as const, label: t('admin.tabs.tickets'), icon: '🎫' },
     { key: 'services' as const, label: t('admin.tabs.services'), icon: '🛠️' },
     { key: 'knowledge' as const, label: t('admin.tabs.knowledge'), icon: '📚' },
+    { key: 'changelog' as const, label: t('admin.tabs.changelog'), icon: '📝' },
   ]), [t]);
 
   return (
@@ -1178,6 +1238,7 @@ const AdminContent: React.FC = () => {
         {activeTab === 'tickets' && <TicketsSection />}
         {activeTab === 'services' && <ServicesSection />}
         {activeTab === 'knowledge' && <KnowledgeSection />}
+        {activeTab === 'changelog' && <ChangelogSection />}
       </div>
     </div>
   );
