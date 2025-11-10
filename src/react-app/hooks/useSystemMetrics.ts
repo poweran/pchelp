@@ -78,6 +78,36 @@ interface StorageInfo {
   timestamp: number | null;
 }
 
+interface StorageEstimateLike {
+  quota?: number;
+  usage?: number;
+  usageDetails?: Record<string, number>;
+}
+
+function extractStorageUsage(estimate: StorageEstimateLike | null | undefined): number | null {
+  if (!estimate) {
+    return null;
+  }
+
+  if (typeof estimate.usage === 'number') {
+    return estimate.usage;
+  }
+
+  if (estimate.usageDetails && typeof estimate.usageDetails === 'object') {
+    let total = 0;
+    let hasValue = false;
+    for (const value of Object.values(estimate.usageDetails)) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        total += value;
+        hasValue = true;
+      }
+    }
+    return hasValue ? total : null;
+  }
+
+  return null;
+}
+
 interface ConnectionInfo {
   supported: boolean;
   effectiveType: string | null;
@@ -398,7 +428,7 @@ export function useSystemMetrics(): { metrics: SystemMetrics; refresh: RefreshHa
         storage: {
           supported: true,
           quota: typeof estimate.quota === 'number' ? estimate.quota : null,
-          usage: typeof estimate.usage === 'number' ? estimate.usage : null,
+          usage: extractStorageUsage(estimate),
           persisted: typeof persisted === 'boolean' ? persisted : null,
           timestamp: Date.now(),
         },

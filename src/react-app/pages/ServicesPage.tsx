@@ -21,7 +21,7 @@ export default function ServicesPage() {
 
 
         {/* Список услуг */}
-        <section style={servicesSectionStyle} className="services-section">
+        <section className="services-section">
           <div style={containerStyle}>
             <ServiceList />
           </div>
@@ -92,11 +92,6 @@ const pageSubtitleStyle: CSSProperties = {
   maxWidth: '600px',
   margin: '0 auto',
   lineHeight: '1.6',
-};
-
-
-const servicesSectionStyle: CSSProperties = {
-  padding: '3rem 0',
 };
 
 const ctaSectionStyle: CSSProperties = {
