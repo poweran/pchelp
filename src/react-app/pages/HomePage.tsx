@@ -344,7 +344,6 @@ const HomePage = memo(function HomePage() {
         <div className="contact-container">
           <div className="contact-grid" role="list">
             <div className="contact-item" role="listitem" onClick={() => window.location.href = 'tel:+37495019753'}>
-              <span className="contact-icon" aria-hidden="true">📞</span>
               <div>
                 <h3 className="contact-title">{t('homePage.phoneTitle')}</h3>
                 <p className="contact-text">+374 (95) 01-97-53</p>
@@ -352,7 +351,6 @@ const HomePage = memo(function HomePage() {
             </div>
 
             <div className="contact-item" role="listitem" onClick={() => window.location.href = 'mailto:info@pchelp.linkpc.net'}>
-              <span className="contact-icon" aria-hidden="true">📧</span>
               <div>
                 <h3 className="contact-title">{t('homePage.email')}</h3>
                 <p className="contact-text">info@pchelp.linkpc.net</p>
@@ -360,7 +358,6 @@ const HomePage = memo(function HomePage() {
             </div>
 
             <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
-              <span className="contact-icon" aria-hidden="true">📍</span>
               <div>
                 <h3 className="contact-title">{t('homePage.address')}</h3>
                 <p className="contact-text">{t('homePage.fullAddress')}</p>
@@ -368,7 +365,6 @@ const HomePage = memo(function HomePage() {
             </div>
 
             <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
-              <span className="contact-icon" aria-hidden="true">🕐</span>
               <div>
                 <h3 className="contact-title">{t('homePage.workingHours')}</h3>
                 <p className="contact-text" dangerouslySetInnerHTML={{ __html: t('homePage.hours') }} />

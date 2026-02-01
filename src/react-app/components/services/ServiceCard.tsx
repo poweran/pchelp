@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Service } from '../../types';
 import { navigate } from '../../utils/router';
@@ -11,7 +11,6 @@ interface ServiceCardProps {
 export function ServiceCard({ service }: ServiceCardProps) {
   const { t, i18n } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const categoryLabels: Record<string, string> = {
     repair: t('servicesPage.repair'),
@@ -35,13 +34,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
     return t('servicesPage.priceOnRequest');
   })();
 
-  useEffect(() => {
-    if (isHovered && videoRef.current && service.videoUrl) {
-      videoRef.current.play().catch(console.error);
-    } else if (videoRef.current) {
-      videoRef.current.pause();
-    }
-  }, [isHovered, service.videoUrl]);
+
 
   const handleClick = () => {
     navigate(`/tickets?service=${service.id}`);
@@ -54,14 +47,14 @@ export function ServiceCard({ service }: ServiceCardProps) {
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
     >
-      {service.videoUrl && (
+      {isHovered && service.videoUrl && (
         <video
-          ref={videoRef}
           className="service-card__video"
           src={`/assets/video/${service.videoUrl}`}
           muted
           loop
           playsInline
+          autoPlay
         />
       )}
       <div className="service-card__content">

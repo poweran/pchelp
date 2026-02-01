@@ -20,7 +20,6 @@ const PricingPage: React.FC = () => {
       </div>
 
       <div className="pricing-disclaimer">
-        <div className="disclaimer-icon">ℹ️</div>
         <div className="disclaimer-content">
           <h3>{t('pricingPage.disclaimerTitle')}</h3>
           <p>

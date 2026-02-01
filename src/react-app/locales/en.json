@@ -120,7 +120,7 @@
     "mapTitle": "Route map",
     "nearestMetro": "Nearest metro: Revolution Square",
     "walkingDistance": "5 minutes walk from exit №3",
-    "feedbackForm": "✍️ Feedback form",
+    "feedbackForm": "Feedback form",
     "formDescription": "Leave your message and we will contact you shortly",
     "successMessage": "✅ Your message has been sent successfully! We will contact you shortly.",
     "nameLabel": "Your name",
@@ -130,7 +130,7 @@
     "emailPlaceholder": "john@example.com",
     "messageLabel": "Message",
     "messagePlaceholder": "Describe your question or problem...",
-    "submitButton": "📤 Send message",
+    "submitButton": "Send message",
     "submitting": "Sending..."
   },
   "servicesPage": {

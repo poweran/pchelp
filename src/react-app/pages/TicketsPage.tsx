@@ -69,7 +69,6 @@ export default function TicketsPage() {
               onClick={() => setActiveTab('create')}
               variant={activeTab === 'create' ? 'primary' : 'secondary'}
             >
-              <span style={tabIconStyle}>✏️</span>
               {t('ticketsPage.tabCreate')}
             </Button>
 
@@ -77,7 +76,6 @@ export default function TicketsPage() {
               onClick={() => setActiveTab('my-tickets')}
               variant={activeTab === 'my-tickets' ? 'primary' : 'secondary'}
             >
-              <span style={tabIconStyle}>📋</span>
               {t('ticketsPage.tabMyTickets')}
             </Button>
           </div>

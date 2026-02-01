@@ -131,7 +131,6 @@ const ContactsPage: React.FC = () => {
       <div className="contacts-content">
         <div className="contacts-info">
           <div className="contact-card">
-            <div className="contact-card-icon">📍</div>
             <div className="contact-card-content">
               <h3>{t('contactsPage.officeAddress')}</h3>
               <p>{t('contactsPage.officeAddressText')}</p>
@@ -140,7 +139,6 @@ const ContactsPage: React.FC = () => {
           </div>
 
           <div className="contact-card">
-            <div className="contact-card-icon">📱</div>
             <div className="contact-card-content">
               <h3>{t('contactsPage.phoneNumber')}</h3>
               <p>
@@ -153,7 +151,6 @@ const ContactsPage: React.FC = () => {
           </div>
 
           <div className="contact-card">
-            <div className="contact-card-icon">✉️</div>
             <div className="contact-card-content">
               <h3>{t('contactsPage.email')}</h3>
               <p>
@@ -166,7 +163,6 @@ const ContactsPage: React.FC = () => {
           </div>
 
           <div className="contact-card">
-            <div className="contact-card-icon">🕐</div>
             <div className="contact-card-content">
               <h3>{t('contactsPage.workingHours')}</h3>
               <p>{t('contactsPage.mondayFriday')}: 9:00 — 20:00</p>

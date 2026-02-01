@@ -184,6 +184,18 @@ const ParticleBackground = () => {
     let isFrameLoopRunning = false;
     let lastFrameTime = performance.now();
     let lastPublishedSignature = '';
+    let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      if (!isScrolling) {
+        isScrolling = true;
+      }
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        isScrolling = false;
+      }, 150);
+    };
 
     const headingNoise = createSmoothNoise(3200, 5200);
     const radiusNoise = createSmoothNoise(2800, 5600);
@@ -529,8 +541,13 @@ const ParticleBackground = () => {
       const frameDuration = frameStart - lastFrameTime || IDEAL_FRAME_MS;
       lastFrameTime = frameStart;
 
-      // Reverted scroll throttling to assume standard smooth playback
-      // If performance is an issue, we can re-evaluate lighter optimizations
+      // Throttle animation during scrolling to prioritize browser UI thread
+      if (isScrolling && isAnimating) {
+        if (sampleCount % 2 === 0) {
+          animationFrameId = window.requestAnimationFrame(step);
+          return;
+        }
+      }
 
       let renderTime = 0;
       let frameEnd = frameStart;
@@ -648,6 +665,7 @@ const ParticleBackground = () => {
     setCanvasSize();
     window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('keydown', handleMediaKey);
     window.addEventListener(SET_PARTICLE_ANIMATION_EVENT, handleSetAnimation as EventListener);
 
@@ -666,6 +684,7 @@ const ParticleBackground = () => {
       window.cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleMediaKey);
       window.removeEventListener(SET_PARTICLE_ANIMATION_EVENT, handleSetAnimation as EventListener);
       animationFrameId = 0;

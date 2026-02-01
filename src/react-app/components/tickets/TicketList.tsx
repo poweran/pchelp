@@ -58,7 +58,7 @@ export default function TicketList({ tickets, loading, error, loadTickets, clien
   }
 
   // Состояние ошибки
-if (error) {
+  if (error) {
     return (
       <div style={containerStyle}>
         <div style={errorStyle}>
@@ -66,9 +66,9 @@ if (error) {
           <div>
             <h3 style={errorTitleStyle}>{t('ticketList.errorTitle')}</h3>
             <p style={errorMessageStyle}>{error}</p>
-             <Button onClick={loadTickets} variant="danger">
-               {t('ticketList.retryButton')}
-             </Button>
+            <Button onClick={loadTickets} variant="danger">
+              {t('ticketList.retryButton')}
+            </Button>
           </div>
         </div>
       </div>
@@ -89,7 +89,6 @@ if (error) {
     return (
       <div style={containerStyle}>
         <div style={emptyStyle}>
-          <span style={emptyIconStyle}>📋</span>
           <h3 style={emptyTitleStyle}>{emptyTitle}</h3>
           <p style={emptyMessageStyle}>
             {emptyMessage}
