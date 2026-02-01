@@ -20,6 +20,8 @@
     "copyright": "All rights reserved.",
     "description": "Professional computer help",
     "contacts": "Contacts",
+    "phoneMain": "Phone",
+    "email": "Email",
     "hours": "Working hours",
     "weekdays": "Mon-Fri",
     "saturday": "Sat"

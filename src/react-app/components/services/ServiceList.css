@@ -62,11 +62,11 @@
   .service-list__grid {
     grid-template-columns: 1fr;
   }
-  
+
   .service-list__filters {
     gap: 0.5rem;
   }
-  
+
   .filter-button {
     font-size: 0.75rem;
     padding: 0.4rem 0.8rem;
