@@ -10,25 +10,30 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
     date: '2026-02-01',
     title: {
-      en: 'Header & Contacts polish',
-      ru: 'Полировка шапки и контактов',
-      hy: 'Գլխամասի և կոնտակտների բարելավում',
+      en: 'Brand Refresh & Classic UI',
+      ru: 'Ребрендинг и классический UI',
+      hy: 'Բրենդի թարմացում և Classic UI',
     },
     highlights: [
       {
-        en: 'Integrated SVG logo into the header and updated navigation order.',
-        ru: 'В шапку интегрирован SVG-логотип и обновлён порядок навигации.',
-        hy: 'Գլխամասում ավելացվել է SVG լոգոն և թարմացվել է նավիգացիայի հերթականությունը։',
+        en: 'Rebranded the application to "PCHelp Armenia" across all pages and API.',
+        ru: 'Полное переименование приложения в «PCHelp Armenia» во всех разделах и API.',
+        hy: 'Հավելվածի վերանվանում «PCHelp Armenia» բոլոր բաժիններում և API-ում։',
       },
       {
-        en: 'Contacts page UI improved with narrower container and refined spacing.',
-        ru: 'Интерфейс страницы контактов улучшен: уменьшена ширина контейнера и поправлены отступы.',
-        hy: 'Կոնտակտների էջի ինտերֆեյսը բարելավվել է՝ նեղացված կոնտեյներով և ուղղված բացատներով։',
+        en: 'Adopted a "Classic" UI style by removing rounded corners from buttons, cards, and modals.',
+        ru: 'Переход к «классическому» стилю: убраны скругления углов у кнопок, карточек и модальных окон.',
+        hy: 'Անցում «դասական» ոճի. կոճակների, քարտերի և մոդալ պատուհանների կլորացված անկյունները հեռացվել են։',
       },
       {
-        en: 'Minor CSS adjustments for Pricing, Knowledge, and Services pages.',
-        ru: 'Мелкие правки CSS для страниц цен, базы знаний и услуг.',
-        hy: 'CSS-ի փոքր շտկումներ գնացուցակի, գիտելիքների և ծառայությունների էջերի համար։',
+        en: 'Integrated SVG logo into the header and introduced a new textured background for the footer.',
+        ru: 'В шапку интегрирован SVG-логотип, а для футера добавлен новый текстурированный фон.',
+        hy: 'Գլխամասում ավելացվել է SVG լոգոն, իսկ ֆութերի համար ավելացվել է նոր տեքստուրային ֆոն։',
+      },
+      {
+        en: 'Improved Contacts page layout and updated homepage hero content for better clarity.',
+        ru: 'Оптимизирован макет страницы контактов и обновлены приветственные тексты на главной.',
+        hy: 'Օպտիմիզացվել է կոնտակտների էջի դասավորությունը և թարմացվել են գլխավոր էջի տեքստերը։',
       },
     ],
   },
