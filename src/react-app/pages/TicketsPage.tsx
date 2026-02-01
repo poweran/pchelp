@@ -207,10 +207,6 @@ const tabsContainerStyle: CSSProperties = {
 };
 
 
-const tabIconStyle: CSSProperties = {
-  fontSize: '1.25rem',
-};
-
 const formContainerStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',

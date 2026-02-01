@@ -232,11 +232,6 @@ const emptyStyle: CSSProperties = {
   textAlign: 'center',
 };
 
-const emptyIconStyle: CSSProperties = {
-  fontSize: '4rem',
-  marginBottom: '1rem',
-};
-
 const emptyTitleStyle: CSSProperties = {
   fontSize: '1.25rem',
   fontWeight: 600,
