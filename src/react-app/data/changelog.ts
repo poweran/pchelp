@@ -8,6 +8,26 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-02-01',
+    title: {
+      en: 'Header & Contacts polish',
+      ru: 'Полировка шапки и контактов',
+      hy: 'Գլխամասի և կոնտակտների բարելավում',
+    },
+    highlights: [
+      {
+        en: 'Integrated SVG logo into the header and updated navigation order.',
+        ru: 'В шапку интегрирован SVG-логотип и обновлён порядок навигации.',
+        hy: 'Գլխամասում ավելացվել է SVG լոգոն և թարմացվել է նավիգացիայի հերթականությունը։',
+      },
+      {
+        en: 'Contacts page UI improved with new styling and better layout.',
+        ru: 'Интерфейс страницы контактов улучшен: новые стили и оптимизированный макет.',
+        hy: 'Կոնտակտների էջի ինտերֆեյսը բարելավվել է նոր ոճով և դասավորությամբ։',
+      },
+    ],
+  },
+  {
     date: '2025-11-10',
     title: {
       en: 'Ticket tooling overhaul',
