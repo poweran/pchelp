@@ -96,12 +96,29 @@
   font-weight: 600;
 }
 
-.faq-item__content-inner h1 { font-size: 1.5em; }
-.faq-item__content-inner h2 { font-size: 1.3em; }
-.faq-item__content-inner h3 { font-size: 1.2em; }
-.faq-item__content-inner h4 { font-size: 1.1em; }
-.faq-item__content-inner h5 { font-size: 1em; }
-.faq-item__content-inner h6 { font-size: 0.9em; }
+.faq-item__content-inner h1 {
+  font-size: 1.5em;
+}
+
+.faq-item__content-inner h2 {
+  font-size: 1.3em;
+}
+
+.faq-item__content-inner h3 {
+  font-size: 1.2em;
+}
+
+.faq-item__content-inner h4 {
+  font-size: 1.1em;
+}
+
+.faq-item__content-inner h5 {
+  font-size: 1em;
+}
+
+.faq-item__content-inner h6 {
+  font-size: 0.9em;
+}
 
 .faq-item__content-inner p {
   margin-bottom: 0.75rem;
@@ -120,7 +137,7 @@
 .faq-item__content-inner code {
   background: rgba(0, 0, 0, 0.1);
   padding: 0.125rem 0.25rem;
-  border-radius: 3px;
+  border-radius: 0px;
   font-size: 0.85em;
   font-family: 'Courier New', monospace;
 }
@@ -128,7 +145,7 @@
 .faq-item__content-inner pre {
   background: rgba(0, 0, 0, 0.1);
   padding: 0.75rem;
-  border-radius: 6px;
+  border-radius: 0px;
   overflow-x: auto;
   margin-bottom: 0.75rem;
 }

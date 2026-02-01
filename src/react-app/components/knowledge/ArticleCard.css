@@ -85,12 +85,29 @@
   font-weight: 600;
 }
 
-.article-card__content h1 { font-size: 1.5em; }
-.article-card__content h2 { font-size: 1.3em; }
-.article-card__content h3 { font-size: 1.2em; }
-.article-card__content h4 { font-size: 1.1em; }
-.article-card__content h5 { font-size: 1em; }
-.article-card__content h6 { font-size: 0.9em; }
+.article-card__content h1 {
+  font-size: 1.5em;
+}
+
+.article-card__content h2 {
+  font-size: 1.3em;
+}
+
+.article-card__content h3 {
+  font-size: 1.2em;
+}
+
+.article-card__content h4 {
+  font-size: 1.1em;
+}
+
+.article-card__content h5 {
+  font-size: 1em;
+}
+
+.article-card__content h6 {
+  font-size: 0.9em;
+}
 
 .article-card__content p {
   margin-bottom: 0.75rem;
@@ -109,7 +126,7 @@
 .article-card__content code {
   background: rgba(0, 0, 0, 0.1);
   padding: 0.125rem 0.25rem;
-  border-radius: 3px;
+  border-radius: 0px;
   font-size: 0.85em;
   font-family: 'Courier New', monospace;
 }
@@ -117,7 +134,7 @@
 .article-card__content pre {
   background: rgba(0, 0, 0, 0.1);
   padding: 0.75rem;
-  border-radius: 6px;
+  border-radius: 0px;
   overflow-x: auto;
   margin-bottom: 0.75rem;
 }

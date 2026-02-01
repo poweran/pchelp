@@ -10,165 +10,165 @@ import './TicketsPage.css';
 type TabType = 'create' | 'my-tickets';
 
 export default function TicketsPage() {
-      const { t } = useTranslation();
-      const [activeTab, setActiveTab] = useState<TabType>('create');
-      const [searchQuery, setSearchQuery] = useState('');
-      const { tickets, loading, error, loadTickets, clientKey } = useTickets();
-      useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, [activeTab]);
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<TabType>('create');
+  const [searchQuery, setSearchQuery] = useState('');
+  const { tickets, loading, error, loadTickets, clientKey } = useTickets();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
 
-      // Инициализация загрузки тикетов при первом рендере
-      useEffect(() => {
-        loadTickets();
-      }, [loadTickets]);
+  // Инициализация загрузки тикетов при первом рендере
+  useEffect(() => {
+    loadTickets();
+  }, [loadTickets]);
 
-      const filteredTickets = searchQuery
-        ? tickets.filter(ticket =>
-            ticket.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ticket.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ticket.id.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : tickets;
+  const filteredTickets = searchQuery
+    ? tickets.filter(ticket =>
+      ticket.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.serviceType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.id.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : tickets;
 
-    const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-    const handleRefresh = async () => {
-      setRefreshing(true);
-      try {
-        await loadTickets();
-      } finally {
-        setRefreshing(false);
-      }
-    };
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await loadTickets();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
-    const handleTicketCreated = () => {
-      // Обработчик создания тикета
-      loadTickets();
-      setActiveTab('my-tickets');
-    };
+  const handleTicketCreated = () => {
+    // Обработчик создания тикета
+    loadTickets();
+    setActiveTab('my-tickets');
+  };
 
   return (
     <>
-        {/* Заголовок страницы */}
-        <section style={headerSectionStyle} className="tickets-header hero">
-          <div style={containerStyle}>
-            <h1 style={pageTitleStyle}>{t('ticketsPage.title')}</h1>
-            <p style={pageSubtitleStyle}>
-              {t('ticketsPage.subtitle')}
-            </p>
+      {/* Заголовок страницы */}
+      <section style={headerSectionStyle} className="tickets-header hero">
+        <div style={containerStyle}>
+          <h1 style={pageTitleStyle}>{t('ticketsPage.title')}</h1>
+          <p style={pageSubtitleStyle}>
+            {t('ticketsPage.subtitle')}
+          </p>
+        </div>
+      </section>
+
+      {/* Tabs навигация */}
+      <section className="tickets-tabs">
+        <div style={containerStyle}>
+          <div style={tabsContainerStyle}>
+            <Button
+              onClick={() => setActiveTab('create')}
+              variant={activeTab === 'create' ? 'primary' : 'secondary'}
+            >
+              <span style={tabIconStyle}>✏️</span>
+              {t('ticketsPage.tabCreate')}
+            </Button>
+
+            <Button
+              onClick={() => setActiveTab('my-tickets')}
+              variant={activeTab === 'my-tickets' ? 'primary' : 'secondary'}
+            >
+              <span style={tabIconStyle}>📋</span>
+              {t('ticketsPage.tabMyTickets')}
+            </Button>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Tabs навигация */}
-        <section className="tickets-tabs">
-          <div style={containerStyle}>
-            <div style={tabsContainerStyle}>
-              <Button
-                onClick={() => setActiveTab('create')}
-                variant={activeTab === 'create' ? 'primary' : 'secondary'}
-              >
-                <span style={tabIconStyle}>✏️</span>
-                {t('ticketsPage.tabCreate')}
-              </Button>
+      {/* Контент */}
+      <section className="tickets-content">
+        <div style={containerStyle}>
+          {activeTab === 'create' ? (
+            <div style={formContainerStyle}>
+              <TicketForm onTicketCreated={handleTicketCreated} />
 
-              <Button
-                onClick={() => setActiveTab('my-tickets')}
-                variant={activeTab === 'my-tickets' ? 'primary' : 'secondary'}
-              >
-                <span style={tabIconStyle}>📋</span>
-                {t('ticketsPage.tabMyTickets')}
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Контент */}
-        <section className="tickets-content">
-          <div style={containerStyle}>
-            {activeTab === 'create' ? (
-              <div style={formContainerStyle}>
-                <TicketForm onTicketCreated={handleTicketCreated} />
-
-                {/* Дополнительная информация */}
-                <div style={infoBoxStyle}>
-                  <h3 style={infoTitleStyle}>💡 {t('ticketsPage.infoTitle')}</h3>
-                  <ul style={infoListStyle}>
-                    <li style={infoItemStyle}>
-                      {t('ticketsPage.infoItem1')}
-                    </li>
-                    <li style={infoItemStyle}>
-                      {t('ticketsPage.infoItem2')}
-                    </li>
-                    <li style={infoItemStyle}>
-                      {t('ticketsPage.infoItem3')}
-                    </li>
-                    <li style={infoItemStyle}>
-                      {t('ticketsPage.infoItem4')}
-                    </li>
-                  </ul>
-                </div>
+              {/* Дополнительная информация */}
+              <div style={infoBoxStyle}>
+                <h3 style={infoTitleStyle}>💡 {t('ticketsPage.infoTitle')}</h3>
+                <ul style={infoListStyle}>
+                  <li style={infoItemStyle}>
+                    {t('ticketsPage.infoItem1')}
+                  </li>
+                  <li style={infoItemStyle}>
+                    {t('ticketsPage.infoItem2')}
+                  </li>
+                  <li style={infoItemStyle}>
+                    {t('ticketsPage.infoItem3')}
+                  </li>
+                  <li style={infoItemStyle}>
+                    {t('ticketsPage.infoItem4')}
+                  </li>
+                </ul>
               </div>
-            ) : (
-              <div style={listContainerStyle}>
-                {/* Поиск по заявкам */}
-                <div style={searchContainerStyle}>
-                  <Input
-                    label=""
-                    type="text"
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    placeholder={`🔍 ${t('ticketsPage.searchPlaceholder')}`}
-                  />
-                  {/* Кнопка обновления списка */}
-                  <Button
-                    onClick={handleRefresh}
-                    variant="secondary"
-                  >
-                    🔄
-                  </Button>
-                </div>
-
-                {/* Список заявок */}
-                <TicketList
-                  tickets={filteredTickets}
-                  loading={loading || refreshing}
-                  error={error}
-                  loadTickets={loadTickets}
-                  clientKey={clientKey}
+            </div>
+          ) : (
+            <div style={listContainerStyle}>
+              {/* Поиск по заявкам */}
+              <div style={searchContainerStyle}>
+                <Input
+                  label=""
+                  type="text"
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder={`🔍 ${t('ticketsPage.searchPlaceholder')}`}
                 />
-
-                {/* Подсказка если нет заявок */}
-                <div style={hintBoxStyle}>
-                  <p style={hintTextStyle}>
-                    <strong>{t('ticketsPage.hint')}</strong>
-                  </p>
-                </div>
+                {/* Кнопка обновления списка */}
+                <Button
+                  onClick={handleRefresh}
+                  variant="secondary"
+                >
+                  🔄
+                </Button>
               </div>
-            )}
-          </div>
-        </section>
 
-        {/* Контактная информация внизу */}
-        <section style={contactSectionStyle} className="tickets-contact">
-          <div style={containerStyle}>
-            <div style={contactBoxStyle}>
-              <h3 style={contactTitleStyle}>{t('ticketsPage.contactTitle')}</h3>
-              <p style={contactTextStyle}>
-                {t('ticketsPage.contactText')}
-              </p>
-              <div style={contactLinksStyle}>
-                <a href="tel:+37495019753" style={contactLinkStyle}>
-                  📞 +374 (95) 01-97-53
-                </a>
-                <a href="mailto:info@pchelp.linkpc.net" style={contactLinkStyle}>
-                  📧 info@pchelp.linkpc.net
-                </a>
+              {/* Список заявок */}
+              <TicketList
+                tickets={filteredTickets}
+                loading={loading || refreshing}
+                error={error}
+                loadTickets={loadTickets}
+                clientKey={clientKey}
+              />
+
+              {/* Подсказка если нет заявок */}
+              <div style={hintBoxStyle}>
+                <p style={hintTextStyle}>
+                  <strong>{t('ticketsPage.hint')}</strong>
+                </p>
               </div>
             </div>
+          )}
+        </div>
+      </section>
+
+      {/* Контактная информация внизу */}
+      <section style={contactSectionStyle} className="tickets-contact">
+        <div style={containerStyle}>
+          <div style={contactBoxStyle}>
+            <h3 style={contactTitleStyle}>{t('ticketsPage.contactTitle')}</h3>
+            <p style={contactTextStyle}>
+              {t('ticketsPage.contactText')}
+            </p>
+            <div style={contactLinksStyle}>
+              <a href="tel:+37495019753" style={contactLinkStyle}>
+                📞 +374 (95) 01-97-53
+              </a>
+              <a href="mailto:info@pchelp.linkpc.net" style={contactLinkStyle}>
+                📧 info@pchelp.linkpc.net
+              </a>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
     </>
   );
 }
@@ -242,7 +242,7 @@ const infoBoxStyle: CSSProperties = {
   padding: '1.5rem',
   backgroundColor: '#eff6ff',
   border: '1px solid #3b82f6',
-  borderRadius: '0.5rem',
+  borderRadius: '0',
   marginTop: '2rem',
   textAlign: 'left',
 };
@@ -275,7 +275,7 @@ const hintBoxStyle: CSSProperties = {
   padding: '1rem',
   backgroundColor: '#fef3c7',
   border: '1px solid #fbbf24',
-  borderRadius: '0.5rem',
+  borderRadius: '0',
   marginTop: '2rem',
 };
 

@@ -25,7 +25,7 @@ const ContactsPage: React.FC = () => {
     description: '',
     priority: 'medium',
   });
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string | undefined }>({});
   const { loading, error, success, submitTicket, resetError } = useTickets();
   const {
     basePrice,
@@ -54,7 +54,7 @@ const ContactsPage: React.FC = () => {
   }, []);
 
   const validateForm = () => {
-    const errors: {[key: string]: string | undefined} = {};
+    const errors: { [key: string]: string | undefined } = {};
 
     if (!formData.clientName.trim()) {
       errors.clientName = t('ticketForm.errorNameRequired');
@@ -123,7 +123,7 @@ const ContactsPage: React.FC = () => {
 
   return (
     <div className="contacts-page">
-        <header className="contacts-header hero">
+      <header className="contacts-header hero">
         <h1>{t('contactsPage.title')}</h1>
         <p className="subtitle">{t('contactsPage.subtitle')}</p>
       </header>
@@ -289,7 +289,9 @@ const ContactsPage: React.FC = () => {
             <Button
               type="submit"
               disabled={loading}
-              variant="success"
+              variant="primary"
+
+              fullWidth
             >
               {loading ? t('contactsPage.submitting') : t('contactsPage.submitButton')}
             </Button>

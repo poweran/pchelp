@@ -4,8 +4,8 @@ import styles from './Button.module.css';
 interface ButtonProps {
   children: ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
-  size?: 'small' | 'medium' | 'large';
+  variant?: 'primary' | 'secondary' | 'warning' | 'danger';
+  size?: 'small' | 'medium';
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;

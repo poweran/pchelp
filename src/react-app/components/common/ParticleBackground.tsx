@@ -150,15 +150,6 @@ const ParticleBackground = () => {
     // Pixel buffer for rendering
     let imageData: ImageData | null = null;
     let buf32: Uint32Array | null = null;
-    // Pre-calculated color int (AABBGGRR in little-endian)
-    // Blue: rgba(37, 99, 235, 0.45) -> R=37 (0x25), G=99 (0x63), B=235 (0xEB), A=115 (0x73)
-    // Logic: 0x73EB6325. BUT: putImageData alpha blending is replaced, not mixed.
-    // If we want transparency, we must clear manual buffer 0x00000000 and write 0x73EB6325.
-    // However, canvas is cleared by user. Wait, putImageData replaces everything.
-    // So if we clear buffer to 0, it is transparent.
-    // The previous implementation used fillStyle 'rgba(37, 99, 235, 0.45)' which blends over previous frames?
-    // No, context.clearRect exists.
-    // So simply writing 0x73EB6325 to buffer is correct for semitransparent blue.
     const COLOR_INT = 0x73EB6325;
 
     let particleSystem: ParticleSystem = {
@@ -194,7 +185,6 @@ const ParticleBackground = () => {
     let lastFrameTime = performance.now();
     let lastPublishedSignature = '';
 
-    // Noise functions
     const headingNoise = createSmoothNoise(3200, 5200);
     const radiusNoise = createSmoothNoise(2800, 5600);
     const swayNoise = createSmoothNoise(2400, 4800);
@@ -209,10 +199,8 @@ const ParticleBackground = () => {
     const cpuIdleNoise = createSmoothNoise(2400, 5200);
     const gpuIdleNoise = createSmoothNoise(2600, 5600);
 
-    // Lookups
     const LOOKUP_SIZE = 360 * 4;
     const contourLookup = new Float32Array(LOOKUP_SIZE);
-    // Max contour factor observed is usually around 2.1. We use a safe upper bound.
     const MAX_CONTOUR_FACTOR_SQ = 2.2 * 2.2;
 
     const publishPerformanceMetrics = (overrides?: Partial<ParticlePerformanceMetrics>) => {
@@ -266,15 +254,7 @@ const ParticleBackground = () => {
     };
 
     const setCanvasSize = () => {
-      // Use client dimensions directly (simpler for ImageData)
-      // Note: We ignore DevicePixelRatio for performance on high-DPI screens if we want 1:1 match, 
-      // but usually we want sharp text. For background particles, 1:1 css pixel usually enough?
-      // Actually let's stick to standard behavior but maybe cap at 1 if perf is bad?
-      // User asked for "optimized", sticking to DPR=1 is a valid strategy for heavy effects.
-      // But let's try to support DPR if possible, or just default to 1 for raw speed if bottleneck is fill rate.
-      // Let's use DPR but be careful.
-      // Actually, ImageData performance scales with pixels^2. 
-      // For now, let's keep DPR logic but be aware it might be heavy on Retina.
+      // Reverting to window.devicePixelRatio for visual quality (Retina support)
       const dpr = window.devicePixelRatio || 1;
       width = window.innerWidth;
       height = window.innerHeight;
@@ -287,9 +267,6 @@ const ParticleBackground = () => {
       canvas.width = realWidth;
       canvas.height = realHeight;
 
-      // Reset context transform as we are doing direct pixel manipulation
-      // (ImageData ignores transform anyway)
-
       // Init ImageData buffer
       try {
         imageData = context.createImageData(realWidth, realHeight);
@@ -298,11 +275,6 @@ const ParticleBackground = () => {
         console.error("Failed to create ImageData", e);
       }
 
-      // Re-create particles for LOGICAL size (width/height), not physical.
-      // But we need to render to physical coordinates.
-      // So particle logic runs in CSS pixels, render scales them up?
-      // OR run logic in physical pixels?
-      // Running logic in physical pixels is better for mapping.
       particleSystem = createParticleSystem(realWidth, realHeight);
 
       mouseX = realWidth / 2;
@@ -319,7 +291,7 @@ const ParticleBackground = () => {
 
     const handleMouseMove = (event: MouseEvent) => {
       const now = performance.now();
-      const dpr = canvas.width / parseFloat(canvas.style.width || '1'); // simpler dpr check
+      const dpr = window.devicePixelRatio || 1;
       targetMouseX = event.clientX * dpr;
       targetMouseY = event.clientY * dpr;
       lastMouseMove = now;
@@ -351,8 +323,9 @@ const ParticleBackground = () => {
       const maxY = Math.max(safeMargin, realHeight - safeMargin);
       const shouldAutoMove = now - lastMouseMove > 3500;
 
-      // Auto movement logic (same as before but using realWidth/Height)
+      // --- Auto Movement Update ---
       if (shouldAutoMove) {
+        // ... same logic as before for auto cursor ...
         const distanceToTarget = Math.hypot(autoTargetX - autoX, autoTargetY - autoY);
         const swayValue = swayNoise(now);
         if (now >= nextAutoTargetTime || distanceToTarget < 14) {
@@ -388,10 +361,12 @@ const ParticleBackground = () => {
         autoY += autoVY;
       }
 
+      // --- Shape Parameters ---
       const movementSpeed = Math.hypot(autoVX, autoVY);
       const pointerOffset = Math.hypot(targetMouseX - mouseX, targetMouseY - mouseY);
       const rawMovementBlend = clamp(movementSpeed * 0.42 + pointerOffset * 0.015, 0, 1.35);
       const movementInfluence = smoothStep(rawMovementBlend);
+
       const shapePulse = 1 + shapePulseNoise(now) * 0.25 + movementInfluence * 0.45;
       const forceRadius = FORCE_RADIUS * shapePulse;
       const thickness = forceRadius * forceRadius * FORCE_THICKNESS_SCALE;
@@ -401,6 +376,7 @@ const ParticleBackground = () => {
       const shapeTwist = shapeTwistNoise(now) * Math.PI * 0.35 + velocityAngle * 0.45;
       const cosTwist = Math.cos(shapeTwist);
       const sinTwist = Math.sin(shapeTwist);
+
       const shapePhase = now * 0.00055 + shapePhaseNoise(now) * 2.4;
       const outlineMix = (shapeOutlineNoise(now) + 1) * 0.5;
       const lobeCount = 3 + Math.floor((shapeLobeNoise(now) + 1) * 1.5);
@@ -408,10 +384,12 @@ const ParticleBackground = () => {
       const lobeAmplitude = 0.26 + movementInfluence * 0.45 + outlineMix * 0.18;
       const secondaryAmplitude = 0.14 + movementInfluence * 0.24 + (1 - outlineMix) * 0.18;
       const phaseOffset = 0.72 + outlineMix * 0.16;
+
       const pointerEase = shouldAutoMove ? 0.12 + movementInfluence * 0.06 : 0.22;
       mouseX += (targetMouseX - mouseX) * pointerEase;
       mouseY += (targetMouseY - mouseY) * pointerEase;
 
+      // Precompute lookup table for this frame
       precomputeContour(lobeCount, shapePhase, lobeAmplitude, secondaryLobeCount, phaseOffset, secondaryAmplitude);
 
       const count = particleSystem.count;
@@ -427,9 +405,6 @@ const ParticleBackground = () => {
       const PI_Inverse = 1 / Math.PI;
 
       // Early exit distance threshold
-      // effectiveThickness = thickness * contourFactor^2
-      // Max possible effectiveThickness is thickness * maxContour^2
-      // If distance > maxThickness, force is definitely 0.
       const safeMaxDistanceSq = thickness * MAX_CONTOUR_FACTOR_SQ;
 
       for (let i = 0; i < count; i++) {
@@ -452,12 +427,6 @@ const ParticleBackground = () => {
         }
 
         // --- Early Exit Physics ---
-        // If the particle is rotated/stretched, the "effective" distance in that space is what matters.
-        // However, we can approximate: if raw distance is huge, rotated won't bring it inside unless stretch is extreme.
-        // Given current stretch params (max ~2.8), we can just be conservative.
-        // But exact check is cheaper than atan2.
-
-        // Let's do the rotation first as it's just 4 muls 2 adds.
         const rotatedX = dx * cosTwist + dy * sinTwist;
         const rotatedY = -dx * sinTwist + dy * cosTwist;
 
@@ -468,7 +437,6 @@ const ParticleBackground = () => {
         if (distanceSquared > safeMaxDistanceSq) {
           // Too far, skip force entirely
         } else {
-          // Expensive part: atan2 + lookup
           const angle = Math.atan2(scaledY, scaledX);
           const normalizedAngle = (angle + Math.PI) * PI_Inverse * 0.5;
           const lookupIndex = (normalizedAngle * LOOKUP_SIZE) | 0;
@@ -506,23 +474,16 @@ const ParticleBackground = () => {
       const h = canvas.height;
 
       for (let i = 0; i < count; i++) {
-        // Round position to nearest int
         const px = x[i] | 0;
         const py = y[i] | 0;
 
-        // Clip to bounds
         if (px >= 0 && px < w - 1 && py >= 0 && py < h - 1) {
           const idx = py * w + px;
-
-          // Draw 2x2 particle
-          // COLOR_INT is pre-multiplied alpha or just standard ABGR
-          // We just overwrite content
           buf32[idx] = COLOR_INT;
           buf32[idx + 1] = COLOR_INT;
           buf32[idx + w] = COLOR_INT;
           buf32[idx + w + 1] = COLOR_INT;
         } else if (px >= 0 && px < w && py >= 0 && py < h) {
-          // Edge case: partially visible
           buf32[py * w + px] = COLOR_INT;
         }
       }
@@ -568,6 +529,9 @@ const ParticleBackground = () => {
       const frameDuration = frameStart - lastFrameTime || IDEAL_FRAME_MS;
       lastFrameTime = frameStart;
 
+      // Reverted scroll throttling to assume standard smooth playback
+      // If performance is an issue, we can re-evaluate lighter optimizations
+
       let renderTime = 0;
       let frameEnd = frameStart;
 
@@ -600,7 +564,6 @@ const ParticleBackground = () => {
         if (!Number.isFinite(cpuValue)) cpuValue = lastMeasuredCpu ?? MIN_IDLE_LOAD;
         cpuValue = Math.min(100, Math.max(MIN_IDLE_LOAD, cpuValue));
 
-        // ... existing smoothing logic for CPU/GPU stats ...
         if (!isAnimating) {
           const idleCpuBase = Math.max(previousCpuLoad * 0.9, MIN_IDLE_LOAD * 2.6);
           const idleCpuVariation = (cpuIdleNoise(frameStart) + 1) * 0.5 * 6;
@@ -643,7 +606,13 @@ const ParticleBackground = () => {
       }
     };
 
-    const handleResize = () => setCanvasSize();
+    let resizeTimeout: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setCanvasSize();
+      }, 200);
+    };
 
     const ensureFrameLoop = () => {
       if (isFrameLoopRunning) return;

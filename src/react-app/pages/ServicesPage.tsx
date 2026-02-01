@@ -1,6 +1,7 @@
 import { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ServiceList } from '../components/services/ServiceList';
+import Button from '../components/common/Button';
 import { navigate } from '../utils/router';
 import './ServicesPage.css';
 
@@ -9,59 +10,49 @@ export default function ServicesPage() {
 
   return (
     <>
-        {/* Заголовок страницы */}
-        <section style={headerSectionStyle} className="services-header hero">
-          <div style={containerStyle}>
-            <h1 style={pageTitleStyle}>{t('servicesPage.title')}</h1>
-            <p style={pageSubtitleStyle}>
-              {t('servicesPage.subtitle')}
-            </p>
-          </div>
-        </section>
+      {/* Заголовок страницы */}
+      <section style={headerSectionStyle} className="services-header hero">
+        <div style={containerStyle}>
+          <h1 style={pageTitleStyle}>{t('servicesPage.title')}</h1>
+          <p style={pageSubtitleStyle}>
+            {t('servicesPage.subtitle')}
+          </p>
+        </div>
+      </section>
 
 
-        {/* Список услуг */}
-        <section className="services-section">
-          <div style={containerStyle}>
-            <ServiceList />
-          </div>
-        </section>
+      {/* Список услуг */}
+      <section className="services-section">
+        <div style={containerStyle}>
+          <ServiceList />
+        </div>
+      </section>
 
-        {/* Призыв к действию */}
-        <section style={ctaSectionStyle} className="services-cta">
-          <div style={ctaContainerStyle}>
-            <h2 style={ctaTitleStyle}>{t('servicesPage.noService')}</h2>
-            <p style={ctaTextStyle}>
-              {t('servicesPage.contactUs')}
-            </p>
-            <div style={ctaButtonsStyle}>
-              <button
-                onClick={() => navigate('/tickets')}
-                style={ctaButtonStyle}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#1d4ed8';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
-                }}
-              >
-                {t('servicesPage.leaveRequest')}
-              </button>
-              <button
-                onClick={() => window.location.href = '/contacts'}
-                style={ctaButtonSecondaryStyle}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#475569';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#64748b';
-                }}
-              >
-                {t('servicesPage.contact')}
-              </button>
-            </div>
+      {/* Призыв к действию */}
+      <section style={ctaSectionStyle} className="services-cta">
+        <div style={ctaContainerStyle}>
+          <h2 style={ctaTitleStyle}>{t('servicesPage.noService')}</h2>
+          <p style={ctaTextStyle}>
+            {t('servicesPage.contactUs')}
+          </p>
+          <div style={ctaButtonsStyle}>
+            <Button
+              onClick={() => navigate('/tickets')}
+              variant="primary"
+
+            >
+              {t('servicesPage.leaveRequest')}
+            </Button>
+            <Button
+              onClick={() => navigate('/contacts')}
+              variant="secondary"
+
+            >
+              {t('servicesPage.contact')}
+            </Button>
           </div>
-        </section>
+        </div>
+      </section>
     </>
   );
 }
@@ -121,32 +112,6 @@ const ctaTextStyle: CSSProperties = {
 };
 
 const ctaButtonsStyle: CSSProperties = {
-  display: 'flex',
-  gap: '1rem',
   justifyContent: 'center',
   flexWrap: 'wrap',
-};
-
-const ctaButtonStyle: CSSProperties = {
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
-  fontWeight: 500,
-  backgroundColor: '#2563eb',
-  color: '#ffffff',
-  border: 'none',
-  borderRadius: '0.375rem',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-};
-
-const ctaButtonSecondaryStyle: CSSProperties = {
-  padding: '0.75rem 1.5rem',
-  fontSize: '1rem',
-  fontWeight: 500,
-  backgroundColor: '#64748b',
-  color: '#ffffff',
-  border: 'none',
-  borderRadius: '0.375rem',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
 };

@@ -22,12 +22,14 @@
   display: none;
 }
 
-.glass-footer > .footer-content {
+.glass-footer>.footer-content {
   position: relative;
   z-index: 3;
+  text-align: left;
+  font-weight: bold;
 }
 
-.glass-footer > .footer-effects {
+.glass-footer>.footer-effects {
   z-index: 2;
 }
 
@@ -70,9 +72,11 @@
   0% {
     transform: translate3d(-2%, -1%, 0) scale(1);
   }
+
   50% {
     transform: translate3d(2%, 2%, 0) scale(1.08);
   }
+
   100% {
     transform: translate3d(-1%, 1.5%, 0) scale(1.04);
   }
@@ -86,6 +90,7 @@
       45% -12%,
       0 0;
   }
+
   100% {
     background-position:
       10% 130%,

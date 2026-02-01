@@ -17,24 +17,24 @@ type KnowledgeType = 'faq' | 'article';
 type ServiceFormat = 'remote' | 'on-site' | 'service-center';
 
 interface Service {
-   id: string;
-   title: {
-     ru: string;
-     en: string;
-     hy: string;
-   };
-   description: {
-     ru: string;
-     en: string;
-     hy: string;
-   };
-   category: ServiceCategory;
-   price: number | null;
-   minPrice: number | null;
-   maxPrice: number | null;
-   unit?: LocalizedText | null;
-   videoUrl?: string;
- }
+  id: string;
+  title: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  description: {
+    ru: string;
+    en: string;
+    hy: string;
+  };
+  category: ServiceCategory;
+  price: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  unit?: LocalizedText | null;
+  videoUrl?: string;
+}
 
 interface PriceItem {
   id: string;
@@ -2087,23 +2087,23 @@ app.post('/api/tickets', async (c) => {
         description, priority, status, base_price, format_surcharge, final_price, client_key, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-    .bind(
-      newTicket.id,
-      newTicket.clientName,
-      newTicket.phone,
-      newTicket.email,
-      newTicket.serviceType,
-      newTicket.serviceFormat,
-      newTicket.description,
-      newTicket.priority,
-      newTicket.status,
-      newTicket.basePrice,
-      newTicket.formatSurcharge,
-      newTicket.finalPrice,
-      clientKey,
-      newTicket.createdAt
-    )
-    .run();
+      .bind(
+        newTicket.id,
+        newTicket.clientName,
+        newTicket.phone,
+        newTicket.email,
+        newTicket.serviceType,
+        newTicket.serviceFormat,
+        newTicket.description,
+        newTicket.priority,
+        newTicket.status,
+        newTicket.basePrice,
+        newTicket.formatSurcharge,
+        newTicket.finalPrice,
+        clientKey,
+        newTicket.createdAt
+      )
+      .run();
 
     if (!result.success) {
       throw new Error('Failed to save ticket to database');
@@ -2963,6 +2963,6 @@ app.get('/api/knowledge/:id', async (c) => {
 });
 
 // Старый endpoint для совместимости
-app.get("/api/", (c) => c.json({ name: "PCHelp API" }));
+app.get("/api/", (c) => c.json({ name: "PCHelp Armenia API" }));
 
 export default app;

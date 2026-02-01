@@ -38,7 +38,7 @@
   border: 1px solid rgba(239, 68, 68, 0.25);
   background: rgba(254, 226, 226, 0.8);
   color: #991b1b;
-  border-radius: 18px;
+  border-radius: 0px;
   font-size: var(--font-size-sm);
   backdrop-filter: blur(12px);
 }
@@ -92,7 +92,7 @@
 .metric-card {
   padding: calc(var(--spacing-lg) * 0.75);
   border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 6px;
+  border-radius: 0px;
   background: rgba(255, 255, 255, 0.48);
   display: grid;
   gap: var(--spacing-xs);
@@ -147,7 +147,7 @@
 
 .performance-action-button {
   padding: calc(var(--spacing-xs) * 0.65) calc(var(--spacing-md) * 0.8);
-  border-radius: 20px;
+  border-radius: 0px;
   border: 1px solid rgba(59, 130, 246, 0.28);
   background: rgba(255, 255, 255, 0.7);
   color: rgba(37, 99, 235, 0.82);

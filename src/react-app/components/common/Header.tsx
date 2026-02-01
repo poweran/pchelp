@@ -42,8 +42,11 @@ export default function Header({ className = '' }: HeaderProps) {
     <header className={`${styles.header} ${className}`}>
       <div className={styles.headerContainer}>
         <Link to="/" className={styles.headerLogo}>
-          <img src="/logo.svg" alt="PC Help Logo" className={styles.logoImage} />
-          <span>PCHelp</span>
+          <img src="/logo.svg" alt="PCHelp Armenia Logo" className={styles.logoImage} />
+          <div className={styles.logoTextWrapper}>
+            <span>PCHelp</span>
+            <span className={styles.armeniaSuffix}>Armenia</span>
+          </div>
         </Link>
         <nav className={styles.headerNav}>
           <ul className={styles.headerNavList}>

@@ -53,7 +53,7 @@
   gap: 1.25rem;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 0px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
@@ -114,7 +114,7 @@
   flex: 1 1 320px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 0px;
   padding: 1.25rem;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   display: flex;
@@ -144,7 +144,7 @@
   gap: 0.5rem;
   justify-content: space-between;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 0px;
   padding: 0.75rem;
   background: #f8fafc;
 }
@@ -182,7 +182,7 @@
   padding: 0.1rem 0.5rem;
   font-size: 0.7rem;
   text-transform: uppercase;
-  border-radius: 9999px;
+  border-radius: 0px;
   background: #e0f2fe;
   color: #0369a1;
   font-weight: 600;
@@ -190,7 +190,7 @@
 
 .admin-feedback {
   padding: 0.75rem 1rem;
-  border-radius: 10px;
+  border-radius: 0px;
   font-size: 0.95rem;
 }
 
@@ -217,7 +217,7 @@
   text-align: center;
   color: #64748b;
   border: 1px dashed #cbd5f5;
-  border-radius: 10px;
+  border-radius: 0px;
   background: #f8fafc;
 }
 
@@ -317,13 +317,13 @@
 }
 
 .admin-table tbody tr td:first-child {
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
 
 .admin-table tbody tr td:last-child {
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 .admin-table tbody tr:hover td {
@@ -351,7 +351,7 @@
   padding: 0.35rem 0.75rem;
   min-width: 2.5rem;
   height: auto;
-  border-radius: 8px;
+  border-radius: 0px;
   box-shadow: none;
   font-size: 0.9rem;
 }
@@ -393,7 +393,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0.15rem 0.6rem;
-  border-radius: 999px;
+  border-radius: 0px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -445,7 +445,7 @@
 
 .admin-ticket-modal__card {
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 0px;
   padding: 1rem;
   background: #fff;
   display: flex;
@@ -541,7 +541,7 @@
   gap: 1rem;
   padding: 0.75rem;
   border: 1px dashed #cbd5f5;
-  border-radius: 10px;
+  border-radius: 0px;
   background: #f8fafc;
 }
 
@@ -562,7 +562,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 0px;
   background: #0f172a;
   color: #fff;
 }
@@ -577,7 +577,7 @@
 .admin-form select {
   width: 100%;
   padding: 0.6rem 0.75rem;
-  border-radius: 10px;
+  border-radius: 0px;
   border: 1px solid #cbd5f5;
   background: #ffffff;
   font-size: 0.9rem;
@@ -630,7 +630,7 @@
   color: #0f172a;
   background: #f1f5f9;
   padding: 0.5rem 0.75rem;
-  border-radius: 8px;
+  border-radius: 0px;
   border: 1px solid #cbd5f5;
 }
 
@@ -650,7 +650,7 @@
   grid-column: 1 / -1;
 }
 
-.admin-form__price-range > * {
+.admin-form__price-range>* {
   flex: 1;
 }
 
@@ -697,7 +697,7 @@
   padding: 1rem;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 0px;
 }
 
 .admin-form__preview-title {
@@ -740,14 +740,14 @@
 .admin-form__preview-content code {
   background: #e2e8f0;
   padding: 0.125rem 0.25rem;
-  border-radius: 3px;
+  border-radius: 0px;
   font-size: 0.85em;
 }
 
 .admin-form__preview-content pre {
   background: #e2e8f0;
   padding: 0.75rem;
-  border-radius: 6px;
+  border-radius: 0px;
   overflow-x: auto;
   margin-bottom: 0.75rem;
 }
@@ -793,7 +793,7 @@
   width: 100%;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 0px;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   text-align: center;

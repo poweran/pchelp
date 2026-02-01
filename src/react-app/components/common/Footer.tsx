@@ -131,8 +131,7 @@ void main() {
 }
 `;
 
-const textureUrl =
-  'https://images.unsplash.com/Ys-DBJeX0nE.JPG?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&ixid=eyJhcHBfaWQiOjE0NTg5fQ';
+const textureUrl = '/assets/images/footer-texture.jpg';
 
 export default function Footer({ className = '' }: FooterProps) {
   const { t } = useTranslation();
@@ -219,6 +218,27 @@ export default function Footer({ className = '' }: FooterProps) {
 
       plane = createdPlane;
 
+      const updateTextureScale = (p: any) => {
+        if (!p.textures || !p.textures[0]) return;
+        const texture = p.textures[0];
+        const planeRect = p.getBoundingRect();
+
+        // Original image dimensions: 1216x262
+        const imageWidth = 1216;
+        const imageHeight = 262;
+
+        const planeRatio = planeRect.width / planeRect.height;
+        const imageRatio = imageWidth / imageHeight;
+
+        if (planeRatio > imageRatio) {
+          // Plane is wider than image
+          texture.setScale(1, planeRatio / imageRatio);
+        } else {
+          // Plane is taller than image
+          texture.setScale(imageRatio / planeRatio, 1);
+        }
+      };
+
       createdPlane.onRender(() => {
         createdPlane.uniforms.time.value += 1;
         createdPlane.uniforms.resolution.value = [canvasElement.clientWidth, canvasElement.clientHeight];
@@ -226,8 +246,13 @@ export default function Footer({ className = '' }: FooterProps) {
 
       createdPlane.onReady(() => {
         if (!isCancelled) {
+          updateTextureScale(createdPlane);
           setIsEffectReady(true);
         }
+      });
+
+      (createdPlane as any).onAfterResize(() => {
+        updateTextureScale(createdPlane);
       });
 
       curtains.onError(() => {
@@ -272,16 +297,25 @@ export default function Footer({ className = '' }: FooterProps) {
         <div style={containerStyle}>
           <div style={sectionStyle}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-              <img src="/logo.svg" alt="PC Help Logo" style={{ height: '32px', width: 'auto' }} />
-              <h3 style={{ ...headingStyle, marginBottom: 0 }}>PCHelp</h3>
+              <img src="/logo.svg" alt="PCHelp Armenia Logo" style={{ height: '32px', width: 'auto' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
+                <h3 style={{ ...headingStyle, marginBottom: 0 }}>PCHelp</h3>
+                <span style={{
+                  fontSize: '0.65rem',
+                  color: '#ffffff',
+                  opacity: 0.7,
+                  fontWeight: 500,
+                  letterSpacing: '0.1em'
+                }}>Armenia</span>
+              </div>
             </div>
             <p style={textStyle}>{t('footer.description')}</p>
           </div>
 
           <div style={sectionStyle}>
             <h4 style={subHeadingStyle}>{t('footer.contacts')}</h4>
-            <p style={textStyle}><a href="tel:+37495019753" style={linkStyle}>+374 (95) 01-97-53</a></p>
-            <p style={textStyle}><a href="mailto:info@pchelp.linkpc.net" style={linkStyle}>info@pchelp.linkpc.net</a></p>
+            <p style={textStyle}>{t('footer.phoneMain')}: <a href="tel:+37495019753" style={linkStyle}>+374 (95) 01-97-53</a></p>
+            <p style={textStyle}>{t('footer.email')}: <a href="mailto:info@pchelp.linkpc.net" style={linkStyle}>info@pchelp.linkpc.net</a></p>
           </div>
 
           <div style={sectionStyle}>
@@ -293,7 +327,7 @@ export default function Footer({ className = '' }: FooterProps) {
 
         <div style={copyrightStyle}>
           <p style={textStyle}>
-            © {currentYear} PCHelp. {t('footer.copyright')}
+            © {currentYear} PCHelp Armenia. {t('footer.copyright')}
           </p>
         </div>
       </div>

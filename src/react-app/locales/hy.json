@@ -20,12 +20,14 @@
     "copyright": "Բոլոր իրավունքները պաշտպանված են.",
     "description": "Պրոֆեսիոնալ համակարգչային օգնություն",
     "contacts": "Կապ",
+    "phoneMain": "Հեռախոս",
+    "email": "Էլ. Փոստ",
     "hours": "Աշխատանքային ժամեր",
     "weekdays": "Երկ-Ուրբ",
     "saturday": "Շաբ"
   },
   "home": {
-    "welcome": "Բարի գալուստ PC Help",
+    "welcome": "Բարի գալուստ PCHelp Armenia",
     "description": "Ձեր հուսալի օգնությունը համակարգիչների և IT խնդիրների հետ:"
   },
   "homePage": {
