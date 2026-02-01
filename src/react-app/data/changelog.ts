@@ -21,9 +21,14 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
         hy: 'Գլխամասում ավելացվել է SVG լոգոն և թարմացվել է նավիգացիայի հերթականությունը։',
       },
       {
-        en: 'Contacts page UI improved with new styling and better layout.',
-        ru: 'Интерфейс страницы контактов улучшен: новые стили и оптимизированный макет.',
-        hy: 'Կոնտակտների էջի ինտերֆեյսը բարելավվել է նոր ոճով և դասավորությամբ։',
+        en: 'Contacts page UI improved with narrower container and refined spacing.',
+        ru: 'Интерфейс страницы контактов улучшен: уменьшена ширина контейнера и поправлены отступы.',
+        hy: 'Կոնտակտների էջի ինտերֆեյսը բարելավվել է՝ նեղացված կոնտեյներով և ուղղված բացատներով։',
+      },
+      {
+        en: 'Minor CSS adjustments for Pricing, Knowledge, and Services pages.',
+        ru: 'Мелкие правки CSS для страниц цен, базы знаний и услуг.',
+        hy: 'CSS-ի փոքր շտկումներ գնացուցակի, գիտելիքների և ծառայությունների էջերի համար։',
       },
     ],
   },
