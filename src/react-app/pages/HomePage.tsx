@@ -34,7 +34,7 @@ const HomePage = memo(function HomePage() {
     description: '',
     serviceFormat: 'remote',
   });
-  const [validationErrors, setValidationErrors] = useState<{[key: string]: string | undefined}>({});
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string | undefined }>({});
   const { loading, error, success, submitTicket, resetError } = useTickets();
   const {
     basePrice,
@@ -63,7 +63,7 @@ const HomePage = memo(function HomePage() {
   }, []);
 
   const validateForm = useCallback((): boolean => {
-    const errors: {[key: string]: string | undefined} = {};
+    const errors: { [key: string]: string | undefined } = {};
 
     if (!formData.name.trim()) {
       errors.name = 'Имя обязательно для заполнения';
@@ -121,262 +121,262 @@ const HomePage = memo(function HomePage() {
 
   return (
     <div className="home-page">
-        {/* Hero секция */}
-        <header className="hero">
-          <h1>
-            {t('homePage.heroTitle')}
-          </h1>
-          <p className="subtitle">
-            {t('homePage.heroSubtitle')}
-          </p>
-          <div className="hero-actions">
-            <Button onClick={() => navigate('/services')} aria-label={t('homePage.servicesButton')}>
-              {t('homePage.servicesButton')}
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' });
-                setTimeout(() => descriptionTextareaRef.current?.focus(), 500);
-              }}
-              aria-label={t('homePage.requestButton')}
-            >
-              {t('homePage.requestButton')}
-            </Button>
-          </div>
-        </header>
-
-        {/* Преимущества */}
-        <section className="features" aria-labelledby="advantages-title">
-          <div className="features-header">
-            <h2 id="advantages-title" className="features-title">{t('homePage.whyUs')}</h2>
-            <p className="features-subtitle">
-              {t('homePage.featuresSubtitle')}
-            </p>
-          </div>
-          <div className="features-grid" role="list">
-            <Card role="listitem" onClick={() => {
-              const element = document.getElementById('quick-form');
-              element?.scrollIntoView({ behavior: 'smooth' });
+      {/* Hero секция */}
+      <header className="hero">
+        <h1>
+          {t('homePage.heroTitle')}
+        </h1>
+        <p className="subtitle">
+          {t('homePage.heroSubtitle')}
+        </p>
+        <div className="hero-actions">
+          <Button onClick={() => navigate('/services')} aria-label={t('homePage.servicesButton')}>
+            {t('homePage.servicesButton')}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              document.getElementById('quick-form')?.scrollIntoView({ behavior: 'smooth' });
               setTimeout(() => descriptionTextareaRef.current?.focus(), 500);
-            }}>
-              <div className="feature-card" title="Нажмите, чтобы перейти к форме">
-                <h3 className="feature-title">{t('homePage.quickResponse')}</h3>
-                <p className="feature-description">
-                  {t('homePage.quickResponseDesc')}
-                </p>
-              </div>
-            </Card>
+            }}
+            aria-label={t('homePage.requestButton')}
+          >
+            {t('homePage.requestButton')}
+          </Button>
+        </div>
+      </header>
 
-            <Card role="listitem" onClick={() => navigate('/services')}>
-              <div className="feature-card" title="Нажмите, чтобы узнать о наших услугах">
-                <h3 className="feature-title">{t('homePage.professionalism')}</h3>
-                <p className="feature-description">
-                  {t('homePage.professionalismDesc')}
-                </p>
-              </div>
-            </Card>
+      {/* Преимущества */}
+      <section className="features" aria-labelledby="advantages-title">
+        <div className="features-header">
+          <h2 id="advantages-title" className="features-title">{t('homePage.whyUs')}</h2>
+          <p className="features-subtitle">
+            {t('homePage.featuresSubtitle')}
+          </p>
+        </div>
+        <div className="features-grid" role="list">
+          <Card role="listitem" onClick={() => {
+            const element = document.getElementById('quick-form');
+            element?.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => descriptionTextareaRef.current?.focus(), 500);
+          }}>
+            <div className="feature-card" title="Нажмите, чтобы перейти к форме">
+              <h3 className="feature-title">{t('homePage.quickResponse')}</h3>
+              <p className="feature-description">
+                {t('homePage.quickResponseDesc')}
+              </p>
+            </div>
+          </Card>
 
-            <Card role="listitem" onClick={() => navigate('/pricing')}>
-              <div className="feature-card" title="Нажмите, чтобы узнать о ценах">
-                <h3 className="feature-title">{t('homePage.fairPrices')}</h3>
-                <p className="feature-description">
-                  {t('homePage.fairPricesDesc')}
-                </p>
-              </div>
-            </Card>
+          <Card role="listitem" onClick={() => navigate('/services')}>
+            <div className="feature-card" title="Нажмите, чтобы узнать о наших услугах">
+              <h3 className="feature-title">{t('homePage.professionalism')}</h3>
+              <p className="feature-description">
+                {t('homePage.professionalismDesc')}
+              </p>
+            </div>
+          </Card>
 
-            <Card role="listitem" onClick={() => navigate('/knowledge')}>
-              <div className="feature-card" title="Нажмите, чтобы узнать больше о гарантиях">
-                <h3 className="feature-title">{t('homePage.qualityGuarantee')}</h3>
-                <p className="feature-description">
-                  {t('homePage.qualityGuaranteeDesc')}
-                </p>
+          <Card role="listitem" onClick={() => navigate('/pricing')}>
+            <div className="feature-card" title="Нажмите, чтобы узнать о ценах">
+              <h3 className="feature-title">{t('homePage.fairPrices')}</h3>
+              <p className="feature-description">
+                {t('homePage.fairPricesDesc')}
+              </p>
+            </div>
+          </Card>
+
+          <Card role="listitem" onClick={() => navigate('/knowledge')}>
+            <div className="feature-card" title="Нажмите, чтобы узнать больше о гарантиях">
+              <h3 className="feature-title">{t('homePage.qualityGuarantee')}</h3>
+              <p className="feature-description">
+                {t('homePage.qualityGuaranteeDesc')}
+              </p>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Быстрая форма заявки */}
+      <section id="quick-form" className="cta" aria-labelledby="contact-form-title">
+        <div className="cta-container">
+          <h2 id="contact-form-title" className="cta-title">{t('homePage.leaveRequest')}</h2>
+          <p className="cta-subtitle">
+            {t('homePage.formSubtitle')}
+          </p>
+
+          {success && (
+            <div className="success-message">
+              {t('homePage.successMessage')}
+            </div>
+          )}
+
+          {error && (
+            <div className="error-message">
+              ✗ Ошибка при отправке заявки: {error}
+            </div>
+          )}
+
+          <form onSubmit={handleQuickSubmit} className="form">
+            <Input
+              label={t('homePage.yourName')}
+              type="text"
+              value={formData.name}
+              onChange={(value) => {
+                setFormData({ ...formData, name: value });
+                if (validationErrors.name) {
+                  setValidationErrors(prev => ({ ...prev, name: undefined }));
+                }
+              }}
+              error={validationErrors.name}
+              placeholder={t('homePage.namePlaceholder')}
+              required
+              disabled={loading}
+            />
+
+            <Input
+              label={t('homePage.phone')}
+              type="tel"
+              value={formData.phone}
+              onChange={(value) => {
+                setFormData({ ...formData, phone: value });
+                if (validationErrors.phone) {
+                  setValidationErrors(prev => ({ ...prev, phone: undefined }));
+                }
+              }}
+              error={validationErrors.phone}
+              placeholder="+374 (99) 12-34-56"
+              required
+              disabled={loading}
+            />
+
+            <Input
+              label={t('homePage.email')}
+              type="email"
+              value={formData.email}
+              onChange={(value) => {
+                setFormData({ ...formData, email: value });
+                if (validationErrors.email) {
+                  setValidationErrors(prev => ({ ...prev, email: undefined }));
+                }
+              }}
+              error={validationErrors.email}
+              placeholder="example@email.com"
+              required
+              disabled={loading}
+            />
+
+            <div className="form-group">
+              <label htmlFor="serviceFormat">{t('ticketForm.labelServiceFormat')}</label>
+              <select
+                id="serviceFormat"
+                className="form-select"
+                value={formData.serviceFormat}
+                onChange={(event) => setFormData({ ...formData, serviceFormat: event.target.value as ServiceFormat })}
+                disabled={loading || pricingLoading}
+              >
+                {formatOptions.map(option => (
+                  <option key={option.format} value={option.format}>
+                    {t(`ticketForm.format.${option.format}`)} (+{option.surcharge.toLocaleString('ru-RU')} {t('servicesPage.currency')})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="price-summary-card">
+              <div className="price-summary-row">
+                <span>{t('ticketForm.priceBase')}</span>
+                <strong>
+                  {basePrice !== null
+                    ? `${basePrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+                    : t('ticketForm.priceNotAvailable')}
+                </strong>
               </div>
-            </Card>
+              <div className="price-summary-row">
+                <span>{t('ticketForm.priceSurcharge')}</span>
+                <strong>
+                  {`${(formatSurcharge ?? 0).toLocaleString('ru-RU')} ${t('servicesPage.currency')}`}
+                </strong>
+              </div>
+              <div className="price-summary-total">
+                <span>{t('ticketForm.priceTotal')}</span>
+                <strong>
+                  {finalPrice !== null
+                    ? `${finalPrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
+                    : t('ticketForm.priceNotAvailable')}
+                </strong>
+              </div>
+            </div>
+
+            <Textarea
+              ref={descriptionTextareaRef}
+              label={t('homePage.describeProblem')}
+              value={formData.description}
+              onChange={(value) => {
+                setFormData({ ...formData, description: value });
+                if (validationErrors.description) {
+                  setValidationErrors(prev => ({ ...prev, description: undefined }));
+                }
+              }}
+              error={validationErrors.description}
+              placeholder={t('homePage.describeProblemPlaceholder')}
+              required
+              disabled={loading}
+              rows={4}
+            />
+
+            <Button type="submit" disabled={loading} loading={loading} fullWidth>
+              {loading ? t('homePage.sending') : t('homePage.sendRequest')}
+            </Button>
+          </form>
+
+          <p className="note">
+            {t('homePage.callUs')} <a href="tel:+37495019753" className="link">+374 (95) 01-97-53</a>
+          </p>
+        </div>
+      </section>
+
+      {/* Контактная информация */}
+      <section className="contact" aria-labelledby="contact-info-title">
+        <h2 id="contact-info-title" className="visually-hidden">
+          {t('contacts.title')}
+        </h2>
+        <div className="contact-container">
+          <div className="contact-grid" role="list">
+            <div className="contact-item" role="listitem" onClick={() => window.location.href = 'tel:+37495019753'}>
+              <span className="contact-icon" aria-hidden="true">📞</span>
+              <div>
+                <h3 className="contact-title">{t('homePage.phoneTitle')}</h3>
+                <p className="contact-text">+374 (95) 01-97-53</p>
+              </div>
+            </div>
+
+            <div className="contact-item" role="listitem" onClick={() => window.location.href = 'mailto:info@pchelp.linkpc.net'}>
+              <span className="contact-icon" aria-hidden="true">📧</span>
+              <div>
+                <h3 className="contact-title">{t('homePage.email')}</h3>
+                <p className="contact-text">info@pchelp.linkpc.net</p>
+              </div>
+            </div>
+
+            <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
+              <span className="contact-icon" aria-hidden="true">📍</span>
+              <div>
+                <h3 className="contact-title">{t('homePage.address')}</h3>
+                <p className="contact-text">{t('homePage.fullAddress')}</p>
+              </div>
+            </div>
+
+            <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
+              <span className="contact-icon" aria-hidden="true">🕐</span>
+              <div>
+                <h3 className="contact-title">{t('homePage.workingHours')}</h3>
+                <p className="contact-text" dangerouslySetInnerHTML={{ __html: t('homePage.hours') }} />
+              </div>
+            </div>
           </div>
-        </section>
-
-        {/* Быстрая форма заявки */}
-        <section id="quick-form" className="cta" aria-labelledby="contact-form-title">
-          <div className="cta-container">
-            <h2 id="contact-form-title" className="cta-title">{t('homePage.leaveRequest')}</h2>
-            <p className="cta-subtitle">
-              {t('homePage.formSubtitle')}
-            </p>
-
-            {success && (
-              <div className="success-message">
-                {t('homePage.successMessage')}
-              </div>
-            )}
-
-            {error && (
-              <div className="error-message">
-                ✗ Ошибка при отправке заявки: {error}
-              </div>
-            )}
-
-            <form onSubmit={handleQuickSubmit} className="form">
-              <Input
-                label={t('homePage.yourName')}
-                type="text"
-                value={formData.name}
-                onChange={(value) => {
-                  setFormData({ ...formData, name: value });
-                  if (validationErrors.name) {
-                    setValidationErrors(prev => ({ ...prev, name: undefined }));
-                  }
-                }}
-                error={validationErrors.name}
-                placeholder={t('homePage.namePlaceholder')}
-                required
-                disabled={loading}
-              />
-
-              <Input
-                label={t('homePage.phone')}
-                type="tel"
-                value={formData.phone}
-                onChange={(value) => {
-                  setFormData({ ...formData, phone: value });
-                  if (validationErrors.phone) {
-                    setValidationErrors(prev => ({ ...prev, phone: undefined }));
-                  }
-                }}
-                error={validationErrors.phone}
-                placeholder="+374 (99) 12-34-56"
-                required
-                disabled={loading}
-              />
-
-              <Input
-                label={t('homePage.email')}
-                type="email"
-                value={formData.email}
-                onChange={(value) => {
-                  setFormData({ ...formData, email: value });
-                  if (validationErrors.email) {
-                    setValidationErrors(prev => ({ ...prev, email: undefined }));
-                  }
-                }}
-                error={validationErrors.email}
-                placeholder="example@email.com"
-                required
-                disabled={loading}
-              />
-
-              <div className="form-group">
-                <label htmlFor="serviceFormat">{t('ticketForm.labelServiceFormat')}</label>
-                <select
-                  id="serviceFormat"
-                  className="form-select"
-                  value={formData.serviceFormat}
-                  onChange={(event) => setFormData({ ...formData, serviceFormat: event.target.value as ServiceFormat })}
-                  disabled={loading || pricingLoading}
-                >
-                  {formatOptions.map(option => (
-                    <option key={option.format} value={option.format}>
-                      {t(`ticketForm.format.${option.format}`)} (+{option.surcharge.toLocaleString('ru-RU')} {t('servicesPage.currency')})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="price-summary-card">
-                <div className="price-summary-row">
-                  <span>{t('ticketForm.priceBase')}</span>
-                  <strong>
-                    {basePrice !== null
-                      ? `${basePrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
-                      : t('ticketForm.priceNotAvailable')}
-                  </strong>
-                </div>
-                <div className="price-summary-row">
-                  <span>{t('ticketForm.priceSurcharge')}</span>
-                  <strong>
-                    {`${(formatSurcharge ?? 0).toLocaleString('ru-RU')} ${t('servicesPage.currency')}`}
-                  </strong>
-                </div>
-                <div className="price-summary-total">
-                  <span>{t('ticketForm.priceTotal')}</span>
-                  <strong>
-                    {finalPrice !== null
-                      ? `${finalPrice.toLocaleString('ru-RU')} ${t('servicesPage.currency')}`
-                      : t('ticketForm.priceNotAvailable')}
-                  </strong>
-                </div>
-              </div>
-
-              <Textarea
-                ref={descriptionTextareaRef}
-                label={t('homePage.describeProblem')}
-                value={formData.description}
-                onChange={(value) => {
-                  setFormData({ ...formData, description: value });
-                  if (validationErrors.description) {
-                    setValidationErrors(prev => ({ ...prev, description: undefined }));
-                  }
-                }}
-                error={validationErrors.description}
-                placeholder={t('homePage.describeProblemPlaceholder')}
-                required
-                disabled={loading}
-                rows={4}
-              />
-
-              <Button type="submit" disabled={loading} loading={loading}>
-                {loading ? t('homePage.sending') : t('homePage.sendRequest')}
-              </Button>
-            </form>
-
-            <p className="note">
-              {t('homePage.callUs')} <a href="tel:+37495019753" className="link">+374 (95) 01-97-53</a>
-            </p>
-          </div>
-        </section>
-
-        {/* Контактная информация */}
-        <section className="contact" aria-labelledby="contact-info-title">
-          <h2 id="contact-info-title" className="visually-hidden">
-            {t('contacts.title')}
-          </h2>
-          <div className="contact-container">
-            <div className="contact-grid" role="list">
-                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'tel:+37495019753'}>
-                  <span className="contact-icon" aria-hidden="true">📞</span>
-                  <div>
-                    <h3 className="contact-title">{t('homePage.phoneTitle')}</h3>
-                    <p className="contact-text">+374 (95) 01-97-53</p>
-                  </div>
-                </div>
-
-                <div className="contact-item" role="listitem" onClick={() => window.location.href = 'mailto:info@pchelp.linkpc.net'}>
-                  <span className="contact-icon" aria-hidden="true">📧</span>
-                  <div>
-                    <h3 className="contact-title">{t('homePage.email')}</h3>
-                    <p className="contact-text">info@pchelp.linkpc.net</p>
-                  </div>
-                </div>
- 
-                <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
-                  <span className="contact-icon" aria-hidden="true">📍</span>
-                  <div>
-                    <h3 className="contact-title">{t('homePage.address')}</h3>
-                    <p className="contact-text">{t('homePage.fullAddress')}</p>
-                  </div>
-                </div>
-
-                <div className="contact-item" role="listitem" onClick={() => navigate('/contacts')}>
-                  <span className="contact-icon" aria-hidden="true">🕐</span>
-                  <div>
-                    <h3 className="contact-title">{t('homePage.workingHours')}</h3>
-                    <p className="contact-text" dangerouslySetInnerHTML={{ __html: t('homePage.hours') }} />
-                  </div>
-                </div>
-              </div>
-          </div>
-        </section>
+        </div>
+      </section>
     </div>
   );
 });

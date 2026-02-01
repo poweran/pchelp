@@ -41,10 +41,10 @@ export default function Header({ className = '' }: HeaderProps) {
   return (
     <header className={`${styles.header} ${className}`}>
       <div className={styles.headerContainer}>
-        <div className={styles.headerLogo}>
-          <span>💻</span>
+        <Link to="/" className={styles.headerLogo}>
+          <img src="/logo.svg" alt="PC Help Logo" className={styles.logoImage} />
           <span>PCHelp</span>
-        </div>
+        </Link>
         <nav className={styles.headerNav}>
           <ul className={styles.headerNavList}>
             <li>
@@ -68,11 +68,6 @@ export default function Header({ className = '' }: HeaderProps) {
               </Link>
             </li>
             <li>
-              <Link to="/performance" className={styles.headerNavLink} activeClassName={styles.active}>
-                {t('header.performance')}
-              </Link>
-            </li>
-            <li>
               <Link to="/pricing" className={styles.headerNavLink} activeClassName={styles.active}>
                 {t('header.pricing')}
               </Link>
@@ -80,6 +75,11 @@ export default function Header({ className = '' }: HeaderProps) {
             <li>
               <Link to="/contacts" className={styles.headerNavLink} activeClassName={styles.active}>
                 {t('header.contacts')}
+              </Link>
+            </li>
+            <li>
+              <Link to="/performance" className={styles.headerNavLink} activeClassName={styles.active}>
+                {t('header.performance')}
               </Link>
             </li>
           </ul>
@@ -142,16 +142,6 @@ export default function Header({ className = '' }: HeaderProps) {
             </li>
             <li>
               <Link
-                to="/performance"
-                className={styles.headerMobileNavLink}
-                activeClassName={styles.active}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('header.performance')}
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/pricing"
                 className={styles.headerMobileNavLink}
                 activeClassName={styles.active}
@@ -168,6 +158,16 @@ export default function Header({ className = '' }: HeaderProps) {
                 onClick={() => setIsMenuOpen(false)}
               >
                 {t('header.contacts')}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/performance"
+                className={styles.headerMobileNavLink}
+                activeClassName={styles.active}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('header.performance')}
               </Link>
             </li>
           </ul>

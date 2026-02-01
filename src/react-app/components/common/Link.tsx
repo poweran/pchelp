@@ -4,12 +4,10 @@ import { navigate, getCurrentPath, addRouteChangeListener } from '../../utils/ro
 /**
  * Props для Link компонента
  */
-interface LinkProps {
+interface LinkProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'onClick'> {
   to: string;
   children: ReactNode;
-  className?: string;
   activeClassName?: string;
-  style?: React.CSSProperties;
   onClick?: (e?: MouseEvent<HTMLAnchorElement>) => void;
 }
 
@@ -23,7 +21,8 @@ export function Link({
   className = '',
   activeClassName = '',
   style = {},
-  onClick
+  onClick,
+  ...rest
 }: LinkProps) {
   const [currentPath, setCurrentPath] = useState<string>(getCurrentPath());
 
@@ -58,11 +57,12 @@ export function Link({
   const finalClassName = `${className} ${isActive ? activeClassName : ''}`.trim();
 
   return (
-    <a 
-      href={to} 
+    <a
+      href={to}
       onClick={handleClick}
       className={finalClassName}
       style={style}
+      {...rest}
     >
       {children}
     </a>

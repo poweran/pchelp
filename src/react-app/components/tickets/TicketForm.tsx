@@ -39,97 +39,164 @@ interface TicketFormProps {
 }
 
 export default function TicketForm({ onTicketCreated }: TicketFormProps) {
-    const { t, i18n } = useTranslation();
-    const [formData, setFormData] = useState<TicketFormData>(initialFormData);
-    const [errors, setErrors] = useState<FormErrors>({});
-    const [prefilledFromQuery, setPrefilledFromQuery] = useState(false);
-    const successTimeoutRef = useRef<number | null>(null);
-    const {
-      loading,
-      error,
-      success,
-      submitTicket,
-      resetSuccess,
-      resetError,
-    } = useTickets();
-    const {
-      services,
-      loading: servicesLoading,
-      error: servicesError,
-      loadServices,
-    } = useServices();
-    const {
-      basePrice,
-      formatSurcharge,
-      finalPrice,
-      formatOptions,
-      loading: pricingLoading,
-    } = useTicketPricing(formData.serviceType, formData.serviceFormat);
+  const { t, i18n } = useTranslation();
+  const [formData, setFormData] = useState<TicketFormData>(initialFormData);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [prefilledFromQuery, setPrefilledFromQuery] = useState(false);
+  const successTimeoutRef = useRef<number | null>(null);
+  const {
+    loading,
+    error,
+    success,
+    submitTicket,
+    resetSuccess,
+    resetError,
+  } = useTickets();
+  const {
+    services,
+    loading: servicesLoading,
+    error: servicesError,
+    loadServices,
+  } = useServices();
+  const {
+    basePrice,
+    formatSurcharge,
+    finalPrice,
+    formatOptions,
+    loading: pricingLoading,
+  } = useTicketPricing(formData.serviceType, formData.serviceFormat);
 
-    useEffect(() => {
-      loadServices();
-    }, [loadServices]);
+  useEffect(() => {
+    loadServices();
+  }, [loadServices]);
 
-    const resolveLanguage = (language: string): LanguageCode => {
-      const normalized = (language || 'ru').split('-')[0] as LanguageCode;
-      return ['ru', 'en', 'hy'].includes(normalized) ? normalized : 'ru';
-    };
+  const resolveLanguage = (language: string): LanguageCode => {
+    const normalized = (language || 'ru').split('-')[0] as LanguageCode;
+    return ['ru', 'en', 'hy'].includes(normalized) ? normalized : 'ru';
+  };
 
-    const currentLanguage = useMemo<LanguageCode>(() => resolveLanguage(i18n.language), [i18n.language]);
+  const currentLanguage = useMemo<LanguageCode>(() => resolveLanguage(i18n.language), [i18n.language]);
 
-    const numberLocale = useMemo(() => {
-      switch (currentLanguage) {
-        case 'en':
-          return 'en-US';
-        case 'hy':
-          return 'hy-AM';
-        default:
-          return 'ru-RU';
+  const numberLocale = useMemo(() => {
+    switch (currentLanguage) {
+      case 'en':
+        return 'en-US';
+      case 'hy':
+        return 'hy-AM';
+      default:
+        return 'ru-RU';
+    }
+  }, [currentLanguage]);
+
+  const getLocalizedText = (text: LocalizedText): string => {
+    return text[currentLanguage] ?? text.ru;
+  };
+
+  const formatNumber = (value: number): string => {
+    return value.toLocaleString(numberLocale);
+  };
+
+  const formatServicePrice = (service: Service): string => {
+    const currency = t('servicesPage.currency');
+    if (typeof service.price === 'number' && service.price > 0) {
+      return `${formatNumber(service.price)} ${currency}`;
+    }
+
+    const hasMin = typeof service.minPrice === 'number' && service.minPrice > 0;
+    const hasMax = typeof service.maxPrice === 'number' && service.maxPrice > 0;
+
+    if (hasMin && hasMax) {
+      return `${formatNumber(service.minPrice!)}–${formatNumber(service.maxPrice!)} ${currency}`;
+    }
+
+    if (hasMin) {
+      return `≥ ${formatNumber(service.minPrice!)} ${currency}`;
+    }
+
+    if (hasMax) {
+      return `≤ ${formatNumber(service.maxPrice!)} ${currency}`;
+    }
+
+    return t('ticketForm.priceNotAvailable');
+  };
+
+  const serviceOptions = useMemo(
+    () => services.map(service => ({
+      id: service.id,
+      label: `${getLocalizedText(service.title)} — ${formatServicePrice(service)}`,
+    })),
+    [services, currentLanguage, numberLocale, t]
+  );
+
+  // Загрузка сохраненных данных пользователя при первом рендере
+  useEffect(() => {
+    const userIdentifierString = localStorage.getItem('userIdentifier');
+    if (userIdentifierString) {
+      try {
+        const userIdentifier: UserIdentifier = JSON.parse(userIdentifierString);
+        setFormData(prev => ({
+          ...prev,
+          clientName: userIdentifier.clientName || '',
+          phone: userIdentifier.phone || '',
+          email: userIdentifier.email || '',
+        }));
+      } catch (error) {
+        console.error('Error parsing userIdentifier from localStorage:', error);
       }
-    }, [currentLanguage]);
+    }
 
-    const getLocalizedText = (text: LocalizedText): string => {
-      return text[currentLanguage] ?? text.ru;
-    };
+  }, []);
 
-    const formatNumber = (value: number): string => {
-      return value.toLocaleString(numberLocale);
-    };
+  useEffect(() => {
+    if (prefilledFromQuery) {
+      return;
+    }
 
-    const formatServicePrice = (service: Service): string => {
-      const currency = t('servicesPage.currency');
-      if (typeof service.price === 'number' && service.price > 0) {
-        return `${formatNumber(service.price)} ${currency}`;
-      }
+    if (formData.serviceType) {
+      setPrefilledFromQuery(true);
+      return;
+    }
 
-      const hasMin = typeof service.minPrice === 'number' && service.minPrice > 0;
-      const hasMax = typeof service.maxPrice === 'number' && service.maxPrice > 0;
+    if (servicesLoading) {
+      return;
+    }
 
-      if (hasMin && hasMax) {
-        return `${formatNumber(service.minPrice!)}–${formatNumber(service.maxPrice!)} ${currency}`;
-      }
+    if (!services.length) {
+      setPrefilledFromQuery(true);
+      return;
+    }
 
-      if (hasMin) {
-        return `≥ ${formatNumber(service.minPrice!)} ${currency}`;
-      }
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceIdParam = urlParams.get('serviceId') || urlParams.get('service');
+    const categoryParam = urlParams.get('category');
 
-      if (hasMax) {
-        return `≤ ${formatNumber(service.maxPrice!)} ${currency}`;
-      }
+    if (!serviceIdParam && !categoryParam) {
+      setPrefilledFromQuery(true);
+      return;
+    }
 
-      return t('ticketForm.priceNotAvailable');
-    };
+    let matchedService: Service | undefined;
 
-    const serviceOptions = useMemo(
-      () => services.map(service => ({
-        id: service.id,
-        label: `${getLocalizedText(service.title)} — ${formatServicePrice(service)}`,
-      })),
-      [services, currentLanguage, numberLocale, t]
-    );
+    if (serviceIdParam) {
+      matchedService = services.find(service => service.id === serviceIdParam);
+    }
 
-    // Загрузка сохраненных данных пользователя при первом рендере
-    useEffect(() => {
+    if (!matchedService && categoryParam) {
+      matchedService = services.find(service => service.category === categoryParam);
+    }
+
+    if (matchedService) {
+      setFormData(prev => ({
+        ...prev,
+        serviceType: matchedService.id,
+      }));
+    }
+    setPrefilledFromQuery(true);
+  }, [services, servicesLoading, prefilledFromQuery, formData.serviceType]);
+
+  // Загрузка сохраненных данных после успешной отправки формы
+  useEffect(() => {
+    if (success) {
       const userIdentifierString = localStorage.getItem('userIdentifier');
       if (userIdentifierString) {
         try {
@@ -144,83 +211,16 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
           console.error('Error parsing userIdentifier from localStorage:', error);
         }
       }
+    }
+  }, [success]);
 
-    }, []);
-
-    useEffect(() => {
-      if (prefilledFromQuery) {
-        return;
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        window.clearTimeout(successTimeoutRef.current);
       }
-
-      if (formData.serviceType) {
-        setPrefilledFromQuery(true);
-        return;
-      }
-
-      if (servicesLoading) {
-        return;
-      }
-
-      if (!services.length) {
-        setPrefilledFromQuery(true);
-        return;
-      }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const serviceIdParam = urlParams.get('serviceId') || urlParams.get('service');
-      const categoryParam = urlParams.get('category');
-
-      if (!serviceIdParam && !categoryParam) {
-        setPrefilledFromQuery(true);
-        return;
-      }
-
-      let matchedService: Service | undefined;
-
-      if (serviceIdParam) {
-        matchedService = services.find(service => service.id === serviceIdParam);
-      }
-
-      if (!matchedService && categoryParam) {
-        matchedService = services.find(service => service.category === categoryParam);
-      }
-
-      if (matchedService) {
-        setFormData(prev => ({
-          ...prev,
-          serviceType: matchedService.id,
-        }));
-      }
-      setPrefilledFromQuery(true);
-    }, [services, servicesLoading, prefilledFromQuery, formData.serviceType]);
-
-    // Загрузка сохраненных данных после успешной отправки формы
-    useEffect(() => {
-      if (success) {
-        const userIdentifierString = localStorage.getItem('userIdentifier');
-        if (userIdentifierString) {
-          try {
-            const userIdentifier: UserIdentifier = JSON.parse(userIdentifierString);
-            setFormData(prev => ({
-              ...prev,
-              clientName: userIdentifier.clientName || '',
-              phone: userIdentifier.phone || '',
-              email: userIdentifier.email || '',
-            }));
-          } catch (error) {
-            console.error('Error parsing userIdentifier from localStorage:', error);
-          }
-        }
-      }
-    }, [success]);
-
-    useEffect(() => {
-      return () => {
-        if (successTimeoutRef.current) {
-          window.clearTimeout(successTimeoutRef.current);
-        }
-      };
-    }, []);
+    };
+  }, []);
 
   // Валидация email
   const validateEmail = (email: string): boolean => {
@@ -274,7 +274,7 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
     resetError();
 
     if (!validateForm()) {
-        return;
+      return;
     }
 
     const payload: TicketFormData = {
@@ -522,6 +522,7 @@ export default function TicketForm({ onTicketCreated }: TicketFormProps) {
         variant="primary"
         disabled={loading}
         loading={loading}
+        fullWidth
       >
         {loading ? t('ticketForm.submitLoading') : t('ticketForm.submitButton')}
       </Button>
@@ -620,9 +621,12 @@ const priceSummaryRowStyle: CSSProperties = {
 const priceSummaryTotalStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
-  fontSize: '1rem',
-  fontWeight: 600,
-  color: '#0f172a',
+  fontSize: '1.1rem',
+  fontWeight: 700,
+  color: '#2563eb',
+  marginTop: '0.5rem',
+  paddingTop: '0.5rem',
+  borderTop: '1px dashed #cbd5e1',
 };
 
 const priceSummaryValueStyle: CSSProperties = {

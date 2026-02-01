@@ -261,17 +261,20 @@ export default function Footer({ className = '' }: FooterProps) {
 
   return (
     <footer className={`footer glass-footer ${className}`} style={footerStyle}>
-        <div className={`footer-effects${isEffectReady ? ' is-ready' : ''}`}>
-          <div className="footer-canvas" ref={canvasRef} />
-          <div className="footer-plane" ref={planeRef}>
-            <img data-sampler="dispImage" src={textureUrl} alt="" crossOrigin="anonymous" decoding="async" />
-          </div>
+      <div className={`footer-effects${isEffectReady ? ' is-ready' : ''}`}>
+        <div className="footer-canvas" ref={canvasRef} />
+        <div className="footer-plane" ref={planeRef}>
+          <img data-sampler="dispImage" src={textureUrl} alt="" crossOrigin="anonymous" decoding="async" />
         </div>
+      </div>
 
       <div className="footer-content">
         <div style={containerStyle}>
           <div style={sectionStyle}>
-            <h3 style={headingStyle}>PCHelp</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+              <img src="/logo.svg" alt="PC Help Logo" style={{ height: '32px', width: 'auto' }} />
+              <h3 style={{ ...headingStyle, marginBottom: 0 }}>PCHelp</h3>
+            </div>
             <p style={textStyle}>{t('footer.description')}</p>
           </div>
 
