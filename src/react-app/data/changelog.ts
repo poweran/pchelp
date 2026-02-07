@@ -8,6 +8,21 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-02-08',
+    title: {
+      en: "Knowledge 'guide' type & CodeBlock",
+      ru: "Тип знаний 'guide' и CodeBlock",
+      hy: "Գիտելիքների 'guide' տեսակ և CodeBlock",
+    },
+    highlights: [
+      {
+        en: "Added support for 'guide' knowledge type, CodeBlock component for code formatting, and direct links to articles/FAQ on the knowledge page.",
+        ru: 'Добавлена поддержка типа знаний "guide", компонент CodeBlock для форматирования кода и прямые ссылки на статьи/FAQ на странице знаний.',
+        hy: 'Ավելացվել է "guide" գիտելիքների տեսակի աջակցություն, CodeBlock կոմպոնենտ՝ կոդի ֆորմատավորման համար, և ուղիղ հղումներ հոդվածների/FAQ-ի վրա գիտելիքների էջում։',
+      },
+    ],
+  },
+  {
     date: '2026-02-01',
     title: {
       en: 'Brand Refresh & Classic UI',
