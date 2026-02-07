@@ -46,6 +46,11 @@ function App() {
         <KnowledgePage />
       </Suspense>
     ),
+    '/knowledge/:id': (params?: Record<string, string>) => (
+      <Suspense fallback={<Loading />}>
+        <KnowledgePage initialId={params?.id} />
+      </Suspense>
+    ),
     '/performance': () => (
       <Suspense fallback={<Loading />}>
         <PerformancePage />

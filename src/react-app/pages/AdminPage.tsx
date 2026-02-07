@@ -91,7 +91,7 @@ const getPathForTab = (tab: AdminTab): string => {
 const LANGUAGES: LanguageCode[] = ['ru', 'en', 'hy'];
 const TICKET_STATUSES: TicketStatus[] = ['new', 'in-progress', 'completed', 'cancelled'];
 const TICKET_PRIORITIES: TicketPriority[] = ['low', 'medium', 'high'];
-const KNOWLEDGE_TYPES: KnowledgeType[] = ['faq', 'article'];
+const KNOWLEDGE_TYPES: KnowledgeType[] = ['faq', 'article', 'guide'];
 
 const createEmptyLocalized = (): LocalizedText => ({
   ru: '',

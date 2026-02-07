@@ -6,6 +6,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -73,7 +74,7 @@
   display: flex;
 }
 
-.search-box > * {
+.search-box>* {
   width: 100%;
 }
 
@@ -101,7 +102,7 @@
 
 .articles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 

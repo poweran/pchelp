@@ -5,7 +5,7 @@ import { getCurrentPath, addRouteChangeListener, initRouter } from '../../utils/
  * Тип для конфигурации маршрутов
  */
 export interface RouteConfig {
-  [path: string]: () => ReactElement;
+  [path: string]: (params?: Record<string, string>) => ReactElement;
 }
 
 /**
@@ -40,13 +40,37 @@ export function Router({ routes, notFoundComponent }: RouterProps): ReactElement
     };
   }, []);
 
-  // Находим компонент для текущего пути (игнорируя query параметры)
+  // Находим компонент для текущего пути
   const pathname = currentPath.split('?')[0];
-  const routeComponent = routes[pathname];
 
-  // Если маршрут найден, рендерим соответствующий компонент
-  if (routeComponent) {
-    return routeComponent();
+  // 1. Сначала пробуем точное совпадение
+  if (routes[pathname]) {
+    return routes[pathname]();
+  }
+
+  // 2. Если точного совпадения нет, ищем динамические маршруты
+  for (const routePath in routes) {
+    if (routePath.includes(':')) {
+      // Создаем регулярное выражение из маршрута
+      // Например: /knowledge/:id -> /knowledge/([^/]+)
+      const regexPath = routePath.replace(/:[^\s/]+/g, '([^/]+)');
+      const regex = new RegExp(`^${regexPath}$`);
+      const match = pathname.match(regex);
+
+      if (match) {
+        // Извлекаем имена параметров
+        const paramNames = (routePath.match(/:[^\s/]+/g) || []).map(p => p.substring(1));
+        const params: Record<string, string> = {};
+
+        // Сопоставляем значения с именами
+        paramNames.forEach((name, index) => {
+          params[name] = match[index + 1];
+        });
+
+        console.log('[Router] Matched dynamic route:', routePath, params);
+        return routes[routePath](params);
+      }
+    }
   }
 
   // Если маршрут не найден, рендерим 404 компонент или сообщение по умолчанию
@@ -56,8 +80,8 @@ export function Router({ routes, notFoundComponent }: RouterProps): ReactElement
 
   // Дефолтная страница 404
   return (
-    <div style={{ 
-      padding: '2rem', 
+    <div style={{
+      padding: '2rem',
       textAlign: 'center',
       minHeight: '60vh',
       display: 'flex',

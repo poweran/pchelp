@@ -36,7 +36,10 @@ export function Link({
     return unsubscribe;
   }, []);
 
-  const isActive = currentPath === to;
+  // Determine active state with support for sub-routes
+  const isActive = to === '/'
+    ? currentPath === to
+    : currentPath === to || currentPath.startsWith(`${to}/`);
 
   // console.log(`[Link] Путь "${to}" - текущий путь: "${currentPath}", isActive: ${isActive}`);
 

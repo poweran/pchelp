@@ -4,7 +4,9 @@
     "error": "Error",
     "submit": "Submit",
     "cancel": "Cancel",
-    "save": "Save"
+    "save": "Save",
+    "copied": "Copied!",
+    "clickToCopy": "Click to copy"
   },
   "header": {
     "home": "Home",
@@ -444,6 +446,7 @@
     "error": "Loading error: {error}",
     "tabFaq": "FAQ",
     "tabArticles": "Articles",
+    "tabGuides": "Guides",
     "searchPlaceholder": "Search by titles...",
     "emptyState": "Nothing found for query \"{query}\"",
     "articleCard": {
@@ -593,7 +596,8 @@
       },
       "type": {
         "faq": "FAQ",
-        "article": "Article"
+        "article": "Article",
+        "guide": "Guide"
       },
       "errorSave": "Could not save the entry.",
       "saved": "Entry saved.",

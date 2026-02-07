@@ -13,7 +13,7 @@ type Env = {
 type ServiceCategory = 'repair' | 'setup' | 'recovery' | 'consultation';
 type TicketPriority = 'low' | 'medium' | 'high';
 type TicketStatus = 'new' | 'in-progress' | 'completed' | 'cancelled';
-type KnowledgeType = 'faq' | 'article';
+type KnowledgeType = 'faq' | 'article' | 'guide';
 type ServiceFormat = 'remote' | 'on-site' | 'service-center';
 
 interface Service {
@@ -1325,8 +1325,8 @@ function sanitizeKnowledgePayload(data: any): { errors: string[]; payload?: Sani
   validateLocalizedField(content, 'content', errors);
   validateLocalizedField(category, 'category', errors);
 
-  if (!['faq', 'article'].includes(typeValue)) {
-    errors.push('Поле type должно быть либо faq, либо article');
+  if (!['faq', 'article', 'guide'].includes(typeValue)) {
+    errors.push('Поле type должно быть либо faq, либо article, либо guide');
   }
 
   if (errors.length > 0) {
@@ -2893,7 +2893,7 @@ app.get('/api/knowledge', async (c) => {
 
     let records = await listKnowledgeRecords(env);
 
-    if (typeParam && (typeParam === 'faq' || typeParam === 'article')) {
+    if (typeParam && (typeParam === 'faq' || typeParam === 'article' || typeParam === 'guide')) {
       records = records.filter(item => item.type === typeParam);
     }
 
