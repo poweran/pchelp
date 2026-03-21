@@ -356,19 +356,24 @@
 
 @media (max-width: 480px) {
   .home-page {
-    padding: 1rem;
+    padding: 0;
   }
 
   .hero {
-    padding: 1rem 0;
+    padding: 0.75rem 0;
   }
 
   .features {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  .features-header {
+    padding: 0 0.5rem;
   }
 
   .features-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
 
   .features-grid {
@@ -377,7 +382,7 @@
   }
 
   .feature-card {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .feature-icon {
@@ -390,15 +395,33 @@
 
   .cta {
     padding: 1.5rem 1rem;
-    margin: 1.5rem 0;
+    margin: 1rem 0;
+  }
+
+  .cta-container {
+    padding: 1.5rem 1rem;
   }
 
   .cta-title {
     font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cta-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
   }
 
   .contact {
-    margin-top: 2rem;
-    padding: 1.5rem 0;
+    margin-top: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .contact-container {
+    padding: 0;
+  }
+
+  .contact-grid {
+    gap: 1rem;
   }
 }

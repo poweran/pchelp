@@ -170,21 +170,53 @@
 /* Responsive */
 @media (max-width: 639px) {
   .button {
-    padding: 10px 16px;
+    padding: 12px 18px;
     font-size: 1rem;
+    min-height: 44px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    /* минимальная высота для удобного нажатия */
   }
 
   .buttonSmall {
-    padding: 8px 14px;
-    font-size: 0.8125rem;
+    padding: 10px 16px;
+    font-size: 0.875rem;
+    min-height: 40px;
   }
 
   .buttonLarge {
     padding: 16px 24px;
+    min-height: 48px;
   }
 
   .buttonIcon {
     padding: 12px;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .buttonFull {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .button {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .buttonSmall {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+
+  .buttonFull {
+    width: 100%;
+    margin-right: 0;
   }
 }
 

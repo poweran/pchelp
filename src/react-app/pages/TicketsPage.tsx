@@ -226,6 +226,7 @@ const searchContainerStyle: CSSProperties = {
   display: 'flex',
   gap: '0.5rem',
   alignItems: 'flex-end',
+  margin: '0 auto',
 };
 
 /* Refresh button styles removed - now using Button component */

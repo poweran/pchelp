@@ -1055,6 +1055,40 @@ button {
 
 /* Адаптивность - Mobile First */
 
+/* Очень маленькие экраны (до 480px) - компактные мобильные */
+@media (max-width: 480px) {
+
+  /* Типография для очень маленьких экранов */
+  h1 {
+    font-size: 1.35rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+
+  body {
+    font-size: 0.95rem;
+  }
+
+  /* Уменьшаем паддинги для экономии пространства */
+  .p-3 {
+    padding: calc(var(--spacing-md) * 0.85);
+  }
+
+  .p-4 {
+    padding: calc(var(--spacing-lg) * 0.85);
+  }
+
+  .p-5 {
+    padding: calc(var(--spacing-xl) * 0.85);
+  }
+}
+
 /* Маленькие экраны (менее 640px) - мобильные */
 @media (max-width: 639px) {
 

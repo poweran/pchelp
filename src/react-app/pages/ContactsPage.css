@@ -293,3 +293,19 @@
     padding: 2rem 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .contacts-page {
+    padding: 0;
+  }
+
+  .contacts-content {
+    padding: 0 1rem;
+  }
+
+  .contacts-form-section {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+}

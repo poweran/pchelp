@@ -79,7 +79,7 @@ function App() {
         <ParticleBackground />
         <Header />
 
-        <main style={{ flex: 1, maxWidth: '1280px', margin: '0 auto', width: '100%' }}>
+        <main className="main-container">
           <ErrorBoundary>
             <Router routes={routes} />
           </ErrorBoundary>

@@ -200,3 +200,17 @@
     font-size: calc(var(--font-size-3xl) * 0.8);
   }
 }
+
+@media (max-width: 480px) {
+  .performance-page {
+    padding: 0;
+  }
+
+  .performance-section {
+    margin: 0 1rem 1.5rem;
+  }
+
+  .performance-alert {
+    margin: 0 1rem 1.5rem;
+  }
+}

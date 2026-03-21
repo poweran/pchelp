@@ -6,6 +6,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -149,5 +150,21 @@
   .cta-button {
     font-size: 1rem;
     padding: 0.875rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pricing-page {
+    padding: 0;
+  }
+
+  .pricing-disclaimer {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
+  .pricing-cta {
+    border-radius: 0;
+    margin: 0;
   }
 }

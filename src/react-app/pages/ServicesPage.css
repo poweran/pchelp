@@ -6,6 +6,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -28,4 +29,16 @@
 
 .services-cta {
   animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+@media (max-width: 768px) {
+  .services-page {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-page {
+    padding: 0;
+  }
 }
